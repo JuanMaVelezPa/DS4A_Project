@@ -7,8 +7,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from charts import *
-
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
