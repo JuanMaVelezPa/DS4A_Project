@@ -9,32 +9,21 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from styles import *
 
-cards_demand = dbc.Row([
-    dbc.Nav([
-        dbc.Col(
-            dbc.Card(
-                [
-                    dbc.NavLink("Clasificador", href="/demanda/clasificador", active="exact", style=CARD_TEXT_STYLE)
-                ]
-            ),
-        ),
-        dbc.Col(
-            dbc.Card(
-                [
-                    dbc.NavLink("Prediccion Demanda", href="/demanda/prediccion", active="exact", style=CARD_TEXT_STYLE)
-                ]
-            ),
-    )])
-])
+button_demand = dbc.Row([
+        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
+        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
+    ])
 
 demand_classificator = [
-        cards_demand,
-        html.H1("Demanda Clasificador", style={'text-align': 'left'}),
+        button_demand,
+        html.Hr(),
+        html.H3("Clasificador de Demanda", style=TEXT_TITLE),
         html.Hr(),
     ]
 
 demand_predictor = [
-        cards_demand,
-        html.H1("Prediccion demanda", style={'text-align': 'left'}),
+        button_demand,
+        html.Hr(),
+        html.H3("Prediccion de Demanda", style=TEXT_TITLE),
         html.Hr(),
     ]

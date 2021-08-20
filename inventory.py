@@ -11,6 +11,6 @@ from styles import *
 
 
 inventory = [
-        html.H1("Inventario", style={'text-align': 'center'}),
+        html.H2("Inventario", style=TEXT_TITLE),
         html.Hr(),
     ]
