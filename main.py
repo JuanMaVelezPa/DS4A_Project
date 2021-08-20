@@ -32,8 +32,10 @@ app.layout = html.Div([
 )
 
 def render_page_content(pathname):
-    if pathname == '/' or pathname == '/indicadores':
-        return indicators
+    if pathname == '/' or pathname == '/indicadores' or pathname == '/indicadores/general':
+        return indicators_general
+    elif pathname == '/indicadores/caracteristicas':
+        return indicators_features
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
         return demand_classificator
     elif pathname == '/demanda/prediccion':
