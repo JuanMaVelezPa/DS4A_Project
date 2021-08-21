@@ -9,83 +9,55 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 from styles import *
-from datetime import datetime as dt
+from datetime import date as dt
+from dataManager import *
 
 # Sidebar
+df = DataManager().sales_prod
+
+category_unique = df['CATEGORIA'].unique()
+subcategory_unique = df['SUBCATEGORIA'].unique()
+
 controls = dbc.FormGroup(
     [
         html.P('Por favor seleccionar los filtros para visualizar en las graficas', style=TEXT_STYLE),
         html.Hr(),
-        dbc.Button(
-            id='submit_button',
-            n_clicks=0,
-            children='Borrar filtros',
-            color='secondary',
-            block=True
-        ),
-        html.Hr(),
         html.P('Categoria', style=TEXT_STYLE),
-        dcc.Dropdown(id='dropdown',
+        dcc.Dropdown(id='dropdown_category',
             options=[
-                    {'label': 'ALCOBAS', 'value': 'ALCOBAS'}, 
-                    {'label': 'COMEDORES', 'value': 'COMEDORES'}, 
-                    {'label': 'ESTUDIO', 'value': 'ESTUDIO'}, 
-                    {'label': 'SALAS Y SOFAS', 'value': 'SALAS Y SOFAS'}, 
+                    {'label': i, 'value': i} for i in category_unique
             ],
-            value=['SALAS Y SOFAS'],
+            value = [],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br(),
+        html.P('SubCategoria', style=TEXT_STYLE),
+        dcc.Dropdown(id='dropdown_subcategory',
+            options=[
+                    {'label': i, 'value': i} for i in subcategory_unique
+            ],
+            value=[],
             placeholder='Please select...',
             multi=True,
         ),
         html.Br(),
         html.P('Calendar', style=TEXT_STYLE),
         dcc.DatePickerRange(
-            id='my-date-picker-range',  # ID to be used for callback
-            calendar_orientation='horizontal',  # vertical or horizontal
-            day_size=39,  # size of calendar image. Default is 39
-            end_date_placeholder_text="Return",  # text that appears when no end date chosen
-            with_portal=True,  # if True calendar will open in a full screen overlay portal
-            first_day_of_week=1,  # Display of calendar when open (0 = Sunday)
+            id='calendar',
+            with_portal=True,
+            first_day_of_week=1,
             reopen_calendar_on_clear=True,
-            is_RTL=False,  # True or False for direction of calendar
-            clearable=True,  # whether or not the user can clear the dropdown
-            number_of_months_shown=1,  # number of months shown when calendar is open
-            min_date_allowed=dt(2019, 1, 1),  # minimum date allowed on the DatePickerRange component
-            max_date_allowed=dt(2022, 12, 31),  # maximum date allowed on the DatePickerRange component
-            initial_visible_month=dt(2019, 1, 1),  # the month initially presented when the user opens the calendar
-            start_date=dt(2019, 1, 1).date(),
-            end_date=dt(2022, 12, 31).date(),
-            display_format='DD, MMM YY',  # how selected dates are displayed in the DatePickerRange component.
-            month_format='MMMM, YYYY',  # how calendar headers are displayed when the calendar is opened.
-            minimum_nights=2,  # minimum number of days between start and end date
-            persistence=True,
-            persisted_props=['start_date'],
-            persistence_type='session',  # session, local, or memory. Default is 'local'
-            updatemode='singledate',  # singledate or bothdates. Determines when callback is triggered
+            clearable=True,
+            min_date_allowed=dt(2019, 1, 1),
+            max_date_allowed=dt(2022, 12, 31),
+            initial_visible_month=dt(2019, 1, 1),
+            start_date=dt(2019, 1, 1),
+            end_date=dt(2021, 8, 20),
+            display_format='DD, MMM YY',
+            month_format='MMMM, YYYY',
         ),
         html.Br(),
-        html.P('Check Box', style=TEXT_STYLE),
-        dbc.Card([dbc.Checklist(
-            id='check_list',
-            options=[
-                    {'label': 'Value 1','value': 'value1'},
-                    {'label': 'Value 2','value': 'value2'},
-                    {'label': 'Value 3','value': 'value3'},
-            ],
-            value=['value1', 'value2'],
-            inline=True
-        )]),
-        html.Br(),
-        html.P('Radio Items', style=TEXT_STYLE),
-        dbc.Card([dbc.RadioItems(
-            id='radio_items',
-            options=[
-                    {'label': 'Value 1','value': 'value1'},
-                    {'label': 'Value 2','value': 'value2'},
-                    {'label': 'Value 3','value': 'value3'},
-            ],
-            value='value1',
-            style={'margin': 'auto'}
-        )]),
     ]
 )
 

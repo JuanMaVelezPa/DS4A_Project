@@ -13,9 +13,11 @@ from styles import *
 from indicators import *
 from demand import *
 from inventory import *
+from dataManager import *
 from static import sidebar, cards
+from mainDash import *
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],suppress_callback_exceptions=True)
 
 content = html.Div( id='page-content', children=[], style=CONTENT_STYLE)
 
@@ -50,6 +52,7 @@ def render_page_content(pathname):
             html.P(f"The pathname {pathname} was not recognised..."),
         ]
     )
+
 
 """
 @app.callback(Output("download", "data"), [Input("btn", "n_clicks")],prevent_initial_call=True,)
