@@ -92,9 +92,9 @@ class DataManager(metaclass=SingletonMeta):
         stock = stock[['ID','REF','CANTIDAD','CATEGORIA','SUBCATEGORIA','DETALLE_1','DETALLE_2']]
         return stock
 
-    def __create_merges(self,sales,products):
+    def __create_merges(self,sales,products,stock):
         sales_prod = sales.merge(products, left_on='PROD_REF', right_on='REF')
-        stock_prod = self.stock.drop(columns=['CATEGORIA','SUBCATEGORIA']).merge(products, on='REF', how='left')
+        stock_prod = stock.drop(columns=['CATEGORIA','SUBCATEGORIA']).merge(products, on='REF', how='left')
         return sales_prod, stock_prod
 
     def __create_categories(self,sales_prod):
@@ -112,47 +112,47 @@ class DataManager(metaclass=SingletonMeta):
                 break
         return pareto_subcat
 
-    def __add_pos_cols(self,df):
-        df["SUBCATEGORIA_POS"] = df.apply(lambda row: row["SUBCATEGORIA"] if row["SUBCATEGORIA"] in self.categories else "OTROS",axis = 1 )
+    def __add_pos_cols(self,df,categories):
+        df["SUBCATEGORIA_POS"] = df.apply(lambda row: row["SUBCATEGORIA"] if row["SUBCATEGORIA"] in categories else "OTROS",axis = 1 )
         df['COLOR_POS'] = np.where(df["COLOR"].isin(['NEGRO', 'GRIS', 'CAFE', 'BLANCO', 'AZUL', 'MIEL', 'BEIGE', 'CRISTAL',
             'ROJO', 'AMARILLO']), df["COLOR"], 'OTRO')
         return df
 
-    def __create_references(self,sales_prod):
+    def __create_references(self,sales_prod,products):
         references = sales_prod.groupby('REF').aggregate(
                 CANTIDAD=pd.NamedAgg(column="CANTIDAD", aggfunc="sum"),
                 TOTAL=pd.NamedAgg(column="TOTAL", aggfunc="sum"),
                 PRECIO_PROMEDIO=pd.NamedAgg(column='PRECIO',aggfunc='mean'),
                 DESCUENTO_PROMEDIO=pd.NamedAgg(column='DESCUENTO(%)', aggfunc= 'mean')
-            ).reset_index().merge(self.products, on='REF').sort_values(by='CANTIDAD', ascending=False)
+            ).reset_index().merge(products, on='REF').sort_values(by='CANTIDAD', ascending=False)
         ref_materials = references.groupby(['MATERIAL'])['CANTIDAD'].sum().sort_values(ascending=False)
         cumpperce = ref_materials.cumsum()/ref_materials.sum()*100
         ref_materials = cumpperce[cumpperce<91].to_frame().rename(columns={'CANTIDAD':'CANTIDAD(%)'})
         return references, ref_materials
 
-    def __df_mat_mod(self,df):
-        df['MATERIAL_POS']=df['MATERIAL'].copy()
-        df['MATERIAL_POS'].loc[~df['MATERIAL'].isin(self.ref_materials.index)] = 'otros'
+    def __df_mat_mod(self,df,ref_materials):
+        df['MATERIAL_POS'] = df['MATERIAL']
+        df['MATERIAL_POS'] = df.apply(lambda x: x['MATERIAL'] if x['MATERIAL'] in ref_materials.index else "otros",axis=1)
         return df
 
     def __init__(self):
-        self.stock = pd.read_csv('Data/ExistenciasNew.csv')
-        self.sales = pd.read_csv('Data/FacturacionCorregida.csv',parse_dates=['Fecha'],dayfirst=True ,sep=';')
-        self.products = pd.read_csv('Data/MaestroCorregido.csv', sep=';')
+        stock = pd.read_csv('Data/ExistenciasNew.csv')
+        sales = pd.read_csv('Data/FacturacionCorregida.csv',parse_dates=['Fecha'],dayfirst=True ,sep=';')
+        products = pd.read_csv('Data/MaestroCorregido.csv', sep=';')
 
-        self.products = self.__clean_products(self.products)
-        self.sales = self.__clean_sales(self.sales)
-        self.stock = self.__clean_stock(self.stock)
-        self.sales_prod, self.stock_prod = self.__create_merges(self.sales,self.products)
-        self.categories = self.__create_categories(self.sales_prod)
+        products = self.__clean_products(products)
+        sales = self.__clean_sales(sales)
+        stock = self.__clean_stock(stock)
+        sales_prod, stock_prod = self.__create_merges(sales,products,stock)
+        categories = self.__create_categories(sales_prod)
 
-        self.sales_prod = self.__add_pos_cols(self.sales_prod)
-        self.products = self.__add_pos_cols(self.products)
-        self.stock_prod = self.__add_pos_cols(self.stock_prod)
+        sales_prod = self.__add_pos_cols(sales_prod,categories)
+        products = self.__add_pos_cols(products,categories)
+        stock_prod = self.__add_pos_cols(stock_prod,categories)
 
-        self.references, self.ref_materials = self.__create_references(self.sales_prod)
+        references, ref_materials = self.__create_references(sales_prod,products)
 
-        self.products = self.__df_mat_mod(self.products)
-        self.sales_prod = self.__df_mat_mod(self.sales_prod)
-        self.stock_prod = self.__df_mat_mod(self.stock_prod)
-        self.references = self.__df_mat_mod(self.references)
+        self.products = self.__df_mat_mod(products,ref_materials)
+        self.sales_prod = self.__df_mat_mod(sales_prod,ref_materials)
+        self.stock_prod = self.__df_mat_mod(stock_prod,ref_materials)
+        self.references = self.__df_mat_mod(references,ref_materials)
