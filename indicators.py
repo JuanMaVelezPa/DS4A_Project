@@ -18,14 +18,13 @@ button_indicators = dbc.Row([
         dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", outline=True, color="secondary", className="mr-1"),
     ])  
 
-indicators_general = dbc.Container([
+indicators_general = [
         dbc.Row([
             dbc.Col([
                 button_indicators,
                 html.Hr(),
                 html.H3("Indicadores", style=TEXT_TITLE),
                 html.Hr(),
-                html.Div(id='prueba', children=['holaaa']),
             ]),
         ]),
         dbc.Row([
@@ -38,10 +37,10 @@ indicators_general = dbc.Container([
                 dcc.Graph(id='graph_general_2', figure={})
             ]),
         ]),
-])
+]
 
 
-indicators_features = dbc.Container([
+indicators_features = [
          dbc.Row([
             dbc.Col([
                 button_indicators,
@@ -58,10 +57,11 @@ indicators_features = dbc.Container([
                 dcc.Graph(id='graph_features_2', figure={})
             ])
         ])
-    ])
+    ]
 
+## Indicators_General_Grapgh_1
 @app.callback(
-    Output('graph_general_2', 'figure'),
+    Output('graph_general_1', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('calendar', 'start_date'),

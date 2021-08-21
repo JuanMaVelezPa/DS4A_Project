@@ -16,7 +16,7 @@ button_demand = dbc.Row([
         dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
     ])
 
-demand_classificator = dbc.Container([
+demand_classificator = [
         dbc.Row([
             dbc.Col([
                 button_demand,
@@ -35,7 +35,7 @@ demand_classificator = dbc.Container([
                 dcc.Graph(id='graph_classificator_2', figure={})
             ]),
         ]),
-])
+]
 
 demand_predictor = [
         button_demand,
