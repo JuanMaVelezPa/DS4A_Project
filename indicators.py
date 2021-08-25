@@ -18,29 +18,50 @@ button_indicators = dbc.Row([
         dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", outline=True, color="secondary", className="mr-1"),
     ])  
 
+<<<<<<< HEAD
 indicators_general = [
+=======
+indicators_general = dbc.Container([
+
+>>>>>>> f72f1f21a98689f6cb62fcc046eb8f94f81d8fd4
         dbc.Row([
             dbc.Col([
                 button_indicators,
                 html.Hr(),
                 html.H3("Indicadores", style=TEXT_TITLE),
                 html.Hr(),
+<<<<<<< HEAD
+=======
+                html.Div(id='prueba', children=['Colores más vendidos']),
+>>>>>>> f72f1f21a98689f6cb62fcc046eb8f94f81d8fd4
             ]),
         ]),
+
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='graph_general_1', figure={})
             ])
         ]),
+        
         dbc.Row([
             dbc.Col([
                 dcc.Graph(id='graph_general_2', figure={})
             ]),
         ]),
+<<<<<<< HEAD
 ]
 
 
 indicators_features = [
+=======
+
+
+])
+
+
+indicators_features = dbc.Container([
+
+>>>>>>> f72f1f21a98689f6cb62fcc046eb8f94f81d8fd4
          dbc.Row([
             dbc.Col([
                 button_indicators,
@@ -49,10 +70,13 @@ indicators_features = [
                 html.Hr(),
             ]),
         ]),
+
         dbc.Row([
+
             dbc.Col([
                 dcc.Graph(id='graph_features_1', figure={})
             ]),
+
             dbc.Col([
                 dcc.Graph(id='graph_features_2', figure={})
             ])
@@ -64,19 +88,26 @@ indicators_features = [
     Output('graph_general_1', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
      Input('calendar', 'start_date'),
      Input('calendar', 'end_date')])
 
-def update_graph(value1,value2,start_date,end_date):
-    if (value1 == [] and value2 == []):
-        sales_prod = DataManager().sales_prod
-    elif (value1 != [] and value2 == []):
-        sales_prod = DataManager().sales_prod.query("CATEGORIA==@value1")
-    elif (value1 == [] and value2 != []):
-        sales_prod = DataManager().sales_prod.query("SUBCATEGORIA==@value2")
+def update_graph(value1,value2,value3,start_date,end_date):
+
+    if(value3 == []):
+        temp = DataManager().sales_prod
     else:
-        sales_prod = DataManager().sales_prod.query("CATEGORIA==@value1")
-        sales_prod = DataManager().sales_prod.query("SUBCATEGORIA==@value2")
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
     mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
     sales_prod = sales_prod.loc[mask]
     fig = px.scatter(sales_prod,
@@ -87,3 +118,52 @@ def update_graph(value1,value2,start_date,end_date):
         title="\t Sales Subategories | Money vs Units"
         )
     return fig
+
+@app.callback(
+    Output('graph_general_1', 'figure'),
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
+     Input('calendar', 'start_date'),
+     Input('calendar', 'end_date')])
+
+def update_graph(value1,value2,value3,start_date,end_date):
+
+    if(value3 == []):
+        temp = DataManager().sales_prod
+    else:
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
+    sales_prod = sales_prod.loc[mask]
+    
+    df = sales_prod.groupby(['COLOR_POS'])['CANTIDAD'].sum()
+    colors = ["#FFFF00","#0000FF","#e4e4a1","#FFFFFF","#A52A2A", "#9999ff","#808080","#FFA500","#000000", 
+    "#0f3c14", "#ff0000" ]
+    
+    fig = go.Figure(data=[go.Bar(
+        x= df.index,
+        y= df,
+        marker_color=colors # marker color can be a single color value or an iterable
+        )])
+    
+    return fig
+
+
+
+
+
+
+
+
+
+    

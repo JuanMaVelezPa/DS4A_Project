@@ -17,11 +17,22 @@ df = DataManager().sales_prod
 
 category_unique = df['CATEGORIA'].unique()
 subcategory_unique = df['SUBCATEGORIA'].unique()
+tienda_unique = df['TIENDA'].unique()
 
 controls = dbc.FormGroup(
     [
         html.P('Por favor seleccionar los filtros para visualizar en las graficas', style=TEXT_STYLE),
         html.Hr(),
+        html.P('Punto de venta', style=TEXT_STYLE),
+        dcc.Dropdown(id='dropdown_tienda',
+            options=[
+                    {'label': i, 'value': i} for i in tienda_unique
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br(),
         html.P('Categoria', style=TEXT_STYLE),
         dcc.Dropdown(id='dropdown_category',
             options=[
