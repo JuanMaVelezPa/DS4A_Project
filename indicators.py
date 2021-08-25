@@ -18,22 +18,14 @@ button_indicators = dbc.Row([
         dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", outline=True, color="secondary", className="mr-1"),
     ])  
 
-<<<<<<< HEAD
-indicators_general = [
-=======
 indicators_general = dbc.Container([
 
->>>>>>> f72f1f21a98689f6cb62fcc046eb8f94f81d8fd4
         dbc.Row([
             dbc.Col([
                 button_indicators,
                 html.Hr(),
                 html.H3("Indicadores", style=TEXT_TITLE),
                 html.Hr(),
-<<<<<<< HEAD
-=======
-                html.Div(id='prueba', children=['Colores más vendidos']),
->>>>>>> f72f1f21a98689f6cb62fcc046eb8f94f81d8fd4
             ]),
         ]),
 
@@ -45,15 +37,10 @@ indicators_general = dbc.Container([
         
         dbc.Row([
             dbc.Col([
+                html.H5(id='prueba', children=['Colores más vendidos'], style=TEXT_TITLE),
                 dcc.Graph(id='graph_general_2', figure={})
             ]),
         ]),
-<<<<<<< HEAD
-]
-
-
-indicators_features = [
-=======
 
 
 ])
@@ -61,7 +48,6 @@ indicators_features = [
 
 indicators_features = dbc.Container([
 
->>>>>>> f72f1f21a98689f6cb62fcc046eb8f94f81d8fd4
          dbc.Row([
             dbc.Col([
                 button_indicators,
@@ -81,7 +67,7 @@ indicators_features = dbc.Container([
                 dcc.Graph(id='graph_features_2', figure={})
             ])
         ])
-    ]
+    ])
 
 ## Indicators_General_Grapgh_1
 @app.callback(
@@ -93,12 +79,10 @@ indicators_features = dbc.Container([
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,value3,start_date,end_date):
-
     if(value3 == []):
         temp = DataManager().sales_prod
     else:
         temp = DataManager().sales_prod.query("TIENDA==@value3")
-
     if (value1 == [] and value2 == []):
         sales_prod = temp
     elif (value1 != [] and value2 == []):
@@ -119,8 +103,9 @@ def update_graph(value1,value2,value3,start_date,end_date):
         )
     return fig
 
+## Indicators_General_Grapgh_2
 @app.callback(
-    Output('graph_general_1', 'figure'),
+    Output('graph_general_2', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_tienda', 'value'),
@@ -128,12 +113,10 @@ def update_graph(value1,value2,value3,start_date,end_date):
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,value3,start_date,end_date):
-
     if(value3 == []):
         temp = DataManager().sales_prod
     else:
         temp = DataManager().sales_prod.query("TIENDA==@value3")
-
     if (value1 == [] and value2 == []):
         sales_prod = temp
     elif (value1 != [] and value2 == []):
