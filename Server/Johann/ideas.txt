@@ -1,0 +1,7 @@
+ideas
+
+* regression analyris para reducir categorias de las variables de categoria, las menos importantes, es decir trasnformar estas variables apra hacerlas de menos categorias. Usar valores p, coeficientes y std para descartar categorias.
+
+*linear regression para pronosticar # de ventas y subtotal por subcategoria, o tambien por referencia(mas demorado) para cierto tiempo buscado (mes, semana, dia del mes, o inclusive hora ??? jajaja) 
+
+*Importante reducir dimensionalidad, tal vez usar PCA??? debido a la cantidad de categorias en las variables de categoria (dummies).

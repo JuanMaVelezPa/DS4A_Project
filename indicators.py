@@ -26,7 +26,6 @@ indicators_general = dbc.Container([
                 html.Hr(),
                 html.H3("Indicadores", style=TEXT_TITLE),
                 html.Hr(),
-                html.Div(id='prueba', children=['Colores más vendidos']),
             ]),
         ]),
 
@@ -38,6 +37,7 @@ indicators_general = dbc.Container([
         
         dbc.Row([
             dbc.Col([
+                html.H5(id='prueba', children=['Colores más vendidos'], style=TEXT_TITLE),
                 dcc.Graph(id='graph_general_2', figure={})
             ]),
         ]),
@@ -69,8 +69,9 @@ indicators_features = dbc.Container([
         ])
     ])
 
+## Indicators_General_Grapgh_1
 @app.callback(
-    Output('graph_general_2', 'figure'),
+    Output('graph_general_1', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_tienda', 'value'),
@@ -78,12 +79,10 @@ indicators_features = dbc.Container([
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,value3,start_date,end_date):
-
     if(value3 == []):
         temp = DataManager().sales_prod
     else:
         temp = DataManager().sales_prod.query("TIENDA==@value3")
-
     if (value1 == [] and value2 == []):
         sales_prod = temp
     elif (value1 != [] and value2 == []):
@@ -104,8 +103,9 @@ def update_graph(value1,value2,value3,start_date,end_date):
         )
     return fig
 
+## Indicators_General_Grapgh_2
 @app.callback(
-    Output('graph_general_1', 'figure'),
+    Output('graph_general_2', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_tienda', 'value'),
@@ -113,12 +113,10 @@ def update_graph(value1,value2,value3,start_date,end_date):
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,value3,start_date,end_date):
-
     if(value3 == []):
         temp = DataManager().sales_prod
     else:
         temp = DataManager().sales_prod.query("TIENDA==@value3")
-
     if (value1 == [] and value2 == []):
         sales_prod = temp
     elif (value1 != [] and value2 == []):
