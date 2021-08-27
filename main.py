@@ -17,6 +17,7 @@ from dataManager import *
 from static import sidebar, top_menu
 from mainDash import *
 
+<<<<<<< HEAD
 #app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],suppress_callback_exceptions=True)
 
 content = html.Div( className='content', id='page-content', children=[])
@@ -25,33 +26,40 @@ app.layout = html.Div([
     dcc.Location(id="url"),
     sidebar, 
     top_menu,
+=======
+content = html.Div( id='page-content', children=[], style=CONTENT_STYLE)
+
+app.layout = html.Div([
+    dcc.Location(id="url"),
+    sidebar,
+    cards,
+>>>>>>> 098d49f61b872f27215ee246bfae4a24f94c48c4
     content,
 ])
 
 @app.callback(
-    Output("page-content", "children"),
+    [ Output("sidebar_control", "children"),
+    Output("page-content", "children")],
     [Input("url", "pathname")]
 )
-
 def render_page_content(pathname):
     if pathname == '/' or pathname == '/indicadores' or pathname == '/indicadores/general':
-        return indicators_general
+        return sidebar, indicators_general
     elif pathname == '/indicadores/caracteristicas':
-        return indicators_features
+        return features_controls,indicators_features
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
-        return demand_classificator
+        return sidebar, demand_classificator
     elif pathname == '/demanda/prediccion':
-        return demand_predictor
+        return sidebar, demand_predictor
     elif pathname == '/inventario':
-        return inventory
+        return sidebar, inventory
     else:
-        return dbc.Jumbotron(
+        return sidebar,dbc.Jumbotron(
         [
             html.H1("404: Not found", className="text-danger"),
             html.Hr(),
             html.P(f"The pathname {pathname} was not recognised..."),
-        ]
-    )
+        ])
 
 
 """
