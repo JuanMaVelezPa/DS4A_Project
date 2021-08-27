@@ -156,3 +156,85 @@ class DataManager(metaclass=SingletonMeta):
         self.sales_prod = self.__df_mat_mod(sales_prod,ref_materials)
         self.stock_prod = self.__df_mat_mod(stock_prod,ref_materials)
         self.references = self.__df_mat_mod(references,ref_materials)
+        self.demand_load = False
+
+    def demand_data(self, value1, value2, start_date, end_date):
+
+        self.demand_load = True
+
+        if (value1 == [] and value2 == [] or value2):
+            sales_prod = self.sales_prod
+        elif (value1 != [] and value2 == []):
+            sales_prod = self.sales_prod.query("CATEGORIA==@value1")
+        elif (value1 == [] and value2 != []):
+            sales_prod = self.sales_prod.query("SUBCATEGORIA==@value2")
+        else:
+            sales_prod = self.sales_prod.query("CATEGORIA==@value1")
+            sales_prod = self.sales_prod.query("SUBCATEGORIA==@value2")
+
+        if (start_date is None or start_date == ""):
+            start_date = sales_prod['FECHA'].min()
+        
+        if (end_date is None or end_date == ""):
+            end_date = sales_prod['FECHA'].max()
+
+        mask = (sales_prod['FECHA'] > start_date) & (sales_prod['FECHA'] <= end_date)
+        sales_prod = sales_prod.loc[mask]
+        demand = sales_prod[sales_prod['VIGENCIA']!='DESCONTINUADO'].copy()
+        demand['YY_MM'] = demand['FECHA'].dt.strftime('%y-%m')
+
+        dicts = {}
+        for i,j in enumerate(demand['YY_MM'].sort_values().unique()):
+            dicts[i] = j
+            
+        demand = demand.groupby(['PROD_REF','YY_MM'])['CANTIDAD'].sum().reset_index()
+        demand = demand.pivot(index='PROD_REF',columns='YY_MM').fillna(0)
+        demand['N_LAST'] = demand.apply(lambda x: np.where(x)[0][-1] ,axis=1)
+        demand['LAST'] = demand['N_LAST'].map(dicts)
+        demand['N_FIRST'] = demand.apply(lambda x: np.where(x)[0][0] ,axis=1)
+        demand['FIRST'] = demand['N_FIRST'].map(dicts)
+        demand['PER_LAST-FIRST'] = demand['N_LAST']-demand['N_FIRST']+1
+        demand['PER_SIN_INFO'] = len(demand.columns[0:-5])-demand['N_LAST']-1
+        v0 = demand[demand.columns[0:-5]].values
+        v1 = np.where(v0 > 0, v0, np.nan)
+        demand['DEMAND_BUCKETS'] = np.count_nonzero(v1>0, axis=1)-1
+        demand['TOTAL_PER'] = np.count_nonzero(v1, axis=1)-demand['N_FIRST']-1
+        demand['ADI'] = demand['TOTAL_PER']/demand['DEMAND_BUCKETS']
+        demand['CV2'] = (np.nanstd(v1, axis=1)/np.nanmean(v1, axis=1))**2
+        demand2 = demand.set_axis(demand.columns.map(''.join), axis=1, inplace=False).reset_index()
+        demand2 = demand2[['PROD_REF','N_LAST','LAST','N_FIRST','FIRST','PER_LAST-FIRST','PER_SIN_INFO','DEMAND_BUCKETS','TOTAL_PER','ADI','CV2']]
+        features = sales_prod[sales_prod['VIGENCIA']!='DESCONTINUADO']
+        columnsx = ['PROD_REF','DESCRIPCION','ITEM', 'CATEGORIA', 'SUBCATEGORIA', 'VIGENCIA',
+            'ORIGEN', 'ESTILO','SUBCATEGORIA_POS', 'COLOR_POS',
+            'MATERIAL_POS']
+        features = features[columnsx].drop_duplicates()
+        features
+        demand2 = demand2.merge(features, how='left', on='PROD_REF')
+
+        def classifier(df):
+            ADI = df['ADI']
+            CV2  = df['CV2']
+            
+            if (ADI < 1.32 and CV2 < 0.49):
+                a = 'Smooth'
+            elif (ADI >= 1.32 and CV2 < 0.49):
+                a = 'Intermittent'
+            elif (ADI < 1.32 and CV2 >= 0.49):
+                a = 'Erratic'
+            else:
+                a = 'Lumpy'
+            return a
+
+        demand2['CLASSIFIER'] = demand2.apply(classifier, axis=1)
+        discontinued = demand2[demand2['N_LAST']<12]
+        discontinued = discontinued[['PROD_REF','DESCRIPCION','CATEGORIA','FIRST','LAST']]
+        demand2 = demand2[demand2['N_LAST']>=12]
+        classifier = demand2[['PROD_REF','CLASSIFIER']]
+        demand3 = demand['CANTIDAD'].stack().reset_index().rename(columns={0: 'CANTIDAD'})
+        demand3 = demand3.merge(demand2, how='right', on='PROD_REF')
+        self.smooth = demand3[demand3['CLASSIFIER']=='Smooth'].sort_values('DEMAND_BUCKETS',ascending=False)
+        self.intermittent = demand3[demand3['CLASSIFIER']=='Intermittent'].sort_values('DEMAND_BUCKETS',ascending=False)
+        self.erratic = demand3[demand3['CLASSIFIER']=='Erratic'].sort_values('DEMAND_BUCKETS',ascending=False)
+        self.lumpy = demand3[demand3['CLASSIFIER']=='Lumpy'].sort_values('DEMAND_BUCKETS',ascending=False)
+
+        return demand2, discontinued, self.smooth, self.intermittent, self.erratic, self.lumpy
