@@ -1,2 +1,2 @@
-a = "This is a test"
+a = "This is a test2"
 print a
