@@ -7,11 +7,11 @@ import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from datetime import date
 from dash.dependencies import Input, Output, State
 from styles import *
 from dataManager import *
 from mainDash import *
+from datetime import date as dt
 
 button_indicators = dbc.Row([
         dbc.Button("General", href="/indicadores/general", outline=True, color="secondary", className="mr-1"),
@@ -34,7 +34,7 @@ indicators_general = dbc.Container([
                 dcc.Graph(id='graph_general_1', figure={})
             ])
         ]),
-        
+
         dbc.Row([
             dbc.Col([
                 html.H5(id='prueba', children=['Colores más vendidos'], style=TEXT_TITLE),
@@ -45,10 +45,53 @@ indicators_general = dbc.Container([
 
 ])
 
+dateMin = DataManager().sales_prod["FECHA"].min()
+dateMax = DataManager().sales_prod["FECHA"].max()
+
+features_controls = dbc.FormGroup(
+    [
+        html.P('Por favor seleccionar las características a analizar', style=TEXT_STYLE),
+        html.Hr(),
+        dcc.Dropdown(id='dropdown_field1',
+            options=[
+                    {'label': i, 'value': i} for i in DataManager().sales_prod.columns.sort_values()
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=False,
+        ),
+        html.Br(),
+        dcc.Dropdown(id='dropdown_field2',
+            options=[
+                    {'label': i, 'value': i} for i in DataManager().sales_prod.columns
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=False,
+        ),
+        html.P('Calendar', style=TEXT_STYLE),
+        dcc.DatePickerRange(
+            id='calendar2',
+            with_portal=True,
+            first_day_of_week=1,
+            reopen_calendar_on_clear=True,
+            clearable=True,
+            min_date_allowed=dt(dateMin.year, dateMin.month, dateMin.day),
+            max_date_allowed=dt(2022, 12, 31),
+            initial_visible_month=dt(dateMin.year, dateMin.month, dateMin.day),
+            start_date=dt(2019, 1, 1),
+            end_date=dt(dateMax.year, dateMax.month, dateMax.day),
+            display_format='DD, MMM YY',
+            month_format='MMMM, YYYY',
+        ),
+        html.Br()
+    ]
+)
+
 
 indicators_features = dbc.Container([
 
-         dbc.Row([
+        dbc.Row([
             dbc.Col([
                 button_indicators,
                 html.Hr(),
@@ -141,12 +184,71 @@ def update_graph(value1,value2,value3,start_date,end_date):
     
     return fig
 
+@app.callback(
+    Output('graph_features_1', 'figure'),
+    [Input('dropdown_field1', 'value'),
+    Input('dropdown_field2', 'value'),
+    Input('calendar2', 'start_date'),
+    Input('calendar2', 'end_date')])
 
+def update_features_graph1(value1,value2,start_date,end_date):
+    if (len(value1)>0 and len(value2)>0):
+        data = DataManager().sales_prod
+        x_values = data[value1].unique()
+        y_values = data[value2].unique()
+        if(len(x_values)<len(y_values)):
+            x_values, y_values = y_values, x_values
+            z_values = pd.crosstab(data[value1], data[value2]).values.tolist()
+        else:
+            z_values = pd.crosstab(data[value2], data[value1]).values.tolist()
+        fig1 =  go.Figure(data=go.Heatmap(
+                z=z_values,
+                x=x_values,
+                y=y_values,
+                hoverongaps = False),layout=go.Layout( title=f"{value1} VS {value2} Total Sales"))
+    else:
+        data = DataManager().sales_prod
+        x_values = data["SUBCATEGORIA_POS"].unique()
+        y_values = data["CATEGORIA"].unique()
+        z_values = pd.crosstab(data["CATEGORIA"], data["SUBCATEGORIA_POS"]).values.tolist()
+        fig1 =  go.Figure(data=go.Heatmap(
+                z=z_values,
+                x=x_values,
+                y=y_values,
+                hoverongaps = False),layout=go.Layout( title="CATEGORIA VS SUBCATEGORIA_POS Total Sales"))
+    return fig1
 
+@app.callback(
+    Output('graph_features_2', 'figure'),
+    [Input('dropdown_field1', 'value'),
+    Input('dropdown_field2', 'value'),
+    Input('calendar2', 'start_date'),
+    Input('calendar2', 'end_date')])
 
+def update_features_graph2(value1,value2,start_date,end_date):
+    if (len(value1)>0 and len(value2)>0):
+        data = DataManager().sales_prod
+        x_values = data[value1].unique()
+        y_values = data[value2].unique()
+        if(len(x_values)<len(y_values)):
+            x_values, y_values = y_values, x_values
+            z_values2 = data.groupby([value1, value2]).TOTAL.sum().unstack(fill_value=0).values.tolist()
+        else:
+            z_values2 = data.groupby([value2, value1]).TOTAL.sum().unstack(fill_value=0).values.tolist()
+        fig2 = go.Figure(data=go.Heatmap(
+                z=z_values2,
+                x=x_values,
+                y=y_values,
+                hoverongaps = False),layout=go.Layout( titletitle=f"{value1} VS {value2} Total Sales Money"))
+    else:
+        data = DataManager().sales_prod
+        x_values = data["SUBCATEGORIA_POS"].unique()
+        y_values = data["CATEGORIA"].unique()
+        z_values2 = data.groupby(['CATEGORIA', 'SUBCATEGORIA_POS']).TOTAL.sum().unstack(fill_value=0).values.tolist()
+        fig2 = go.Figure(data=go.Heatmap(
+                z=z_values2,
+                x=x_values,
+                y=y_values,
+                hoverongaps = False),layout=go.Layout( title="CATEGORIA VS SUBCATEGORIA_POS Total Sales Money"))
 
-
-
-
-
-    
+    return fig2
