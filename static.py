@@ -72,14 +72,15 @@ controls = dbc.FormGroup(
     ]
 )
 
-## Cards
-content_first_row = dbc.Row([
+top_menu = dbc.Row([
     dbc.Nav([
         dbc.Button("Indicadores", href="/indicadores", outline=True, color="primary", className="mr-1"),
         dbc.Button("Prediccion Demanda", href="/demanda", outline=True, color="primary", className="mr-1"),
         dbc.Button("Cobertura Inventario", href="/inventario", outline=True, color="primary", className="mr-1"),
-    ]),
-])
+    ],
+    className='top-menu'),
+],
+className='menu')
 
 sidebar = html.Div(
     [
@@ -98,13 +99,6 @@ sidebar = html.Div(
         html.H6('Esteban Betancur | TA', style=TEXT_STYLE_2),
         html.H6('Luis Rojas | TA', style=TEXT_STYLE_2),
     ],
+    className='sidebar',
     style=SIDEBAR_STYLE,
-)
-
-cards = html.Div(
-    [
-        content_first_row,
-        html.Hr(),
-    ],
-    style=BUTTON_STYLE,
 )

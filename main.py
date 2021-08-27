@@ -14,17 +14,17 @@ from indicators import *
 from demand import *
 from inventory import *
 from dataManager import *
-from static import sidebar, cards
+from static import sidebar, top_menu
 from mainDash import *
 
 #app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],suppress_callback_exceptions=True)
 
-content = html.Div( id='page-content', children=[], style=CONTENT_STYLE)
+content = html.Div( className='content', id='page-content', children=[])
 
 app.layout = html.Div([
     dcc.Location(id="url"),
     sidebar, 
-    cards,
+    top_menu,
     content,
 ])
 
