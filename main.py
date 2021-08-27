@@ -17,23 +17,12 @@ from dataManager import *
 from static import sidebar, top_menu
 from mainDash import *
 
-<<<<<<< HEAD
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],suppress_callback_exceptions=True)
-
 content = html.Div( className='content', id='page-content', children=[])
 
 app.layout = html.Div([
     dcc.Location(id="url"),
     sidebar, 
     top_menu,
-=======
-content = html.Div( id='page-content', children=[], style=CONTENT_STYLE)
-
-app.layout = html.Div([
-    dcc.Location(id="url"),
-    sidebar,
-    cards,
->>>>>>> 098d49f61b872f27215ee246bfae4a24f94c48c4
     content,
 ])
 

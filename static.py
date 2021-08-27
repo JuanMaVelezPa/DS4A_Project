@@ -22,7 +22,7 @@ tienda_unique = df['TIENDA'].unique()
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
 
-controls = html.Div(id = "sidebar_control", children=[
+controls = html.Div(id="sidebar_control", children=[
 dbc.FormGroup(
     [
         html.P('Por favor seleccionar los filtros para visualizar en las graficas', style=TEXT_STYLE),
