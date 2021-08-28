@@ -19,7 +19,7 @@ demand_classificator = [
         dbc.Row([
             dbc.Col([
                 html.Hr(),
-                html.H3("Clasificador de Demanda", style=TEXT_TITLE),
+                html.H3("Clasificador de Demanda"),
                 html.Hr(),
                 html.Div([
                         dbc.Button("Info..",id="auto-toast-toggle",outline=True, color="dark",n_clicks=0,),
