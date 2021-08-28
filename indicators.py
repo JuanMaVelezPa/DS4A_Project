@@ -1,6 +1,5 @@
 from numpy.lib.type_check import asfarray
 import pandas as pd
-import plotly
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
 
@@ -14,8 +13,6 @@ from dataManager import *
 from mainDash import *
 from datetime import date as dt
 
-plotly.io.templates.default = 'plotly_dark'
-
 indicators_general = [
     dbc.Col([
         html.Div(
@@ -28,11 +25,28 @@ indicators_general = [
         
         html.Div(
             [
-                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                html.H3(id='prueba', className='title', children=['Ventas totales por año']),
                 dcc.Graph(id='graph_general_2', figure={})
             ],
             className='graph-chunk'
+        ),
+
+        html.Div(
+            [
+                html.H3(id='prueba', className='title', children=['Venta media por años']),
+                dcc.Graph(id='graph_general_3', figure={})
+            ],
+            className='graph-chunk'
+        ),
+
+        html.Div(
+            [
+                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                dcc.Graph(id='graph_general_4', figure={})
+            ],
+            className='graph-chunk'
         )
+
     ],
     ),
 ]
@@ -49,6 +63,10 @@ indicators_features = [
                 dbc.Col([
                     dcc.Graph(id='graph_features_2', figure={})
                 ])
+
+                
+
+
             ],
             className='graph-chunk'
         )
@@ -59,7 +77,7 @@ menu = dbc.Col([
         dbc.Button("General", href="/indicadores/general", className="btn-main-outline"),
         dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", className="btn-main-outline"),
     ],
-    className='indicators-menu flexy-row start'
+    className='internal-menu flexy-row start'
 )
 ind_content = html.Div(className='content-data',id='indicators-container',children=indicators_general)
 
@@ -77,6 +95,8 @@ def render_indicators_content(pathname):
         return indicators_general
     elif pathname == '/indicadores/caracteristicas':
         return indicators_features
+    else:
+        return [html.Div()]
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
@@ -121,7 +141,7 @@ features_controls = dbc.FormGroup(
     ]
 )
 
-## Indicators_General_Grapgh_1
+## Indicatores
 @app.callback(
     Output('graph_general_1', 'figure'),
     [Input('dropdown_category', 'value'),
@@ -159,13 +179,85 @@ def update_graph(value1,value2,value3,start_date,end_date):
         color="SUBCATEGORIA",
         hover_data=['REF', 'DESC_LARGA','CATEGORIA'],
         title="\t Sales Subategories | Money vs Units",
-        template='plotly_dark'
-        )
+    )
     return fig
 
-## Indicators_General_Grapgh_2
+# Analisis de ventas totales
 @app.callback(
     Output('graph_general_2', 'figure'),
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
+     Input('calendar', 'start_date'),
+     Input('calendar', 'end_date')])
+
+     
+def update_graph(value1,value2,value3,start_date,end_date):
+    if(value3 == []):
+        temp = DataManager().sales_prod
+    else:
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    
+    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
+    sales_prod = sales_prod.loc[mask]
+    
+    
+    sales1 = sales_prod.groupby(['ANIO','MES'])['TOTAL'].sum().to_frame().reset_index()
+    fig = px.line(sales1, x="MES", y="TOTAL", color='ANIO', labels = {1:"JAN",
+    2:"FEB",3:"MAR",4:"APR",5:"MAY",6:"JUN",7:"JUL",8:"AUG",9:"SEP",10:"OCT",11:"NOV",12:"DEC"})
+    
+    return fig
+
+# Analisis de ventas por año
+@app.callback(
+    Output('graph_general_3', 'figure'),
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
+     Input('calendar', 'start_date'),
+     Input('calendar', 'end_date')])
+
+     
+def update_graph(value1,value2,value3,start_date,end_date):
+    if(value3 == []):
+        temp = DataManager().sales_prod
+    else:
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    
+    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
+    sales_prod = sales_prod.loc[mask]
+    
+    
+    sales1 = sales_prod.groupby(['ANIO','MES'])['TOTAL'].mean().to_frame().reset_index()
+    sales1['ANIO'] = sales1['ANIO'].astype("category")
+    fig = px.bar(sales1, x="MES", y="TOTAL", color='ANIO',barmode='group')
+    
+
+    
+    return fig
+
+
+## Colores más vendidos
+@app.callback(
+    Output('graph_general_4', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_tienda', 'value'),
@@ -197,7 +289,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
         x= df.index,
         y= df,
         marker_color=colors, # marker color can be a single color value or an iterable
-        )])
+    )])
     
     return fig
 

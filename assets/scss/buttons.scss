@@ -204,9 +204,9 @@
 }
 
 .btn-main-outline {
-	color: root.$main-color-dim;
-	background-color: root.$base2-color;
-	border-color: root.$main-color-dim;
+	color: root.$base2-color;
+	background-color: root.$main-color-dim;
+	border-color: root.$base2-color;
 
 	&:hover, &:active, &.active, &:focus {
 		color: root.$main-color-dim;

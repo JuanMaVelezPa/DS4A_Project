@@ -1,6 +1,9 @@
 import pandas as pd
+import plotly
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
+
+plotly.io.templates.default = 'plotly_dark'
 
 import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
@@ -40,9 +43,9 @@ def render_page_content(pathname):
     elif pathname == '/indicadores/caracteristicas':
         return features_controls, indicators_container
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
-        return sidebar, demand_classificator
+        return demand_controls, demand_container
     elif pathname == '/demanda/prediccion':
-        return sidebar, demand_predictor
+        return sidebar, demand_container
     elif pathname == '/inventario':
         return sidebar, inventory
     else:

@@ -2,6 +2,22 @@
 /** Base color palette **/
 /** Dim color palette **/
 /** Links palette **/
+/** Base color palette
+$main-color: white;
+$scnd-color: rgb(241,141,25);
+$thrd-color: rgb(156,181,101);
+
+Dim color palette
+$main-color-dim: rgb(240, 240, 240);
+$scnd-color-dim: rgba(241,141,25,0.7);
+$thrd-color-dim: rgba(156,181,101,0.5);
+
+Links palette
+$base-color: rgb(0,0,0);
+$base2-color: #6c757d;
+
+$link-color: rgb(175,139,87);
+$hovr-color: rgb(230,230,230); **/
 @font-face {
   font-family: "Glober thin";
   src: url("../fonts/Glober Thin Free.ttf") format("truetype");
@@ -239,9 +255,9 @@
 }
 
 .btn-main-outline {
-  color: #515151;
-  background-color: #6c757d;
-  border-color: #515151;
+  color: #6c757d;
+  background-color: #515151;
+  border-color: #6c757d;
 }
 .btn-main-outline:hover, .btn-main-outline:active, .btn-main-outline.active, .btn-main-outline:focus {
   color: #515151;
@@ -774,14 +790,15 @@ label {
 .page-content * {
   font-weight: 300 !important;
 }
-.page-content .indicators-menu {
-  position: absolute;
-  top: 0;
-  left: 0;
+.page-content .internal-menu {
+  position: fixed;
+  top: 75px;
+  left: 20vw;
+  z-index: 1;
   padding: 10px 20px 20px;
   background-color: #333333;
 }
-.page-content .indicators-menu .btn {
+.page-content .internal-menu .btn {
   margin: 0 4px;
 }
 .page-content .content-data {

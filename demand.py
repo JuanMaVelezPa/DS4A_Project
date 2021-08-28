@@ -1,7 +1,18 @@
+#
+# Version: 0001
+# 
+# Version           Date            Developer               Description
+# ------------------------------------------------------------------------------------------------------
+# ==========        ===========     ================        ============================================
+# 0001              28/08/2021      jmvelez                 . Demand classifier creation
+# ==========        ===========     ================        ============================================
+# ------------------------------------------------------------------------------------------------------
+#
+
+## Libraries
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
-
 import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -11,18 +22,14 @@ from styles import *
 from dataManager import *
 from mainDash import *
 import dash_table
-
-button_demand = dbc.Row([
-        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
-        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
-    ])
+import static
 
 demand_classificator = [
+    dbc.Col([
         dbc.Row([
             dbc.Col([
-                button_demand,
                 html.Hr(),
-                html.H3("Clasificador de Demanda", style=TEXT_TITLE),
+                html.H3("Clasificador de Demanda"),
                 html.Hr(),
                 html.Div([
                         dbc.Button("Info..",id="auto-toast-toggle",outline=True, color="dark",n_clicks=0,),
@@ -80,32 +87,66 @@ demand_classificator = [
                 multi=True,),xs=6,sm=6,md=3,lg=3,xl=3),
         ]),
         dbc.Row([
-            dbc.Col(dcc.Graph(id='graph_classificator_2', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
-            dbc.Col(dcc.Graph(id='graph_classificator_3', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_2', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_3', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
         ]),
         dbc.Row([
-            dbc.Col(dcc.Graph(id='graph_classificator_4', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
-            dbc.Col(dcc.Graph(id='graph_classificator_5', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
-        ]),
-        dbc.Row([
-            html.H5('Productos a descontinuar:'),
+            dbc.Col(dcc.Graph(id='graph_classificator_4', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_5', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
         ]),
         dbc.Row([
             dbc.Col(html.Hr()),
         ]),
         dbc.Row([
+            html.H5('Productos a descontinuar:'),
+        ]),
+        
+        dbc.Row([
+            dbc.Button("Download discontinued",id="download_discontinued",outline=True, color="dark",n_clicks=0,),
+            dcc.Download(id='download')
+        ]),
+        dbc.Row([
             dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
         ]),
+    ])
 ]
 
 demand_predictor = [
-        button_demand,
         html.Hr(),
         html.H3("Prediccion de Demanda", style=TEXT_TITLE),
         html.Hr(),
     ]
 
-#DemandClassificator
+menu = dbc.Col([
+        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
+        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
+    ],
+    className='internal-menu flexy-row start'
+)
+
+demd_content = html.Div(className='content-data',id='demand-container',children=demand_classificator)
+
+demand_container = [
+    menu,
+    demd_content
+]
+
+@app.callback(
+    [Output("demand-container", "children")],
+    [Input("url", "pathname")]
+)
+def render_indicators_content(pathname):
+    if pathname == '/demanda' or pathname == '/demanda/clasificador':
+        return demand_classificator
+    elif pathname == '/demanda/prediccion':
+        return demand_predictor
+    else:
+        return [html.Div()]
+
+
+demand_controls = static.controls
+
+## DemandClassificator
 @app.callback(
     Output('graph_classificator_1', 'figure'),
     Output('datatable1', 'children'),
@@ -123,7 +164,11 @@ demand_predictor = [
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,start_date,end_date):
-    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(start_date,end_date,True)
+    demand2, discontinued, demand_classificator, classifier = DataManager().demand_data(start_date,end_date,True)
+    smooth = demand_classificator.query("CLASSIFIER == 'Smooth'")
+    intermittent = demand_classificator.query("CLASSIFIER == 'Intermittent'")
+    lumpy = demand_classificator.query("CLASSIFIER == 'Lumpy'")
+    erratic = demand_classificator.query("CLASSIFIER == 'Erratic'")
     if len(value1)>0:
         demand2=demand2.query('CATEGORIA == @value1')
         discontinued=discontinued.query('CATEGORIA == @value1')
@@ -166,14 +211,14 @@ def update_graph(value1,value2,start_date,end_date):
                                     style_cell_conditional=[{'textAlign': 'left'}],
                                     ), [],[],[],[], options1, options2, options3, options4
 
-#Intermittent
+## Intermittent
 @app.callback(
     Output('graph_classificator_2', 'figure'),
     [Input('dropdown_demand_1', 'value')],
     prevent_initial_call=True,)
 
 def update_drown(value):
-    intermittent= DataManager().last_intermittent
+    intermittent= DataManager().demand_classifier.query("CLASSIFIER=='Intermittent'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         intermittent = intermittent[intermittent['PROD_REF'].isin(value)]
@@ -185,14 +230,14 @@ def update_drown(value):
 
     return fig
 
-#Lumpy
+## Lumpy
 @app.callback(
     Output('graph_classificator_3', 'figure'),
     [Input('dropdown_demand_2', 'value')],
     prevent_initial_call=True,)
 
 def update_drown(value):
-    lumpy= DataManager().last_lumpy
+    lumpy= DataManager().demand_classifier.query("CLASSIFIER=='Lumpy'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         lumpy = lumpy[lumpy['PROD_REF'].isin(value)]
@@ -204,14 +249,14 @@ def update_drown(value):
 
     return fig
 
-#Smooth
+## Smooth
 @app.callback(
     Output('graph_classificator_4', 'figure'),
     [Input('dropdown_demand_3', 'value')],
     prevent_initial_call=True,)
 
 def update_drown(value):
-    smooth= DataManager().last_smooth
+    smooth= DataManager().demand_classifier.query("CLASSIFIER=='Smooth'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         smooth = smooth[smooth['PROD_REF'].isin(value)]
@@ -223,14 +268,14 @@ def update_drown(value):
 
     return fig
 
-#Erratic
+## Erratic
 @app.callback(
     Output('graph_classificator_5', 'figure'),
     [Input('dropdown_demand_4', 'value')],
     prevent_initial_call=True,)
 
 def update_drown(value):
-    erratic= DataManager().last_erratic
+    erratic= DataManager().demand_classifier.query("CLASSIFIER=='Erratic'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         erratic = erratic[erratic['PROD_REF'].isin(value)]
@@ -242,9 +287,16 @@ def update_drown(value):
 
     return fig
 
-
+## Info
 @app.callback(
-    Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")]
-)
+    Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")],prevent_initial_call=True,)
 def open_toast(n):
     return True
+    
+## FileDownload
+@app.callback(Output("download", "data"),
+            [Input("download_discontinued", "n_clicks")],
+            prevent_initial_call=True,)
+
+def generate_csv(n_nlicks):
+    return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="discontinued.csv")
