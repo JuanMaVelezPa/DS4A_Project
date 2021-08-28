@@ -1,0 +1,387 @@
+@use 'navbar';
+@use 'root';
+@use '../root' as base;
+
+@media screen and (max-width: root.$break-small) {
+	
+	* {
+		max-width: 100vw;
+	}
+	
+	.wrap {
+		font-size: 16px;
+		padding: 0;
+	}
+	
+	.site-index {
+		top: -70px;
+		position: relative;
+	}
+	
+	.logo {
+		position: relative;
+		top: -80px;
+		
+		background-size: 300px;
+		
+		height: 300px;
+		width: 350px;
+	}
+	
+	.slogan {
+	    top: -60px;
+		
+		& .title {
+			font-size: 20px;
+		}
+		
+		& .phrase {
+			font-size: 14px;
+		}
+	}
+	
+	.content {
+		
+		&:after {
+			content: none;
+		}
+	}
+	
+	.presentation {
+		align-self: unset;
+		
+		margin-bottom: 0;
+		margin-top: 0;
+		
+		& #btn-main {
+			align-self: auto;
+		}
+		
+		& .lead {
+			width: 90%;
+			margin-bottom: 2em;
+		}
+		
+		& .icn {
+			display: none;
+		}
+		
+		& h1 {
+			text-align: center;
+			font-size: 32px;
+		}
+		
+		& p {
+			text-align: justify;
+			font-size: 20px;
+		}
+	}
+	
+	.body-content {
+		padding: 1em;
+	}
+	
+	.logo-sm {
+		background: url("../../images/logo.png") center no-repeat;
+		
+		width: 270px;
+		height: 150px;
+		margin-top: 18vh;
+	    
+		border-radius: 10px;
+	}
+	
+	.p_s {
+		padding: 1em;
+		font-size: 18px;
+		
+		& .title {
+			margin-top: 1em;
+			margin-bottom: 0;
+			padding-left: 0;
+			
+			font-size: 36px;
+			text-align: center;
+		}
+	}
+	
+	.preview {
+		width: auto;
+		height: min-content;
+		margin-bottom: 3em;
+		
+		&.display {
+			display: none;
+		}
+		
+		& .info {
+			width: 80%;
+		}
+		
+		& .prev-image {
+			margin-top: 20px;
+		}
+		
+		&#webapp_preview {
+			color: base.$main-color;
+		}
+	}
+	
+	.mobile {
+		display: block;
+		& .prev-image {
+			width: 80%;
+		}
+	}
+
+	h2 {
+		font-size: 28px;
+	}
+	
+	.feats {
+		background-position-x: 50%;
+		background-attachment: scroll;
+		
+		& .container.additional-inner{
+			max-height: none;		
+		}
+		
+		& .features-border-top .col-md-3:after, .features-border-top .right-border:before{
+			 width: 0px;
+		}
+		
+		& .features-border-top{
+			border:0;
+		}
+	}
+	
+	.contact {
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		
+		width: 100%;
+		padding: 0 0 4em 0;
+		
+		& .title {
+			margin: 1.5em 0;
+		    margin-bottom: 4em;
+		}
+		
+		& .process-icon {
+			position: absolute;
+			bottom: 0;
+		    left: 0;
+			z-index: -1;
+			
+			transform: scale(0.5);
+		}
+	}
+	
+	.footer {
+		height: 7em;
+		width: 100vw;
+		
+		& .container {
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		
+		& .legal-notice {
+			position: relative;
+			left: 0;
+			
+			align-self: unset;
+		}
+	}
+	
+	.wrap.pages {
+		padding: 0;
+		
+		& .pages_container {
+			width: 100vw;
+			overflow-x: hidden;
+		}
+	}
+	
+	.site-about {
+		margin-top: 4em;
+		
+		& .coming-soon {
+			width: 90%;
+			align-self: center;
+			
+			& #hist_img {
+				top: 10%;
+				left: 50%;
+				margin-left: -25%;
+			}
+		}
+		
+		& .time-line {
+			& .time-item {
+				& .item-content {
+					width: 100%;
+					
+					text-align: justify;
+					text-align-last: unset !important;
+					
+					& p, h2 {
+						background-color: rgba(51, 51, 51, 0.7);
+					}
+					
+					& .item-image {
+						top: 0;
+						left: 0;
+						right: 0;
+						z-index: -1;
+						
+						width: 50%;
+						opacity: 0.5;
+					}
+				}
+				
+				& .line {
+					opacity: 0.4;
+					
+					height: 100%;
+					width: auto;
+					max-width: 1000px;
+				}
+				
+				&.left .item-image {
+					top: 10%;
+				}
+				
+				&.right .item-image {
+					left: 50%;
+				}
+				
+				&.item-5, &.item-6 {
+					& .line {
+						transform: unset;
+					}
+				}
+				
+				&.item-end .item-image {
+					width: 50%;
+				}
+			}
+		}
+	}
+	
+	.site-products {
+		margin-bottom: 6em;
+	}
+}
+
+@media only screen and (min-width: root.$break-small) and (max-width: root.$break-medium) {
+    .logo {
+		background-size: 300px;
+		height: 300px;
+		width: 350px;
+	}
+    
+    .slogan .title {
+		font-size: 20px;
+	}
+	
+	.slogan .phrase {
+		font-size: 18px;
+	}
+}
+
+@media (min-width: root.$break-medium) and (max-width: root.$break-large) {
+    .logo {
+		background-size: 400px;
+	}
+    
+    .slogan .title {
+		font-size: 30px;
+	}
+	
+	.slogan .phrase {
+		font-size: 24px;
+	}
+}
+
+@media only screen and (max-width: root.$break-medium) and (orientation: landscape) {
+	.intro {
+		& .logo {
+			background-size: 200px;
+		}
+		
+		& .slogan {
+			top: -60px;
+		}
+	}
+	
+	.content {
+		top: 400px;
+	}
+	
+	.preview.display {
+		font-size: 18px;
+		
+		& .title {
+			text-align: center;
+			font-size: 34px;
+		}
+		
+		&#webapp_preview {
+			& .image {
+				height: 160px;
+			}
+		}
+		
+		&#marketing_preview {
+			& .image {
+				right: -2em;
+				height: auto;
+			}
+		}
+	}
+	
+	.contact {
+		align-items: center;
+		
+		padding: 0 1em;
+		
+		& .title {
+			top: 0;
+			margin: 1em;
+		}
+		
+		& .process-icon {
+			display: none;
+		}
+	}
+	
+	.footer {
+		position: relative;
+		bottom: 0;
+		
+		height: 7em;
+		
+		& .legal-notice {
+			align-self: auto;
+			position: unset;
+			padding-bottom: 1em;
+		}
+	}
+	
+	.site-about {
+		& .time-line {
+			& .time-item {
+				&.item-end {
+					flex-direction: row;
+					
+					& .item-image {
+						width: 50%;
+					}
+				}
+			}
+		}
+	}
+}
