@@ -10,6 +10,7 @@ from dash.dependencies import Input, Output, State
 from styles import *
 from dataManager import *
 from mainDash import *
+import dash_table
 
 button_demand = dbc.Row([
         dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
@@ -26,14 +27,51 @@ demand_classificator = [
             ]),
         ]),
         dbc.Row([
-            dbc.Col([
-                dcc.Graph(id='graph_classificator_1', figure={})
-            ])
+            dbc.Col(dcc.Graph(id='graph_classificator_1', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
         ]),
         dbc.Row([
-            dbc.Col([
-                dcc.Graph(id='graph_classificator_2', figure={})
-            ]),
+            dbc.Col(html.H6('Por favor seleccionar el producto para mirar su clasificacion:\n'),xs=6,sm=6,md=6,lg=6,xl=6),
+        ]),
+        dbc.Row([
+            dbc.Col(html.H6('INTERMITEENT'),xs=6,sm=6,md=3,lg=3,xl=3),
+            dbc.Col(html.H6('LUMPY'),xs=6,sm=6,md=3,lg=3,xl=3),
+            dbc.Col(html.H6('SMOOTH'),xs=6,sm=6,md=3,lg=3,xl=3),
+            dbc.Col(html.H6('ERRATIC'),xs=6,sm=6,md=3,lg=3,xl=3),
+        ]),
+        dbc.Row([
+            dbc.Col(dcc.Dropdown(id='dropdown_demand_1',
+                options=[],value=[],
+                placeholder='Please select...',
+                multi=True,),xs=6,sm=6,md=3,lg=3,xl=3),
+           dbc.Col(dcc.Dropdown(id='dropdown_demand_2',
+                options=[],value=[],
+                placeholder='Please select...',
+                multi=True,),xs=6,sm=6,md=3,lg=3,xl=3),
+           dbc.Col(dcc.Dropdown(id='dropdown_demand_3',
+                options=[],value=[],
+                placeholder='Please select...',
+                multi=True,),xs=6,sm=6,md=3,lg=3,xl=3),
+           dbc.Col(dcc.Dropdown(id='dropdown_demand_4',
+                options=[],value=[],
+                placeholder='Please select...',
+                multi=True,),xs=6,sm=6,md=3,lg=3,xl=3),
+        ]),
+        dbc.Row([
+            dbc.Col(dcc.Graph(id='graph_classificator_2', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_3', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+        ]),
+        dbc.Row([
+            dbc.Col(dcc.Graph(id='graph_classificator_4', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_5', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+        ]),
+        dbc.Row([
+            html.H5('Productos a descontinuar:'),
+        ]),
+        dbc.Row([
+            dbc.Col(html.Hr()),
+        ]),
+        dbc.Row([
+            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
         ]),
 ]
 
@@ -44,68 +82,126 @@ demand_predictor = [
         html.Hr(),
     ]
 
+#DemandClassificator
 @app.callback(
     Output('graph_classificator_1', 'figure'),
+    Output('datatable1', 'children'),
+    Output('dropdown_demand_1', 'value'),
+    Output('dropdown_demand_2', 'value'),
+    Output('dropdown_demand_3', 'value'),
+    Output('dropdown_demand_4', 'value'),
+    Output('dropdown_demand_1', 'options'),
+    Output('dropdown_demand_2', 'options'),
+    Output('dropdown_demand_3', 'options'),
+    Output('dropdown_demand_4', 'options'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('calendar', 'start_date'),
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,start_date,end_date):
-    if (value1 == [] and value2 == []):
-        sales_prod = DataManager().sales_prod
-    elif (value1 != [] and value2 == []):
-        sales_prod = DataManager().sales_prod.query("CATEGORIA==@value1")
-    elif (value1 == [] and value2 != []):
-        sales_prod = DataManager().sales_prod.query("SUBCATEGORIA==@value2")
-    else:
-        sales_prod = DataManager().sales_prod.query("CATEGORIA==@value1")
-        sales_prod = DataManager().sales_prod.query("SUBCATEGORIA==@value2")
-
-    mask = (sales_prod['FECHA'] > start_date) & (sales_prod['FECHA'] <= end_date)
-    sales_prod = sales_prod.loc[mask]
-
-
-    demand = sales_prod[sales_prod['VIGENCIA']!='DESCONTINUADO'].copy()
-
-    demand['YY_MM'] = demand['FECHA'].dt.strftime('%y-%m')
-
-    dicts = {}
-    for i,j in enumerate(demand['YY_MM'].sort_values().unique()):
-        dicts[i] = j
-    
-    demand = demand.groupby(['PROD_REF','YY_MM'])['CANTIDAD'].sum().reset_index()
-    demand = demand.pivot(index='PROD_REF',columns='YY_MM').fillna(0)
-    demand['N_LAST'] = demand.apply(lambda x: np.where(x)[0][-1] ,axis=1)
-    demand['LAST'] = demand['N_LAST'].map(dicts)
-    demand['N_FIRST'] = demand.apply(lambda x: np.where(x)[0][0] ,axis=1)
-    demand['FIRST'] = demand['N_FIRST'].map(dicts)
-    demand['PER_LAST-FIRST'] = demand['N_LAST']-demand['N_FIRST']+1
-    demand['PER_SIN_INFO'] = len(demand.columns[0:-5])-demand['N_LAST']-1
-
-    v0 = demand[demand.columns[0:-5]].values
-    v1 = np.where(v0 > 0, v0, np.nan)
-    demand['DEMAND_BUCKETS'] = np.count_nonzero(v1>0, axis=1)-1
-    demand['TOTAL_PER'] = np.count_nonzero(v1, axis=1)-1-demand['N_FIRST']
-    demand['ADI'] = demand['TOTAL_PER']/demand['DEMAND_BUCKETS']
-    demand['CV2'] = (np.nanstd(v1, axis=1)/np.nanmean(v1, axis=1))**2
-
-    demand2 = demand.set_axis(demand.columns.map(''.join), axis=1, inplace=False).reset_index()
-    demand2 = demand2[['PROD_REF','N_LAST','LAST','N_FIRST','FIRST','PER_LAST-FIRST','PER_SIN_INFO','DEMAND_BUCKETS','TOTAL_PER','ADI','CV2']]
-    groupby_sales = DataManager().products
-    demand2 = demand2.merge(groupby_sales, how='left',left_on='PROD_REF',right_on='REF')
+    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(value1,value2,start_date,end_date)
 
     fig = px.scatter(demand2,
             x="CV2", y="ADI", color="SUBCATEGORIA_POS",
-            hover_data=['PROD_REF', 'DESC_LARGA','CATEGORIA','SUBCATEGORIA_POS',])
+            hover_data=['CATEGORIA','SUBCATEGORIA_POS','PROD_REF', 'DESCRIPCION',],
+            title="\t DEMAND CLASIFICATION")
 
-    # add two horizontal lines
     fig.add_hline(y=1.32, line_dash="dot", line_width=2,  line_color="black")
     fig.add_vline(x=0.49, line_dash="dot", line_width=2,  line_color="black")
-
-    fig.add_annotation(text="INTERMITTENT", x=0.1, y=20, showarrow=False)
-    fig.add_annotation(text="LUMPY", x=2, y=20, showarrow=False)
+    fig.add_annotation(text="INTERMITTENT", x=0.1, y=round(demand2['ADI'].max()+2), showarrow=False)
+    fig.add_annotation(text="LUMPY", x=2, y=round(demand2['ADI'].max()+2), showarrow=False)
     fig.add_annotation(text="SMOOTH", x=0.1, y=0.5, showarrow=False)
     fig.add_annotation(text="ERRATIC", x=2, y=0.5, showarrow=False)
+
+    options1=[{'label':opt, 'value':opt} for opt in intermittent['PROD_REF'].unique()]
+    options2=[{'label':opt, 'value':opt} for opt in lumpy['PROD_REF'].unique()]
+    options3=[{'label':opt, 'value':opt} for opt in smooth['PROD_REF'].unique()]
+    options4=[{'label':opt, 'value':opt} for opt in erratic['PROD_REF'].unique()]
+
+    return fig, dash_table.DataTable(id='datatable1',data= discontinued.to_dict('records'),
+                                    columns=[{'id': x, 'name': x} for x in discontinued.columns],
+                                    style_as_list_view=True,
+                                    style_header={'backgroundColor': 'rgb(30, 30, 30)',
+                                                'color':'white'},
+                                    style_cell={
+                                        'backgroundColor': 'white',
+                                        'color': 'black'},
+                                    style_cell_conditional=[{'textAlign': 'left'}],
+                                    ), [],[],[],[], options1, options2, options3, options4
+
+#Intermittent
+@app.callback(
+    Output('graph_classificator_2', 'figure'),
+    [Input('dropdown_demand_1', 'value')],
+    prevent_initial_call=True,)
+
+def update_drown(value):
+    intermittent= DataManager().intermittent
+
+    if (len(value)>0):
+        intermittent = intermittent[intermittent['PROD_REF'].isin(value)]
+
+    fig = px.bar(intermittent, y='YY_MM',x='CANTIDAD',
+       hover_data=['PROD_REF','CATEGORIA','SUBCATEGORIA_POS','DESCRIPCION'], 
+       labels={'YY_MM':'FECHA'},
+       title="INTERMITTENT")
+
+    return fig
+
+#Lumpy
+@app.callback(
+    Output('graph_classificator_3', 'figure'),
+    [Input('dropdown_demand_2', 'value')],
+    prevent_initial_call=True,)
+
+def update_drown(value):
+    lumpy= DataManager().lumpy
+
+    if (len(value)>0):
+        lumpy = lumpy[lumpy['PROD_REF'].isin(value)]
+
+    fig = px.bar(lumpy, y='YY_MM',x='CANTIDAD',
+       hover_data=['PROD_REF','CATEGORIA','SUBCATEGORIA_POS','DESCRIPCION'], 
+       labels={'YY_MM':'FECHA'},
+       title="LUMPY")
+
+    return fig
+
+#Smooth
+@app.callback(
+    Output('graph_classificator_4', 'figure'),
+    [Input('dropdown_demand_3', 'value')],
+    prevent_initial_call=True,)
+
+def update_drown(value):
+    smooth= DataManager().smooth
+
+    if (len(value)>0):
+        smooth = smooth[smooth['PROD_REF'].isin(value)]
+
+    fig = px.bar(smooth, y='YY_MM',x='CANTIDAD',
+       hover_data=['PROD_REF','CATEGORIA','SUBCATEGORIA_POS','DESCRIPCION'], 
+       labels={'YY_MM':'FECHA'},
+       title="SMOOTH")
+
+    return fig
+
+#Erratic
+@app.callback(
+    Output('graph_classificator_5', 'figure'),
+    [Input('dropdown_demand_4', 'value')],
+    prevent_initial_call=True,)
+
+def update_drown(value):
+    erratic= DataManager().erratic
+
+    if (len(value)>0):
+        erratic = erratic[erratic['PROD_REF'].isin(value)]
+
+    fig = px.bar(erratic, y='YY_MM',x='CANTIDAD',
+       hover_data=['PROD_REF','CATEGORIA','SUBCATEGORIA_POS','DESCRIPCION'], 
+       labels={'YY_MM':'FECHA'},
+       title="ERRATIC")
 
     return fig
