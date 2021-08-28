@@ -16,7 +16,7 @@
 	}
 }
 
-.btn-primary, %btn-primary {
+/* .btn-primary, %btn-primary {
 	color: root.$base-color;
 	background-color: root.$main-color;
 	border-color: root.$base-color;
@@ -39,57 +39,57 @@
 		background-color: root.$main-color-dim;
 		border-color: root.$base-color;
 	}
-}
+} */
 
 .btn-secondary, %btn-secondary {
-	color: root.$scnd-color;
-	background-color: root.$main-color;
-	border-color: root.$scnd-color;
+	color: root.$main-color;
+	background-color: root.$scnd-color-dim;
+	border-color: root.$main-color;
 	
 	&:hover, &:active, &.active, &:focus {
 		color: root.$base-color;
-		background-color: root.$scnd-color-dim;
+		background-color: root.$scnd-color;
 		
 		&:focus {
 			color: root.$base-color;
-			background-color: root.$scnd-color-dim;
+			background-color: root.$scnd-color;
 		}
 	}
 }
 
 .open > .dropdown-toggle.btn-secondary {
 	color: root.$base-color;
-	background-color: root.$scnd-color-dim;
+	background-color: root.$scnd-color;
 	
 	&:focus {
 		color: root.$base-color;
-		background-color: root.$scnd-color-dim;
+		background-color: root.$scnd-color;
 	}
 }
 
 .btn-third, %btn-third {
-	color: root.$thrd-color;
-	background-color: root.$main-color;
-	border-color: root.$thrd-color;
+	color: root.$main-color;
+	background-color: root.$thrd-color-dim;
+	border-color: root.$main-color;
 	
 	&:hover, &:active, &.active, &:focus {
-		color: root.$base-color;
-		background-color: root.$thrd-color-dim;
+		color: root.$main-color;
+		background-color: root.$thrd-color;
 		
 		&:focus {
-			color: root.$base-color;
-			background-color: root.$thrd-color-dim;
+			color: root.$main-color;
+			background-color: root.$thrd-color;
 		}
 	}
 }
 
 .open > .dropdown-toggle.btn-third {
-	color: root.$base-color;
-	background-color: root.$thrd-color-dim;
+	color: root.$main-color;
+	background-color: root.$thrd-color;
 	
 	&:focus {
-		color: root.$base-color;
-		background-color: root.$thrd-color-dim;
+		color: root.$main-color;
+		background-color: root.$thrd-color;
 	}
 }
 

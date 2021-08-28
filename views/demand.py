@@ -13,48 +13,52 @@
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
+
 import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+
 from styles import *
 from dataManager import *
 from mainDash import *
 import dash_table
-import static
+from layout.menus import demd_menu
 
 demand_classificator = [
     dbc.Col([
+        html.Div([
+                html.H3("Clasificador de Demanda",className='title'),
+                html.A(html.I(className='fa fa-info-circle'),id="auto-toast-toggle",n_clicks=0,className='btn btn-primary info-btn'),
+            ],
+            className='flexy-row start'
+        ),
         dbc.Row([
             dbc.Col([
-                html.Hr(),
-                html.H3("Clasificador de Demanda"),
-                html.Hr(),
                 html.Div([
-                        dbc.Button("Info..",id="auto-toast-toggle",outline=True, color="dark",n_clicks=0,),
-                        dbc.Toast([
-                                html.P([ 
-                                    html.H6('*Smooth demand(ADI> = 1,32 y CV2 <0,49)'),
-                                    html.Div('El historial de la demanda muestra muy poca variacion en la cantidad de demanda, pero una gran variacion en el intervalo entre dos demandas. Aunque los metodos de pronostico especificos abordan las demandas intermitentes, el margen de error de pronostico es considerablemente mayor.'),
-                                    html.Br(),
-                                    html.H6('Intermittent demand (ADI <1,32 y CV2 <0,49)'),
-                                    html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
-                                    html.Br(),
-                                    html.H6('Erratic demand (ADI> = 1,32 y CV2> = 0,49)'),
-                                    html.Div('La demanda se caracteriza por una gran variacion en cantidad y en el tiempo. En realidad, es imposible producir un pronostico confiable, independientemente de las herramientas de pronostico que utilice. Este tipo particular de patron de demanda es imprevisible.'),
-                                    html.Br(),
-                                    html.H6('Lumpy demand (ADI <1,32 y CV2 <0,49)'),
-                                    html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
-                                ], className="mb-0",style={'color': 'black', 'fontSize': 14}),],
-                                    id="auto-toast",
-                                    header="Con base en estas 2 dimensiones, la literatura clasifica los perfiles de demanda en 4 categorias diferentes:",
-                                    icon="dark",duration=4000,
-                                    style={"maxWidth": "80%"},
-                                ),
-                        ]
-                    )
-                ]),
+                    dbc.Toast([
+                            html.Div([ 
+                                html.H6('*Smooth demand(ADI> = 1,32 y CV2 <0,49)'),
+                                html.Div('El historial de la demanda muestra muy poca variacion en la cantidad de demanda, pero una gran variacion en el intervalo entre dos demandas. Aunque los metodos de pronostico especificos abordan las demandas intermitentes, el margen de error de pronostico es considerablemente mayor.'),
+                                html.Br(),
+                                html.H6('Intermittent demand (ADI <1,32 y CV2 <0,49)'),
+                                html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
+                                html.Br(),
+                                html.H6('Erratic demand (ADI> = 1,32 y CV2> = 0,49)'),
+                                html.Div('La demanda se caracteriza por una gran variacion en cantidad y en el tiempo. En realidad, es imposible producir un pronostico confiable, independientemente de las herramientas de pronostico que utilice. Este tipo particular de patron de demanda es imprevisible.'),
+                                html.Br(),
+                                html.H6('Lumpy demand (ADI <1,32 y CV2 <0,49)'),
+                                html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
+                            ], className="mb-0",style={'color': 'black', 'fontSize': 14}),
+                        ],
+                        id="auto-toast",
+                        header="Con base en estas 2 dimensiones, la literatura clasifica los perfiles de demanda en 4 categorias diferentes:",
+                        icon="dark",duration=4000,
+                        style={"maxWidth": "80%"},
+                    ),
+                ])
+            ]),
         ]),
         dbc.Row([
             dbc.Col(dcc.Graph(id='graph_classificator_1', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
@@ -112,22 +116,17 @@ demand_classificator = [
 ]
 
 demand_predictor = [
+    dbc.Col([
         html.Hr(),
         html.H3("Prediccion de Demanda", style=TEXT_TITLE),
         html.Hr(),
-    ]
-
-menu = dbc.Col([
-        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
-        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
-    ],
-    className='internal-menu flexy-row start'
-)
+    ])
+]
 
 demd_content = html.Div(className='content-data',id='demand-container',children=demand_classificator)
 
 demand_container = [
-    menu,
+    demd_menu,
     demd_content
 ]
 
@@ -143,8 +142,6 @@ def render_indicators_content(pathname):
     else:
         return [html.Div()]
 
-
-demand_controls = static.controls
 
 ## DemandClassificator
 @app.callback(

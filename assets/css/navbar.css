@@ -1,22 +1,22 @@
-/** Base color palette **/
-/** Dim color palette **/
-/** Links palette **/
 /** Base color palette
-$main-color: white;
+$main-color: rgb(51, 51, 51);
 $scnd-color: rgb(241,141,25);
 $thrd-color: rgb(156,181,101);
 
 Dim color palette
-$main-color-dim: rgb(240, 240, 240);
+$main-color-dim: rgb(81, 81, 81);
 $scnd-color-dim: rgba(241,141,25,0.7);
-$thrd-color-dim: rgba(156,181,101,0.5);
+$thrd-color-dim: rgba(156,181,101);
 
 Links palette
-$base-color: rgb(0,0,0);
+$base-color: rgb(255,255,255);
 $base2-color: #6c757d;
 
 $link-color: rgb(175,139,87);
 $hovr-color: rgb(230,230,230); **/
+/** Base color palette **/
+/** Dim color palette **/
+/** Links palette **/
 .navbar {
   z-index: 100 !important;
   width: 100%;
@@ -46,7 +46,7 @@ $hovr-color: rgb(230,230,230); **/
 .affix.navbar.navbar-inverse {
   background-color: white;
   border: solid 1px;
-  border-color: #f18d19;
+  border-color: #dd790f;
 }
 .affix #nav-menu > li > a {
   color: black;
@@ -55,7 +55,7 @@ $hovr-color: rgb(230,230,230); **/
   opacity: 1;
 }
 .affix .cart .cart-items {
-  border: solid 1px #f18d19;
+  border: solid 1px #dd790f;
 }
 
 .navbar-header {
@@ -68,10 +68,10 @@ $hovr-color: rgb(230,230,230); **/
 }
 #nav-menu > li.active > a, .navbar-inverse .navbar-nav > li.active > a {
   background-color: transparent;
-  color: #f18d19;
+  color: #dd790f;
 }
 #nav-menu > li > a:hover, .navbar-inverse .navbar-nav > li > a:hover {
-  color: #f18d19;
+  color: #dd790f;
 }
 
 .cart {
@@ -81,7 +81,7 @@ $hovr-color: rgb(230,230,230); **/
   padding-top: 0.5em;
   padding-left: 0.4em;
   border-radius: 1em;
-  background-color: #f18d19;
+  background-color: #dd790f;
   opacity: 0.5;
   color: white;
   font-size: 20px;

@@ -7,11 +7,14 @@ import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
+
 from styles import *
 from dataManager import *
 from mainDash import *
 from datetime import date as dt
+
+from layout.menus import ind_menu
 
 indicators_general = [
     dbc.Col([
@@ -73,16 +76,10 @@ indicators_features = [
     ]),
 ]
 
-menu = dbc.Col([
-        dbc.Button("General", href="/indicadores/general", className="btn-main-outline"),
-        dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", className="btn-main-outline"),
-    ],
-    className='internal-menu flexy-row start'
-)
 ind_content = html.Div(className='content-data',id='indicators-container',children=indicators_general)
 
 indicators_container = [
-    menu,
+    ind_menu,
     ind_content
 ]
 

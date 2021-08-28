@@ -1,14 +1,8 @@
-##
-##
-## developer: JuanMa y Andres
-##
-##
-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 from dash_html_components.Div import Div
-from styles import *
+
 from datetime import date as dt
 from dataManager import *
 
@@ -21,10 +15,9 @@ tienda_unique = df['TIENDA'].unique()
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
 
-controls = dbc.FormGroup(
-    [
-        html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
-        html.Hr(),
+
+store = dbc.FormGroup(
+    children=[
         html.P('Punto de venta'),
         dcc.Dropdown(id='dropdown_tienda',
             options=[
@@ -34,7 +27,12 @@ controls = dbc.FormGroup(
             placeholder='Please select...',
             multi=True,
         ),
-        html.Br(),
+        html.Br()
+    ]
+)
+
+category = dbc.FormGroup(
+    children=[
         html.P('Categoria'),
         dcc.Dropdown(id='dropdown_category',
             options=[
@@ -44,7 +42,12 @@ controls = dbc.FormGroup(
             placeholder='Please select...',
             multi=True,
         ),
-        html.Br(),
+        html.Br()
+    ]
+)
+
+subcat = dbc.FormGroup(
+    children=[
         html.P('SubCategoria'),
         dcc.Dropdown(id='dropdown_subcategory',
             options=[
@@ -54,7 +57,12 @@ controls = dbc.FormGroup(
             placeholder='Please select...',
             multi=True,
         ),
-        html.Br(),
+        html.Br()
+    ]
+)
+
+calendar = dbc.FormGroup(
+    children=[
         html.P('Calendar'),
         dcc.DatePickerRange(
             id='calendar',
@@ -70,38 +78,32 @@ controls = dbc.FormGroup(
             display_format='DD, MMM YY',
             month_format='MMMM, YYYY',
         ),
-        html.Br(),
-        html.Hr(),
         html.Br()
-    ],
-    id="sidebar_control"
+    ]
 )
 
-
-top_menu = dbc.Row([
-    dbc.Nav([
-        dbc.NavItem(dbc.NavLink('Indicadores', className='btn btn-primary-outline round',href='/indicadores')),
-        dbc.NavItem(dbc.NavLink('Prediccion Demanda', className='btn btn-secondary-outline round',href='/demanda')),
-        dbc.NavItem(dbc.NavLink('Cobertura Inventario', className='btn btn-third-outline round',href='/inventario')),
-    ],
-    className='top-menu flexy-row between'),
-],
-className='menu flexy-row start')
-
-sidebar = html.Div(
+indicators_controls = html.Div(
     [
-        html.H2('Furni', className='text'),
-        html.Div([controls],className='wrap flexy-col'),
-        html.H6('Developed by DS4A - Grupo 65', className='text'),
-        html.Br(),
-        html.H6('Juan Manuel Velez Parra', className='text'),
-        html.H6('Nicholas Gooding Rios', className='text'),
-        html.H6('David Felipe Rubio Mendez', className='text'),
-        html.H6('Johann Sebastian Roa Amorocho', className='text'),
-        html.H6('Andrés Manrique Ardila', className='text'),
-        html.H6('---', className='text'),
-        html.H6('Esteban Betancur | TA', className='text'),
-        html.H6('Luis Rojas | TA', className='text'),
+        html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
+        html.Hr(),
+        store,
+        category,
+        subcat,
+        calendar,
+        html.Hr()
     ],
-    className='sidebar'
+    id="indicators_controls"
 )
+
+demand_controls = html.Div(
+    [
+        html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
+        html.Hr(),
+        category,
+        subcat,
+        calendar,
+        html.Hr()
+    ],
+    id="demand_controls"
+)
+inventory_controls = []

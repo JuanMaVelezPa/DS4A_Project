@@ -2,8 +2,7 @@ import pandas as pd
 import plotly
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
-
-plotly.io.templates.default = 'plotly_dark'
+plotly.io.templates.default = 'plotly'
 
 import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
@@ -11,45 +10,47 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-# Styles
-from styles import *
-from indicators import *
-from demand import *
-from inventory import *
-from dataManager import *
-from static import sidebar, top_menu
 from mainDash import *
+
+from views.indicators import *
+from views.demand import *
+from views.inventory import *
+
+from dataManager import *
+
+from layout.menus import top_menu, sidebar_menu
+from layout.controls import *
 
 content = html.Div( className='page-content', id='content', children=[])
 
 app.layout = html.Div(
     [
         dcc.Location(id="url"),
-        sidebar, 
         top_menu,
+        sidebar_menu,
         content,
     ],
-    className='wrap'
+    className='site-content'
 )
 
 @app.callback(
-    [ Output("sidebar_control", "children"),
+    [ Output("sidebar_container", "children"),
     Output("content", "children")],
     [Input("url", "pathname")]
 )
 def render_page_content(pathname):
     if pathname == '/' or pathname == '/indicadores' or pathname == '/indicadores/general':
-        return sidebar, indicators_container
+        return indicators_controls, indicators_container
     elif pathname == '/indicadores/caracteristicas':
         return features_controls, indicators_container
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
         return demand_controls, demand_container
     elif pathname == '/demanda/prediccion':
-        return sidebar, demand_container
+        return demand_controls, demand_container
     elif pathname == '/inventario':
-        return sidebar, inventory
+        return inventory_controls, inventory
     else:
-        return sidebar,dbc.Jumbotron(
+        return [], dbc.Jumbotron(
         [
             html.H1("404: Not found", className="text-danger"),
             html.Hr(),
