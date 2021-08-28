@@ -12,6 +12,8 @@ from dataManager import *
 from mainDash import *
 import dash_table
 
+import static
+
 demand_classificator = [
     dbc.Col([
         dbc.Row([
@@ -127,7 +129,7 @@ def render_indicators_content(pathname):
         return [html.Div()]
 
 
-demand_controls = []
+demand_controls = static.controls
 
 #DemandClassificator
 @app.callback(
