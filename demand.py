@@ -1,7 +1,18 @@
+#
+# Version: 0001
+# 
+# Version           Date            Developer               Description
+# ------------------------------------------------------------------------------------------------------
+# ==========        ===========     ================        ============================================
+# 0001              28/08/2021      jmvelez                 . Demand classifier creation
+# ==========        ===========     ================        ============================================
+# ------------------------------------------------------------------------------------------------------
+#
+
+## Libraries
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
-
 import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -11,7 +22,6 @@ from styles import *
 from dataManager import *
 from mainDash import *
 import dash_table
-
 import static
 
 demand_classificator = [
@@ -136,7 +146,7 @@ def render_indicators_content(pathname):
 
 demand_controls = static.controls
 
-#DemandClassificator
+## DemandClassificator
 @app.callback(
     Output('graph_classificator_1', 'figure'),
     Output('datatable1', 'children'),
@@ -201,7 +211,7 @@ def update_graph(value1,value2,start_date,end_date):
                                     style_cell_conditional=[{'textAlign': 'left'}],
                                     ), [],[],[],[], options1, options2, options3, options4
 
-#Intermittent
+## Intermittent
 @app.callback(
     Output('graph_classificator_2', 'figure'),
     [Input('dropdown_demand_1', 'value')],
@@ -220,7 +230,7 @@ def update_drown(value):
 
     return fig
 
-#Lumpy
+## Lumpy
 @app.callback(
     Output('graph_classificator_3', 'figure'),
     [Input('dropdown_demand_2', 'value')],
@@ -239,7 +249,7 @@ def update_drown(value):
 
     return fig
 
-#Smooth
+## Smooth
 @app.callback(
     Output('graph_classificator_4', 'figure'),
     [Input('dropdown_demand_3', 'value')],
@@ -258,7 +268,7 @@ def update_drown(value):
 
     return fig
 
-#Erratic
+## Erratic
 @app.callback(
     Output('graph_classificator_5', 'figure'),
     [Input('dropdown_demand_4', 'value')],
@@ -277,13 +287,13 @@ def update_drown(value):
 
     return fig
 
-
+## Info
 @app.callback(
     Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")],prevent_initial_call=True,)
 def open_toast(n):
     return True
     
-##Descargar
+## FileDownload
 @app.callback(Output("download", "data"),
             [Input("download_discontinued", "n_clicks")],
             prevent_initial_call=True,)
