@@ -85,10 +85,15 @@ demand_classificator = [
             dbc.Col(dcc.Graph(id='graph_classificator_5', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
         ]),
         dbc.Row([
-            html.H5('Productos a descontinuar:'),
+            dbc.Col(html.Hr()),
         ]),
         dbc.Row([
-            dbc.Col(html.Hr()),
+            html.H5('Productos a descontinuar:'),
+        ]),
+        
+        dbc.Row([
+            dbc.Button("Download discontinued",id="download_discontinued",outline=True, color="dark",n_clicks=0,),
+            dcc.Download(id='download')
         ]),
         dbc.Row([
             dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
@@ -149,7 +154,11 @@ demand_controls = static.controls
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,start_date,end_date):
-    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(start_date,end_date,True)
+    demand2, discontinued, demand_classificator, classifier = DataManager().demand_data(start_date,end_date,True)
+    smooth = demand_classificator.query("CLASSIFIER == 'Smooth'")
+    intermittent = demand_classificator.query("CLASSIFIER == 'Intermittent'")
+    lumpy = demand_classificator.query("CLASSIFIER == 'Lumpy'")
+    erratic = demand_classificator.query("CLASSIFIER == 'Erratic'")
     if len(value1)>0:
         demand2=demand2.query('CATEGORIA == @value1')
         discontinued=discontinued.query('CATEGORIA == @value1')
@@ -199,7 +208,7 @@ def update_graph(value1,value2,start_date,end_date):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    intermittent= DataManager().last_intermittent
+    intermittent= DataManager().demand_classifier.query("CLASSIFIER=='Intermittent'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         intermittent = intermittent[intermittent['PROD_REF'].isin(value)]
@@ -218,7 +227,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    lumpy= DataManager().last_lumpy
+    lumpy= DataManager().demand_classifier.query("CLASSIFIER=='Lumpy'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         lumpy = lumpy[lumpy['PROD_REF'].isin(value)]
@@ -237,7 +246,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    smooth= DataManager().last_smooth
+    smooth= DataManager().demand_classifier.query("CLASSIFIER=='Smooth'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         smooth = smooth[smooth['PROD_REF'].isin(value)]
@@ -256,7 +265,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    erratic= DataManager().last_erratic
+    erratic= DataManager().demand_classifier.query("CLASSIFIER=='Erratic'").sort_values('DEMAND_BUCKETS',ascending=False)
 
     if (len(value)>0):
         erratic = erratic[erratic['PROD_REF'].isin(value)]
@@ -270,7 +279,14 @@ def update_drown(value):
 
 
 @app.callback(
-    Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")]
-)
+    Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")],prevent_initial_call=True,)
 def open_toast(n):
     return True
+    
+##Descargar
+@app.callback(Output("download", "data"),
+            [Input("download_discontinued", "n_clicks")],
+            prevent_initial_call=True,)
+
+def generate_csv(n_nlicks):
+    return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="discontinued.csv")

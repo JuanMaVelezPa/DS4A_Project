@@ -25,11 +25,28 @@ indicators_general = [
         
         html.Div(
             [
-                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                html.H3(id='prueba', className='title', children=['Ventas totales por año']),
                 dcc.Graph(id='graph_general_2', figure={})
             ],
             className='graph-chunk'
+        ),
+
+        html.Div(
+            [
+                html.H3(id='prueba', className='title', children=['Venta media por años']),
+                dcc.Graph(id='graph_general_3', figure={})
+            ],
+            className='graph-chunk'
+        ),
+
+        html.Div(
+            [
+                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                dcc.Graph(id='graph_general_4', figure={})
+            ],
+            className='graph-chunk'
         )
+
     ],
     ),
 ]
@@ -46,6 +63,10 @@ indicators_features = [
                 dbc.Col([
                     dcc.Graph(id='graph_features_2', figure={})
                 ])
+
+                
+
+
             ],
             className='graph-chunk'
         )
@@ -120,7 +141,7 @@ features_controls = dbc.FormGroup(
     ]
 )
 
-## Indicators_General_Grapgh_1
+## Indicatores
 @app.callback(
     Output('graph_general_1', 'figure'),
     [Input('dropdown_category', 'value'),
@@ -161,9 +182,82 @@ def update_graph(value1,value2,value3,start_date,end_date):
     )
     return fig
 
-## Indicators_General_Grapgh_2
+# Analisis de ventas totales
 @app.callback(
     Output('graph_general_2', 'figure'),
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
+     Input('calendar', 'start_date'),
+     Input('calendar', 'end_date')])
+
+     
+def update_graph(value1,value2,value3,start_date,end_date):
+    if(value3 == []):
+        temp = DataManager().sales_prod
+    else:
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    
+    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
+    sales_prod = sales_prod.loc[mask]
+    
+    
+    sales1 = sales_prod.groupby(['ANIO','MES'])['TOTAL'].sum().to_frame().reset_index()
+    fig = px.line(sales1, x="MES", y="TOTAL", color='ANIO', labels = {1:"JAN",
+    2:"FEB",3:"MAR",4:"APR",5:"MAY",6:"JUN",7:"JUL",8:"AUG",9:"SEP",10:"OCT",11:"NOV",12:"DEC"})
+    
+    return fig
+
+# Analisis de ventas por año
+@app.callback(
+    Output('graph_general_3', 'figure'),
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
+     Input('calendar', 'start_date'),
+     Input('calendar', 'end_date')])
+
+     
+def update_graph(value1,value2,value3,start_date,end_date):
+    if(value3 == []):
+        temp = DataManager().sales_prod
+    else:
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    
+    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
+    sales_prod = sales_prod.loc[mask]
+    
+    
+    sales1 = sales_prod.groupby(['ANIO','MES'])['TOTAL'].mean().to_frame().reset_index()
+    sales1['ANIO'] = sales1['ANIO'].astype("category")
+    fig = px.bar(sales1, x="MES", y="TOTAL", color='ANIO',barmode='group')
+    
+
+    
+    return fig
+
+
+## Colores más vendidos
+@app.callback(
+    Output('graph_general_4', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_tienda', 'value'),

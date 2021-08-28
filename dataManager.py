@@ -156,7 +156,7 @@ class DataManager(metaclass=SingletonMeta):
         self.sales_prod = self.__df_mat_mod(sales_prod,ref_materials)
         self.stock_prod = self.__df_mat_mod(stock_prod,ref_materials)
         self.references = self.__df_mat_mod(references,ref_materials)
-        demand2, discontinued, self.smooth, self.intermittent, self.erratic, self.lumpy=self.demand_data(sales_prod.FECHA.min(),sales_prod.FECHA.max())
+        demand2, self.discontinued, self.demand_classifier, self.classifier=self.demand_data(sales_prod.FECHA.min(),sales_prod.FECHA.max())
 
     def demand_data(self, start_date, end_date,save=False):
 
@@ -203,7 +203,7 @@ class DataManager(metaclass=SingletonMeta):
         features
         demand2 = demand2.merge(features, how='left', on='PROD_REF')
 
-        def classifier(df):
+        def classifier_fun(df):
             ADI = df['ADI']
             CV2  = df['CV2']
             
@@ -217,21 +217,14 @@ class DataManager(metaclass=SingletonMeta):
                 a = 'Lumpy'
             return a
 
-        demand2['CLASSIFIER'] = demand2.apply(classifier, axis=1)
+        demand2['CLASSIFIER'] = demand2.apply(classifier_fun, axis=1)
         discontinued = demand2[demand2['N_LAST']<12]
         discontinued = discontinued[['PROD_REF','DESCRIPCION','CATEGORIA','FIRST','LAST']]
         demand2 = demand2[demand2['N_LAST']>=12]
-        self.classifier = demand2[['PROD_REF','CLASSIFIER']]
+        classifier = demand2[['PROD_REF','CLASSIFIER']]
         demand3 = demand['CANTIDAD'].stack().reset_index().rename(columns={0: 'CANTIDAD'})
         demand3 = demand3.merge(demand2, how='right', on='PROD_REF')
-        smooth = demand3[demand3['CLASSIFIER']=='Smooth'].sort_values('DEMAND_BUCKETS',ascending=False)
-        intermittent = demand3[demand3['CLASSIFIER']=='Intermittent'].sort_values('DEMAND_BUCKETS',ascending=False)
-        erratic = demand3[demand3['CLASSIFIER']=='Erratic'].sort_values('DEMAND_BUCKETS',ascending=False)
-        lumpy = demand3[demand3['CLASSIFIER']=='Lumpy'].sort_values('DEMAND_BUCKETS',ascending=False)
         if save:
-            self.last_smooth=smooth
-            self.last_intermittent=intermittent
-            self.last_erratic=erratic
-            self.last_lumpy=lumpy
-            self.last_classifier=self.classifier
-        return demand2, discontinued, smooth, intermittent, erratic, lumpy
+            self.last_demand_classifier=demand3
+            self.last_classifier=classifier
+        return demand2, discontinued, demand3, classifier
