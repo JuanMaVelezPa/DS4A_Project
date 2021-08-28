@@ -1,6 +1,5 @@
 from numpy.lib.type_check import asfarray
 import pandas as pd
-import plotly
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
 
@@ -13,8 +12,6 @@ from styles import *
 from dataManager import *
 from mainDash import *
 from datetime import date as dt
-
-plotly.io.templates.default = 'plotly_dark'
 
 indicators_general = [
     dbc.Col([

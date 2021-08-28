@@ -19,7 +19,7 @@ label {
 }
 
 .wrap {
-	color: white;
+	color: root.$base-color;
 	font-family: 'Orkney Light';
 	font-size: 15px;
 	
@@ -183,7 +183,7 @@ label {
 
 		padding: 10px 20px 20px;
 		
-		background-color: #333333;
+		background-color: root.$main-color;
 
 		& .btn {
 			margin: 0 4px;
@@ -205,11 +205,11 @@ svg.main-svg {
     border-radius: 15px;
 
 	&:first-of-type {
-		background: rgb(81,81,81) !important;
+		background: root.$main-color !important;
 	}
 
 	& .legend .bg {
-		fill: rgb(81,81,81) !important;
+		fill: root.$main-color !important;
 	}
 }
 
