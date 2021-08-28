@@ -59,7 +59,7 @@ menu = dbc.Col([
         dbc.Button("General", href="/indicadores/general", className="btn-main-outline"),
         dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", className="btn-main-outline"),
     ],
-    className='indicators-menu flexy-row start'
+    className='internal-menu flexy-row start'
 )
 ind_content = html.Div(className='content-data',id='indicators-container',children=indicators_general)
 
