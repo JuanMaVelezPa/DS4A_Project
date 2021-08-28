@@ -123,8 +123,21 @@ demand_predictor = [
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,start_date,end_date):
-    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(value1,value2,start_date,end_date)
-
+    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(start_date,end_date,True)
+    if len(value1)>0:
+        demand2=demand2.query('CATEGORIA == @value1')
+        discontinued=discontinued.query('CATEGORIA == @value1')
+        smooth=smooth.query('CATEGORIA == @value1')
+        intermittent=intermittent.query('CATEGORIA == @value1')
+        erratic=erratic.query('CATEGORIA == @value1')
+        lumpy=lumpy.query('CATEGORIA == @value1')
+    if len(value2)>0:
+        demand2=demand2.query('SUBCATEGORIA_POS== @value2')
+        discontinued=discontinued.query('SUBCATEGORIA_POS == @value2')
+        smooth=smooth.query('SUBCATEGORIA_POS == @value2')
+        intermittent=intermittent.query('SUBCATEGORIA_POS == @value2')
+        erratic=erratic.query('SUBCATEGORIA_POS == @value2')
+        lumpy=lumpy.query('SUBCATEGORIA_POS == @value2')
     fig = px.scatter(demand2,
             x="CV2", y="ADI", color="SUBCATEGORIA_POS",
             hover_data=['CATEGORIA','SUBCATEGORIA_POS','PROD_REF', 'DESCRIPCION',],
@@ -160,7 +173,7 @@ def update_graph(value1,value2,start_date,end_date):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    intermittent= DataManager().intermittent
+    intermittent= DataManager().last_intermittent
 
     if (len(value)>0):
         intermittent = intermittent[intermittent['PROD_REF'].isin(value)]
@@ -179,7 +192,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    lumpy= DataManager().lumpy
+    lumpy= DataManager().last_lumpy
 
     if (len(value)>0):
         lumpy = lumpy[lumpy['PROD_REF'].isin(value)]
@@ -198,7 +211,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    smooth= DataManager().smooth
+    smooth= DataManager().last_smooth
 
     if (len(value)>0):
         smooth = smooth[smooth['PROD_REF'].isin(value)]
@@ -217,7 +230,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    erratic= DataManager().erratic
+    erratic= DataManager().last_erratic
 
     if (len(value)>0):
         erratic = erratic[erratic['PROD_REF'].isin(value)]
