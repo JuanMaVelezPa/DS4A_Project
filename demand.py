@@ -19,7 +19,30 @@ demand_classificator = [
                 html.Hr(),
                 html.H3("Clasificador de Demanda", style=TEXT_TITLE),
                 html.Hr(),
-            ]),
+                html.Div([
+                        dbc.Button("Info..",id="auto-toast-toggle",outline=True, color="dark",n_clicks=0,),
+                        dbc.Toast([
+                                html.P([ 
+                                    html.H6('*Smooth demand(ADI> = 1,32 y CV2 <0,49)'),
+                                    html.Div('El historial de la demanda muestra muy poca variacion en la cantidad de demanda, pero una gran variacion en el intervalo entre dos demandas. Aunque los metodos de pronostico especificos abordan las demandas intermitentes, el margen de error de pronostico es considerablemente mayor.'),
+                                    html.Br(),
+                                    html.H6('Intermittent demand (ADI <1,32 y CV2 <0,49)'),
+                                    html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
+                                    html.Br(),
+                                    html.H6('Erratic demand (ADI> = 1,32 y CV2> = 0,49)'),
+                                    html.Div('La demanda se caracteriza por una gran variacion en cantidad y en el tiempo. En realidad, es imposible producir un pronostico confiable, independientemente de las herramientas de pronostico que utilice. Este tipo particular de patron de demanda es imprevisible.'),
+                                    html.Br(),
+                                    html.H6('Lumpy demand (ADI <1,32 y CV2 <0,49)'),
+                                    html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
+                                ], className="mb-0",style={'color': 'black', 'fontSize': 14}),],
+                                    id="auto-toast",
+                                    header="Con base en estas 2 dimensiones, la literatura clasifica los perfiles de demanda en 4 categorias diferentes:",
+                                    icon="dark",duration=4000,
+                                    style={"maxWidth": "80%"},
+                                ),
+                        ]
+                    )
+                ]),
         ]),
         dbc.Row([
             dbc.Col(dcc.Graph(id='graph_classificator_1', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
@@ -124,8 +147,21 @@ demand_controls = []
      Input('calendar', 'end_date')])
 
 def update_graph(value1,value2,start_date,end_date):
-    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(value1,value2,start_date,end_date)
-
+    demand2, discontinued, smooth, intermittent, erratic, lumpy = DataManager().demand_data(start_date,end_date,True)
+    if len(value1)>0:
+        demand2=demand2.query('CATEGORIA == @value1')
+        discontinued=discontinued.query('CATEGORIA == @value1')
+        smooth=smooth.query('CATEGORIA == @value1')
+        intermittent=intermittent.query('CATEGORIA == @value1')
+        erratic=erratic.query('CATEGORIA == @value1')
+        lumpy=lumpy.query('CATEGORIA == @value1')
+    if len(value2)>0:
+        demand2=demand2.query('SUBCATEGORIA_POS== @value2')
+        discontinued=discontinued.query('SUBCATEGORIA_POS == @value2')
+        smooth=smooth.query('SUBCATEGORIA_POS == @value2')
+        intermittent=intermittent.query('SUBCATEGORIA_POS == @value2')
+        erratic=erratic.query('SUBCATEGORIA_POS == @value2')
+        lumpy=lumpy.query('SUBCATEGORIA_POS == @value2')
     fig = px.scatter(demand2,
             x="CV2", y="ADI", color="SUBCATEGORIA_POS",
             hover_data=['CATEGORIA','SUBCATEGORIA_POS','PROD_REF', 'DESCRIPCION',],
@@ -161,7 +197,7 @@ def update_graph(value1,value2,start_date,end_date):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    intermittent= DataManager().intermittent
+    intermittent= DataManager().last_intermittent
 
     if (len(value)>0):
         intermittent = intermittent[intermittent['PROD_REF'].isin(value)]
@@ -180,7 +216,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    lumpy= DataManager().lumpy
+    lumpy= DataManager().last_lumpy
 
     if (len(value)>0):
         lumpy = lumpy[lumpy['PROD_REF'].isin(value)]
@@ -199,7 +235,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    smooth= DataManager().smooth
+    smooth= DataManager().last_smooth
 
     if (len(value)>0):
         smooth = smooth[smooth['PROD_REF'].isin(value)]
@@ -218,7 +254,7 @@ def update_drown(value):
     prevent_initial_call=True,)
 
 def update_drown(value):
-    erratic= DataManager().erratic
+    erratic= DataManager().last_erratic
 
     if (len(value)>0):
         erratic = erratic[erratic['PROD_REF'].isin(value)]
@@ -229,3 +265,10 @@ def update_drown(value):
        title="ERRATIC")
 
     return fig
+
+
+@app.callback(
+    Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")]
+)
+def open_toast(n):
+    return True
