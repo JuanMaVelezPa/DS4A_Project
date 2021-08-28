@@ -77,6 +77,8 @@ def render_indicators_content(pathname):
         return indicators_general
     elif pathname == '/indicadores/caracteristicas':
         return indicators_features
+    else:
+        return [html.Div()]
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()

@@ -12,15 +12,10 @@ from dataManager import *
 from mainDash import *
 import dash_table
 
-button_demand = dbc.Row([
-        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
-        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
-    ])
-
 demand_classificator = [
+    dbc.Col([
         dbc.Row([
             dbc.Col([
-                button_demand,
                 html.Hr(),
                 html.H3("Clasificador de Demanda", style=TEXT_TITLE),
                 html.Hr(),
@@ -80,12 +75,12 @@ demand_classificator = [
                 multi=True,),xs=6,sm=6,md=3,lg=3,xl=3),
         ]),
         dbc.Row([
-            dbc.Col(dcc.Graph(id='graph_classificator_2', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
-            dbc.Col(dcc.Graph(id='graph_classificator_3', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_2', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_3', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
         ]),
         dbc.Row([
-            dbc.Col(dcc.Graph(id='graph_classificator_4', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
-            dbc.Col(dcc.Graph(id='graph_classificator_5', figure={},style={"margin-left": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_4', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
+            dbc.Col(dcc.Graph(id='graph_classificator_5', figure={},style={"marginLeft": "0"}),xs=12,sm=12,md=6,lg=6,xl=6),
         ]),
         dbc.Row([
             html.H5('Productos a descontinuar:'),
@@ -96,14 +91,43 @@ demand_classificator = [
         dbc.Row([
             dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
         ]),
+    ])
 ]
 
 demand_predictor = [
-        button_demand,
         html.Hr(),
         html.H3("Prediccion de Demanda", style=TEXT_TITLE),
         html.Hr(),
     ]
+
+menu = dbc.Col([
+        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
+        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
+    ],
+    className='internal-menu flexy-row start'
+)
+
+demd_content = html.Div(className='content-data',id='demand-container',children=demand_classificator)
+
+demand_container = [
+    menu,
+    demd_content
+]
+
+@app.callback(
+    [Output("demand-container", "children")],
+    [Input("url", "pathname")]
+)
+def render_indicators_content(pathname):
+    if pathname == '/demanda' or pathname == '/demanda/clasificador':
+        return demand_classificator
+    elif pathname == '/demanda/prediccion':
+        return demand_predictor
+    else:
+        return [html.Div()]
+
+
+demand_controls = []
 
 #DemandClassificator
 @app.callback(
