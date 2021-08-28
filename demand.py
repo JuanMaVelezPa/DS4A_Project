@@ -29,8 +29,7 @@ demand_classificator = [
         dbc.Row([
             dbc.Col([
                 html.Hr(),
-                html.H3("Clasificador de Demanda"),
-                html.Hr(),
+                html.H3("Clasificador de Demanda", style=TEXT_TITLE),
                 html.Div([
                         dbc.Button("Info..",id="auto-toast-toggle",outline=True, color="dark",n_clicks=0,),
                         dbc.Toast([
@@ -49,8 +48,10 @@ demand_classificator = [
                                 ], className="mb-0",style={'color': 'black', 'fontSize': 14}),],
                                     id="auto-toast",
                                     header="Con base en estas 2 dimensiones, la literatura clasifica los perfiles de demanda en 4 categorias diferentes:",
-                                    icon="dark",duration=4000,
+                                    icon="dark",
                                     style={"maxWidth": "80%"},
+                                    is_open=False,
+                                    dismissable=True,
                                 ),
                         ]
                     )
@@ -106,7 +107,7 @@ demand_classificator = [
             dcc.Download(id='download')
         ]),
         dbc.Row([
-            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
+            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=5,lg=5,xl=5)
         ]),
     ])
 ]
@@ -202,14 +203,24 @@ def update_graph(value1,value2,start_date,end_date):
 
     return fig, dash_table.DataTable(id='datatable1',data= discontinued.to_dict('records'),
                                     columns=[{'id': x, 'name': x} for x in discontinued.columns],
+                                    sort_action='native',
+                                    page_size=20,
+                                    style_table={'height': '300px', 'overflowY': 'auto'},
                                     style_as_list_view=True,
                                     style_header={'backgroundColor': 'rgb(30, 30, 30)',
-                                                'color':'white'},
+                                                'color':'white',
+                                                'fontWeight': 'bold',
+                                                'font_size':13,
+                                                'textAlign': 'center'},
                                     style_cell={
                                         'backgroundColor': 'white',
-                                        'color': 'black'},
+                                        'color': 'black',
+                                        'border': '1px solid grey',
+                                        'font_size':11},
                                     style_cell_conditional=[{'textAlign': 'left'}],
+                                    style_data={ 'border': '1px solid grey', },
                                     ), [],[],[],[], options1, options2, options3, options4
+
 
 ## Intermittent
 @app.callback(
@@ -291,7 +302,9 @@ def update_drown(value):
 @app.callback(
     Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")],prevent_initial_call=True,)
 def open_toast(n):
-    return True
+    if n:
+        return True
+    return False
     
 ## FileDownload
 @app.callback(Output("download", "data"),
