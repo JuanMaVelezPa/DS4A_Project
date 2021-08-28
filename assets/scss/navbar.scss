@@ -1,0 +1,123 @@
+@use 'root';
+
+.navbar {
+	z-index: 100 !important;
+	width: 100%;
+	
+	position: fixed;
+	top: 0;
+	left: 0;
+	margin: auto;
+	
+	&#navbar {
+		&.navbar-inverse {
+			background-color: rgba(36,36,36,1);
+		}
+		
+		& .logo-pages {
+			border-radius: 5px;
+			
+			width: 140px;
+			height: 94px;
+		}
+	}
+	
+	font-family: 'Monserrat Light';
+	font-size: 16px;
+	
+	&.navbar-inverse {
+		background-color: rgba(0,0,0,0.4);
+		border: none;
+	}
+	
+	& .container {
+		width: 100%;
+	}
+}
+
+.affix {
+	&.navbar.navbar-inverse {
+		background-color: white;
+		border: solid 1px;
+		border-color: root.$scnd-color;
+	}
+	
+	& #nav-menu > li {
+		& > a {
+			color: black;
+		}
+	}
+	
+	& .cart {
+		opacity: 1;
+		
+		& .cart-items {
+			border: solid 1px root.$scnd_color;
+		}
+	}
+	
+}
+
+.navbar-header {
+	display: flex;
+	align-items: center;
+}
+
+#nav-menu, .navbar-inverse .navbar-nav {
+	& > li {
+		& > a {
+			color: white;
+		}
+		
+		&.active > a {
+			background-color: transparent;
+			color: root.$scnd-color;
+		}
+		
+		& > a:hover {
+			color: root.$scnd-color;
+		}
+	}
+}
+
+.cart {
+	position: absolute;
+	right: 0.8em;
+	top: 2.3em;
+	
+	padding-top: 0.5em;
+	padding-left: 0.4em;
+	border-radius: 1em;
+	
+	background-color: root.$scnd_color;
+	opacity: 0.5;
+	color: white;
+	font-size: 20px;
+	
+	height: 2em;
+	width: 2em;
+	
+	&:hover {
+		color: rgba(0,0,0,0.4);
+	}
+	
+	& .cart-items {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		
+		position: absolute;
+		top: -0.6em;
+		right: -0.6em;
+		
+		border-radius: 0.75em;
+		
+		background-color: white;
+		color: black;
+		font-family: 'Monserrat Light';
+		font-size: 14px;
+		
+		width: 1.5em;
+		height: 1.5em;
+	}
+}

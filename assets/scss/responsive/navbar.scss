@@ -1,0 +1,42 @@
+@use 'root';
+
+@media screen and (max-width: root.$break-small) {
+	.navbar {
+		left: 0;
+		top: 0;
+		width: 100%;
+	}
+	
+	.affix#main {
+		position: fixed;
+		top: 0px;
+		
+		width: 100vw;
+		
+		& .icon-bar {
+			background-color: black;
+		}
+	}
+	
+	.navbar-header {
+		display: block;
+		
+		& button {
+			float: right;
+		}
+	}
+	
+	.navbar-brand  .logo-alt {
+		display: none;
+	}
+}
+
+@media only screen and (max-width: root.$break-medium) and (orientation: landscape) {
+	.navbar-header {
+		display: block;
+		
+		& button {
+			float: right;
+		}
+	}
+}

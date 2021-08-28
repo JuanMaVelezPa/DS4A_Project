@@ -1,0 +1,311 @@
+/* ----------------------------------------------------------------------------------------
+							REQUIRED CLAUSES
+---------------------------------------------------------------------------------------- */
+
+@use 'root';
+@use 'fonts';
+@use 'buttons';
+
+@forward 'root';
+
+/* ----------------------------------------------------------------------------------------
+							ORIGINAL YII2 CSS
+---------------------------------------------------------------------------------------- */
+
+html,
+body {
+    height: 100%;
+}
+
+body.blank {
+    display: flex;
+    padding: 40px 0;
+}
+
+.wrap {
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto -60px;
+    padding: 0 0 60px;
+}
+
+body.blank .wrap {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin: -40px auto;
+    padding: 15px;
+}
+
+body.blank .wrap > div {
+    width: 100%;
+}
+
+.wrap > .container {
+    padding: 70px 15px 20px;
+}
+
+.footer {
+    height: 60px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.jumbotron {
+    text-align: center;
+    background-color: transparent;
+}
+
+.jumbotron .btn {
+    font-size: 21px;
+    padding: 14px 24px;
+}
+
+.not-set {
+    color: #c55;
+    font-style: italic;
+}
+
+/* add sorting icons to gridview sort links */
+a.asc:after, a.desc:after {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    padding-left: 5px;
+}
+
+a.asc:after {
+    content: /*"\e113"*/ "\e151";
+}
+
+a.desc:after {
+    content: /*"\e114"*/ "\e152";
+}
+
+.sort-numerical a.asc:after {
+    content: "\e153";
+}
+
+.sort-numerical a.desc:after {
+    content: "\e154";
+}
+
+.sort-ordinal a.asc:after {
+    content: "\e155";
+}
+
+.sort-ordinal a.desc:after {
+    content: "\e156";
+}
+
+.grid-view th,
+.grid-view td:last-child {
+    white-space: nowrap;
+}
+
+.grid-view .filters input,
+.grid-view .filters select {
+    min-width: 50px;
+}
+
+.hint-block {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+}
+
+.error-summary {
+    color: #a94442;
+    background: #fdf7f7;
+    border-left: 3px solid #eed3d7;
+    padding: 10px 20px;
+    margin: 0 0 15px 0;
+}
+
+/* align the logout "link" (button in form) of the navbar */
+.nav li > form > button.logout {
+    padding: 15px;
+    border: none;
+}
+
+@media(max-width:767px) {
+    .nav li > form > button.logout {
+        display:block;
+        text-align: left;
+        width: 100%;
+        padding: 10px 15px;
+    }
+}
+
+.nav > li > form > button.logout:focus,
+.nav > li > form > button.logout:hover {
+    text-decoration: none;
+}
+
+.nav > li > form > button.logout:focus {
+    outline: none;
+}
+
+/* ----------------------------------------------------------------------------------------
+							MODIFIED YII2 CSS
+---------------------------------------------------------------------------------------- */
+
+.has-success .control-label {
+	color: inherit;
+}
+
+/* ----------------------------------------------------------------------------------------
+							CUSTOM NICKGOODWIND CSS
+---------------------------------------------------------------------------------------- */
+
+.aligned-text-center, .pull-center {
+	text-align: center;
+}
+
+.aligned-text-right {
+	text-align: right;
+}
+
+.transparent {
+	background-color: transparent;
+	z-index: 1;
+}
+
+.colored {
+	color: root.$scnd-color;
+}
+
+.round {
+	border-radius: 5px;
+}
+
+%flexy {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.flexy-row {
+	@extend %flexy;
+	
+	& > .first-element {
+		margin-left: 20px;
+	}
+	
+	&.row {
+		margin-left: -15px;
+		margin-right: -15px;
+	}
+}
+
+%flexy-col {
+	@extend %flexy;
+	flex-direction: column;
+	align-items: center;
+}
+
+.flexy-col {
+	@extend %flexy-col;
+	
+	& > .first-element {
+		margin-top: 20px;
+	}
+}
+
+.flexy-row, .flexy-col {
+	
+	&.between {
+		justify-content: space-between;
+	}
+	&.evenly {
+		justify-content: space-evenly;
+	}
+	&.start {
+		justify-content: flex-start;
+	    align-items: flex-start;
+	}
+	&.end {
+		justify-content: flex-end;
+		align-items: flex-end;
+	}
+}
+
+.flex-field {
+	&:nth-child(n) {
+		padding: 0 {
+			left: 15px;
+		}
+	}
+	&:last-child {
+		padding-right: 15px;
+	}
+	&:only-child {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	
+	&.start {
+		justify-self: flex-start;
+	}
+	
+	&.center {
+		justify-self: center;
+	}
+	
+	&.end {
+		justify-self: flex-end;
+	}
+	
+	&.line {
+		display: flex;
+		flex-grow: 1;
+		margin: 0;
+	}
+	&.break {
+		flex-basis: 100%;
+		height: 0;
+	}
+}
+
+.form-basic {
+    @extend %flexy-col;
+    margin: 0 4em;
+}
+
+.form-buttons {
+	margin-top: 1em;
+}
+
+.footer {
+	@extend %flexy-col;
+	z-index: 1000;
+	
+	width: 100%;
+	height: 50px;
+	border-top: none;
+
+	background-color: rgb(51,51,51);
+	color: root.$link-color;
+	font-family: "Glober thin";
+	font-weight: bold;
+	
+	& .container {
+		position: relative;
+	
+		& .legal-notice {
+		    align-self: baseline;
+		    position: absolute;
+			left: 2em;
+			
+			& a {
+				color: root.$link-color;
+			}
+		}
+	}
+}

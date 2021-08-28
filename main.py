@@ -17,25 +17,28 @@ from dataManager import *
 from static import sidebar, top_menu
 from mainDash import *
 
-content = html.Div( className='content', id='page-content', children=[])
+content = html.Div( className='page-content', id='content', children=[])
 
-app.layout = html.Div([
-    dcc.Location(id="url"),
-    sidebar, 
-    top_menu,
-    content,
-])
+app.layout = html.Div(
+    [
+        dcc.Location(id="url"),
+        sidebar, 
+        top_menu,
+        content,
+    ],
+    className='wrap'
+)
 
 @app.callback(
     [ Output("sidebar_control", "children"),
-    Output("page-content", "children")],
+    Output("content", "children")],
     [Input("url", "pathname")]
 )
 def render_page_content(pathname):
     if pathname == '/' or pathname == '/indicadores' or pathname == '/indicadores/general':
-        return sidebar, indicators_general
+        return sidebar, indicators_container
     elif pathname == '/indicadores/caracteristicas':
-        return features_controls,indicators_features
+        return features_controls, indicators_container
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
         return sidebar, demand_classificator
     elif pathname == '/demanda/prediccion':

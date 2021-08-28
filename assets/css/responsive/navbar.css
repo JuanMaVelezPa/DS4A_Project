@@ -1,0 +1,37 @@
+@media screen and (max-width: 450px) {
+  .navbar {
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .affix#main {
+    position: fixed;
+    top: 0px;
+    width: 100vw;
+  }
+  .affix#main .icon-bar {
+    background-color: black;
+  }
+
+  .navbar-header {
+    display: block;
+  }
+  .navbar-header button {
+    float: right;
+  }
+
+  .navbar-brand .logo-alt {
+    display: none;
+  }
+}
+@media only screen and (max-width: 767px) and (orientation: landscape) {
+  .navbar-header {
+    display: block;
+  }
+  .navbar-header button {
+    float: right;
+  }
+}
+
+/*# sourceMappingURL=navbar.css.map */

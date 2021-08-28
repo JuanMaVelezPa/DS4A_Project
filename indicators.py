@@ -1,5 +1,6 @@
 from numpy.lib.type_check import asfarray
 import pandas as pd
+import plotly
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
 
@@ -13,44 +14,76 @@ from dataManager import *
 from mainDash import *
 from datetime import date as dt
 
-button_indicators = dbc.Row([
-        dbc.Button("General", href="/indicadores/general", outline=True, color="secondary", className="mr-1"),
-        dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", outline=True, color="secondary", className="mr-1"),
-    ])  
+plotly.io.templates.default = 'plotly_dark'
 
-indicators_general = dbc.Container([
-
-        dbc.Row([
-            dbc.Col([
-                button_indicators,
-                html.Hr(),
-                html.H3("Indicadores", style=TEXT_TITLE),
-                html.Hr(),
-            ]),
-        ]),
-
-        dbc.Row([
-            dbc.Col([
-                dcc.Graph(id='graph_general_1', figure={})
-            ])
-        ]),
-
-        dbc.Row([
-            dbc.Col([
-                html.H5(id='prueba', children=['Colores más vendidos'], style=TEXT_TITLE),
+indicators_general = [
+    dbc.Col([
+        html.Div(
+            [
+                html.H3("Indicadores", className='title'),
+                dcc.Graph(id='graph_general_1', figure={}),
+            ],
+            className='graph-chunk'
+        ),
+        
+        html.Div(
+            [
+                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
                 dcc.Graph(id='graph_general_2', figure={})
-            ]),
-        ]),
+            ],
+            className='graph-chunk'
+        )
+    ],
+    ),
+]
 
+indicators_features = [
+    dbc.Col([
+        html.H3("Caracteristicas",className='title'),
+        html.Div(
+            [
+                dbc.Col([
+                    dcc.Graph(id='graph_features_1', figure={})
+                ]),
 
-])
+                dbc.Col([
+                    dcc.Graph(id='graph_features_2', figure={})
+                ])
+            ],
+            className='graph-chunk'
+        )
+    ]),
+]
+
+menu = dbc.Col([
+        dbc.Button("General", href="/indicadores/general", className="btn-main-outline"),
+        dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", className="btn-main-outline"),
+    ],
+    className='indicators-menu flexy-row start'
+)
+ind_content = html.Div(className='content-data',id='indicators-container',children=indicators_general)
+
+indicators_container = [
+    menu,
+    ind_content
+]
+
+@app.callback(
+    [Output("indicators-container", "children")],
+    [Input("url", "pathname")]
+)
+def render_indicators_content(pathname):
+    if pathname == '/' or pathname == '/indicadores' or pathname == '/indicadores/general':
+        return indicators_general
+    elif pathname == '/indicadores/caracteristicas':
+        return indicators_features
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
 
 features_controls = dbc.FormGroup(
     [
-        html.P('Por favor seleccionar las características a analizar', style=TEXT_STYLE),
+        html.P('Por favor seleccionar las características a analizar'),
         html.Hr(),
         dcc.Dropdown(id='dropdown_field1',
             options=[
@@ -69,7 +102,7 @@ features_controls = dbc.FormGroup(
             placeholder='Please select...',
             multi=False,
         ),
-        html.P('Calendar', style=TEXT_STYLE),
+        html.P('Calendar'),
         dcc.DatePickerRange(
             id='calendar2',
             with_portal=True,
@@ -87,30 +120,6 @@ features_controls = dbc.FormGroup(
         html.Br()
     ]
 )
-
-
-indicators_features = dbc.Container([
-
-        dbc.Row([
-            dbc.Col([
-                button_indicators,
-                html.Hr(),
-                html.H3("Caracteristicas", style=TEXT_TITLE),
-                html.Hr(),
-            ]),
-        ]),
-
-        dbc.Row([
-
-            dbc.Col([
-                dcc.Graph(id='graph_features_1', figure={})
-            ]),
-
-            dbc.Col([
-                dcc.Graph(id='graph_features_2', figure={})
-            ])
-        ])
-    ])
 
 ## Indicators_General_Grapgh_1
 @app.callback(
@@ -135,6 +144,13 @@ def update_graph(value1,value2,value3,start_date,end_date):
     else:
         sales_prod = temp.query("CATEGORIA==@value1")
         sales_prod = temp.query("SUBCATEGORIA==@value2")
+
+    if (start_date is None or start_date == ""):
+        start_date = sales_prod['FECHA'].min()
+    
+    if (end_date is None or end_date == ""):
+        end_date = sales_prod['FECHA'].max()
+        
     mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
     sales_prod = sales_prod.loc[mask]
     fig = px.scatter(sales_prod,
@@ -142,7 +158,8 @@ def update_graph(value1,value2,value3,start_date,end_date):
         y="TOTAL",
         color="SUBCATEGORIA",
         hover_data=['REF', 'DESC_LARGA','CATEGORIA'],
-        title="\t Sales Subategories | Money vs Units"
+        title="\t Sales Subategories | Money vs Units",
+        template='plotly_dark'
         )
     return fig
 
@@ -179,7 +196,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
     fig = go.Figure(data=[go.Bar(
         x= df.index,
         y= df,
-        marker_color=colors # marker color can be a single color value or an iterable
+        marker_color=colors, # marker color can be a single color value or an iterable
         )])
     
     return fig
