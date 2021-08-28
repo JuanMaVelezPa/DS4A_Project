@@ -156,21 +156,13 @@ class DataManager(metaclass=SingletonMeta):
         self.sales_prod = self.__df_mat_mod(sales_prod,ref_materials)
         self.stock_prod = self.__df_mat_mod(stock_prod,ref_materials)
         self.references = self.__df_mat_mod(references,ref_materials)
-        self.demand_load = False
+        demand2, discontinued, self.smooth, self.intermittent, self.erratic, self.lumpy=self.demand_data(sales_prod.FECHA.min(),sales_prod.FECHA.max())
 
-    def demand_data(self, value1, value2, start_date, end_date):
+    def demand_data(self, start_date, end_date,save=False):
 
         self.demand_load = True
 
-        if (value1 == [] and value2 == [] or value2):
-            sales_prod = self.sales_prod
-        elif (value1 != [] and value2 == []):
-            sales_prod = self.sales_prod.query("CATEGORIA==@value1")
-        elif (value1 == [] and value2 != []):
-            sales_prod = self.sales_prod.query("SUBCATEGORIA==@value2")
-        else:
-            sales_prod = self.sales_prod.query("CATEGORIA==@value1")
-            sales_prod = self.sales_prod.query("SUBCATEGORIA==@value2")
+        sales_prod=self.sales_prod
 
         if (start_date is None or start_date == ""):
             start_date = sales_prod['FECHA'].min()
@@ -232,9 +224,13 @@ class DataManager(metaclass=SingletonMeta):
         classifier = demand2[['PROD_REF','CLASSIFIER']]
         demand3 = demand['CANTIDAD'].stack().reset_index().rename(columns={0: 'CANTIDAD'})
         demand3 = demand3.merge(demand2, how='right', on='PROD_REF')
-        self.smooth = demand3[demand3['CLASSIFIER']=='Smooth'].sort_values('DEMAND_BUCKETS',ascending=False)
-        self.intermittent = demand3[demand3['CLASSIFIER']=='Intermittent'].sort_values('DEMAND_BUCKETS',ascending=False)
-        self.erratic = demand3[demand3['CLASSIFIER']=='Erratic'].sort_values('DEMAND_BUCKETS',ascending=False)
-        self.lumpy = demand3[demand3['CLASSIFIER']=='Lumpy'].sort_values('DEMAND_BUCKETS',ascending=False)
-
-        return demand2, discontinued, self.smooth, self.intermittent, self.erratic, self.lumpy
+        smooth = demand3[demand3['CLASSIFIER']=='Smooth'].sort_values('DEMAND_BUCKETS',ascending=False)
+        intermittent = demand3[demand3['CLASSIFIER']=='Intermittent'].sort_values('DEMAND_BUCKETS',ascending=False)
+        erratic = demand3[demand3['CLASSIFIER']=='Erratic'].sort_values('DEMAND_BUCKETS',ascending=False)
+        lumpy = demand3[demand3['CLASSIFIER']=='Lumpy'].sort_values('DEMAND_BUCKETS',ascending=False)
+        if save:
+            self.last_smooth=smooth
+            self.last_intermittent=intermittent
+            self.last_erratic=erratic
+            self.last_lumpy=lumpy
+        return demand2, discontinued, smooth, intermittent, erratic, lumpy
