@@ -1,6 +1,5 @@
 ##
 ##
-## sidebar
 ## developer: JuanMa y Andres
 ##
 ##
@@ -8,11 +7,11 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
+from dash_html_components.Div import Div
 from styles import *
 from datetime import date as dt
 from dataManager import *
 
-# Sidebar
 df = DataManager().sales_prod
 
 category_unique = df['CATEGORIA'].unique()
@@ -22,12 +21,11 @@ tienda_unique = df['TIENDA'].unique()
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
 
-controls = html.Div(id="sidebar_control", children=[
-dbc.FormGroup(
+controls = dbc.FormGroup(
     [
-        html.P('Por favor seleccionar los filtros para visualizar en las graficas', style=TEXT_STYLE),
+        html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
         html.Hr(),
-        html.P('Punto de venta', style=TEXT_STYLE),
+        html.P('Punto de venta'),
         dcc.Dropdown(id='dropdown_tienda',
             options=[
                     {'label': i, 'value': i} for i in tienda_unique
@@ -37,7 +35,7 @@ dbc.FormGroup(
             multi=True,
         ),
         html.Br(),
-        html.P('Categoria', style=TEXT_STYLE),
+        html.P('Categoria'),
         dcc.Dropdown(id='dropdown_category',
             options=[
                     {'label': i, 'value': i} for i in category_unique
@@ -47,7 +45,7 @@ dbc.FormGroup(
             multi=True,
         ),
         html.Br(),
-        html.P('SubCategoria', style=TEXT_STYLE),
+        html.P('SubCategoria'),
         dcc.Dropdown(id='dropdown_subcategory',
             options=[
                     {'label': i, 'value': i} for i in subcategory_unique
@@ -57,7 +55,7 @@ dbc.FormGroup(
             multi=True,
         ),
         html.Br(),
-        html.P('Calendar', style=TEXT_STYLE),
+        html.P('Calendar'),
         dcc.DatePickerRange(
             id='calendar',
             with_portal=True,
@@ -72,38 +70,38 @@ dbc.FormGroup(
             display_format='DD, MMM YY',
             month_format='MMMM, YYYY',
         ),
+        html.Br(),
+        html.Hr(),
         html.Br()
-    ]
-)])
+    ],
+    id="sidebar_control"
+)
 
 
 top_menu = dbc.Row([
     dbc.Nav([
-        dbc.Button("Indicadores", href="/indicadores", outline=True, color="primary", className="mr-1"),
-        dbc.Button("Prediccion Demanda", href="/demanda", outline=True, color="primary", className="mr-1"),
-        dbc.Button("Cobertura Inventario", href="/inventario", outline=True, color="primary", className="mr-1"),
+        dbc.NavItem(dbc.NavLink('Indicadores', className='btn btn-primary-outline round',href='/indicadores')),
+        dbc.NavItem(dbc.NavLink('Prediccion Demanda', className='btn btn-secondary-outline round',href='/demanda')),
+        dbc.NavItem(dbc.NavLink('Cobertura Inventario', className='btn btn-third-outline round',href='/inventario')),
     ],
-    className='top-menu'),
+    className='top-menu flexy-row between'),
 ],
-className='menu')
+className='menu flexy-row start')
 
 sidebar = html.Div(
     [
-        html.H2('Furni', style=TEXT_STYLE),
-        html.Hr(),
-        controls,
-        html.Hr(),
-        html.H6('Developed by DS4A - Grupo 65', style=TEXT_STYLE),
+        html.H2('Furni', className='text'),
+        html.Div([controls],className='wrap flexy-col'),
+        html.H6('Developed by DS4A - Grupo 65', className='text'),
         html.Br(),
-        html.H6('Juan Manuel Velez Parra', style=TEXT_STYLE_2),
-        html.H6('Nicholas Gooding Rios', style=TEXT_STYLE_2),
-        html.H6('David Felipe Rubio Mendez', style=TEXT_STYLE_2),
-        html.H6('Johann Sebastian Roa Amorocho', style=TEXT_STYLE_2),
-        html.H6('Andrés Manrique Ardila', style=TEXT_STYLE_2),
-        html.H6('---', style=TEXT_STYLE_2),
-        html.H6('Esteban Betancur | TA', style=TEXT_STYLE_2),
-        html.H6('Luis Rojas | TA', style=TEXT_STYLE_2),
+        html.H6('Juan Manuel Velez Parra', className='text'),
+        html.H6('Nicholas Gooding Rios', className='text'),
+        html.H6('David Felipe Rubio Mendez', className='text'),
+        html.H6('Johann Sebastian Roa Amorocho', className='text'),
+        html.H6('Andrés Manrique Ardila', className='text'),
+        html.H6('---', className='text'),
+        html.H6('Esteban Betancur | TA', className='text'),
+        html.H6('Luis Rojas | TA', className='text'),
     ],
-    className='sidebar',
-    style=SIDEBAR_STYLE,
+    className='sidebar'
 )

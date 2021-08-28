@@ -7,7 +7,7 @@ SIDEBAR_STYLE = {
     'bottom': 0,
     'width': '20vw',
     'padding': '20px 10px',
-    'background-color': '#f8f9fa', ##f8f9fa
+    'backgroundColor': '#f8f9fa', ##f8f9fa
 }
 
 TEXT_STYLE = {
@@ -26,6 +26,6 @@ CARD_TEXT_STYLE = {
 }
 
 TEXT_TITLE = {
-    'text-align': 'Left',
+    'textAlign': 'Left',
     'color': '#000033'
 }

@@ -1,0 +1,215 @@
+/* ----------------------------------------------------------------------------------------
+							REQUIRED CLAUSES
+---------------------------------------------------------------------------------------- */
+
+@use 'base' as root;
+@use 'navbar';
+
+/* ----------------------------------------------------------------------------------------
+							PROJECT'S CUSTOM CSS
+---------------------------------------------------------------------------------------- */
+
+html,
+body {
+	background-color: root.$main-color;
+}
+
+label {
+	font-weight: normal;
+}
+
+.wrap {
+	color: white;
+	font-family: 'Orkney Light';
+	font-size: 15px;
+	
+	&.pages {
+		padding: inherit {
+			left: 50px;
+			right: 50px;
+		}
+	}
+
+	& > .container {
+		flex-direction: column;
+		align-items: center;
+		
+		padding: 0;
+		
+		color: white;
+	}
+}
+
+.breadcrumb {
+	margin-top: 25px;
+	width: 50%;
+}
+
+.title {
+	margin: 2% 0 2% 0;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	font-size: 16px;
+}
+
+.slogan {
+	position: relative;
+	z-index: 1;
+	
+	& .title {
+		margin: 0;
+		
+		font-family: 'Monserrat Extralight';
+		font-size: 80px; 
+		font-weight: 100;
+		letter-spacing: 10px;
+	}
+	
+	& .phrase {
+		font-family: 'Monserrat Extralight';
+		font-size: 28px;
+		letter-spacing: 7px;
+	}
+}
+
+.bg-overlay {
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	background:rgba(1,1,1,0.6);
+}
+
+.bg-overlay.pattern {
+	background:url('../images/pattern.png');
+}
+
+.pages-container {
+	@extend %flexy-col;
+	width: 90%;
+	
+	margin: auto {
+		top: 2em;
+		bottom: 60px;
+	}
+	
+	& .breadcrumb {
+		align-self: flex-end;
+		
+		margin-bottom: 0;
+		padding-right: 2em;
+		
+		text-align: right;
+		background-color: transparent;
+	}
+}
+
+.legal-notice {
+    align-self: baseline;
+    position: absolute;
+	left: 2em;
+	
+	& a {
+		color: rgb(175,139,87);
+	}
+}
+
+.site-error {
+	@extend %flexy-col;
+	
+	height: 85vh;
+}
+
+.Select-menu-outer {
+    position: relative;
+    z-index: 1000;
+
+	color: root.$main-color;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+
+    width: 20vw;
+    padding: 20px 10px;
+    
+	overflow: scroll;
+	background-color: root.$main-color;
+}
+
+.menu {
+    position: fixed;
+    top: 0;
+    left: 21vw;
+    background-color: root.$main-color;
+    height: 75px;
+    width: 100%;
+    padding: 20px;
+    z-index: 1; 
+
+	& .nav-item {
+		padding: 0 4px;
+	}
+}
+
+.page-content {
+    position: relative;
+    top: 75px;
+    left: 20vw;
+	z-index: 0;
+
+    width: 80vw;
+    padding: 20px;
+
+	background-color: root.$main-color-dim;
+	font-family: 'Fira Code VF';
+
+	& * {
+		font-weight: 300 !important;
+	}
+
+	& .indicators-menu {
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		padding: 10px 20px 20px;
+		
+		background-color: #333333;
+
+		& .btn {
+			margin: 0 4px;
+		}
+	}
+	
+	& .content-data {
+		position:relative;
+		top: 50px;
+
+		& .graph-chunk {
+			margin-bottom: 3em;
+		}
+	}
+}
+
+svg.main-svg {
+	border: 1px solid;
+    border-radius: 15px;
+
+	&:first-of-type {
+		background: rgb(81,81,81) !important;
+	}
+
+	& .legend .bg {
+		fill: rgb(81,81,81) !important;
+	}
+}
+
