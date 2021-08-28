@@ -1,4 +1,4 @@
 from dataManager import *
-erraticos=DataManager().classifier
-print(erraticos)
+classifier=DataManager().classifier
+classifier.to_csv('classifier.csv')
 #smooth e intermitente -> hacer modelo con eso!
