@@ -1,7 +1,0 @@
-Repositorio: https://github.com/JuanMaVelezPa/DS4A_Project
-
-0. Incluir usuario en repositorio (https://github.com/JuanMaVelezPa/DS4A_Project/invitations), descargar Git Bash https://git-scm.com/downloads
-1. Pararse en la carpeta que quiera trabajar, click derecho git Bash
-2. git clone https://github.com/JuanMaVelezPa/DS4A_Project.git
-3. cd DS4A_Project
-4. git checkout -b <usuario>
