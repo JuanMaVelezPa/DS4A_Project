@@ -196,10 +196,10 @@ def update_graph(value1,value2,start_date,end_date):
     fig.add_annotation(text="SMOOTH", x=0.1, y=0.5, showarrow=False)
     fig.add_annotation(text="ERRATIC", x=2, y=0.5, showarrow=False)
 
-    options1=[{'label':opt, 'value':opt} for opt in intermittent['PROD_REF'].unique()]
-    options2=[{'label':opt, 'value':opt} for opt in lumpy['PROD_REF'].unique()]
-    options3=[{'label':opt, 'value':opt} for opt in smooth['PROD_REF'].unique()]
-    options4=[{'label':opt, 'value':opt} for opt in erratic['PROD_REF'].unique()]
+    options1=[{'label':opt, 'value':opt} for opt in intermittent.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
+    options2=[{'label':opt, 'value':opt} for opt in lumpy.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
+    options3=[{'label':opt, 'value':opt} for opt in smooth.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
+    options4=[{'label':opt, 'value':opt} for opt in erratic.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
 
     return fig, dash_table.DataTable(id='datatable1',data= discontinued.to_dict('records'),
                                     columns=[{'id': x, 'name': x} for x in discontinued.columns],
