@@ -221,7 +221,7 @@ class DataManager(metaclass=SingletonMeta):
         discontinued = demand2[demand2['N_LAST']<12]
         discontinued = discontinued[['PROD_REF','DESCRIPCION','CATEGORIA','FIRST','LAST']]
         demand2 = demand2[demand2['N_LAST']>=12]
-        classifier = demand2[['PROD_REF','CLASSIFIER']]
+        self.classifier = demand2[['PROD_REF','CLASSIFIER']]
         demand3 = demand['CANTIDAD'].stack().reset_index().rename(columns={0: 'CANTIDAD'})
         demand3 = demand3.merge(demand2, how='right', on='PROD_REF')
         smooth = demand3[demand3['CLASSIFIER']=='Smooth'].sort_values('DEMAND_BUCKETS',ascending=False)
@@ -233,4 +233,5 @@ class DataManager(metaclass=SingletonMeta):
             self.last_intermittent=intermittent
             self.last_erratic=erratic
             self.last_lumpy=lumpy
+            self.last_classifier=self.classifier
         return demand2, discontinued, smooth, intermittent, erratic, lumpy
