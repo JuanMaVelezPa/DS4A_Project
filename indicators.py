@@ -25,11 +25,20 @@ indicators_general = [
         
         html.Div(
             [
-                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                html.H3(id='prueba', className='title', children=['Ventas por año']),
                 dcc.Graph(id='graph_general_2', figure={})
             ],
             className='graph-chunk'
+        ),
+
+        html.Div(
+            [
+                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                dcc.Graph(id='graph_general_3', figure={})
+            ],
+            className='graph-chunk'
         )
+
     ],
     ),
 ]
@@ -46,6 +55,10 @@ indicators_features = [
                 dbc.Col([
                     dcc.Graph(id='graph_features_2', figure={})
                 ])
+
+                
+
+
             ],
             className='graph-chunk'
         )
@@ -120,7 +133,7 @@ features_controls = dbc.FormGroup(
     ]
 )
 
-## Indicators_General_Grapgh_1
+## Indicatores
 @app.callback(
     Output('graph_general_1', 'figure'),
     [Input('dropdown_category', 'value'),
@@ -161,9 +174,45 @@ def update_graph(value1,value2,value3,start_date,end_date):
     )
     return fig
 
-## Indicators_General_Grapgh_2
+# Analisis de ventas 
 @app.callback(
     Output('graph_general_2', 'figure'),
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_tienda', 'value'),
+     Input('calendar', 'start_date'),
+     Input('calendar', 'end_date')])
+
+     
+def update_graph(value1,value2,value3,start_date,end_date):
+    if(value3 == []):
+        temp = DataManager().sales_prod
+    else:
+        temp = DataManager().sales_prod.query("TIENDA==@value3")
+    if (value1 == [] and value2 == []):
+        sales_prod = temp
+    elif (value1 != [] and value2 == []):
+        sales_prod = temp.query("CATEGORIA==@value1")
+    elif (value1 == [] and value2 != []):
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    else:
+        sales_prod = temp.query("CATEGORIA==@value1")
+        sales_prod = temp.query("SUBCATEGORIA==@value2")
+    
+    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
+    sales_prod = sales_prod.loc[mask]
+    
+    
+    sales1 = sales_prod.groupby(['ANIO','MES'])['TOTAL'].sum().to_frame().reset_index()
+    fig = px.line(sales1, x="MES", y="TOTAL", color='ANIO')
+    
+    
+    return fig
+
+
+## Colores más vendidos
+@app.callback(
+    Output('graph_general_3', 'figure'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_tienda', 'value'),
