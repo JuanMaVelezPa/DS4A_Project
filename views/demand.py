@@ -10,6 +10,7 @@
 #
 
 ## Libraries
+from model import ModelManager
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
@@ -110,7 +111,7 @@ demand_classificator = [
             dcc.Download(id='download')
         ]),
         dbc.Row([
-            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=5,lg=5,xl=5)
+            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
         ]),
     ])
 ]
@@ -120,8 +121,24 @@ demand_predictor = [
         html.Hr(),
         html.H3("Prediccion de Demanda", style=TEXT_TITLE),
         html.Hr(),
+        dbc.Button("test",id='test'),
+        html.P(id='res'),
+        
     ])
 ]
+
+@app.callback([Output('res','innerhtml')],[Input('test','n_clicks')])
+def nose(clickcount):
+    modelo=ModelManager()
+    return modelo
+
+
+menu = dbc.Col([
+        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
+        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
+    ],
+    className='internal-menu flexy-row start'
+)
 
 demd_content = html.Div(className='content-data',id='demand-container',children=demand_classificator)
 
@@ -199,24 +216,14 @@ def update_graph(value1,value2,start_date,end_date):
 
     return fig, dash_table.DataTable(id='datatable1',data= discontinued.to_dict('records'),
                                     columns=[{'id': x, 'name': x} for x in discontinued.columns],
-                                    sort_action='native',
-                                    page_size=20,
-                                    style_table={'height': '300px', 'overflowY': 'auto'},
                                     style_as_list_view=True,
                                     style_header={'backgroundColor': 'rgb(30, 30, 30)',
-                                                'color':'white',
-                                                'fontWeight': 'bold',
-                                                'font_size':13,
-                                                'textAlign': 'center'},
+                                                'color':'white'},
                                     style_cell={
                                         'backgroundColor': 'white',
-                                        'color': 'black',
-                                        'border': '1px solid grey',
-                                        'font_size':11},
+                                        'color': 'black'},
                                     style_cell_conditional=[{'textAlign': 'left'}],
-                                    style_data={ 'border': '1px solid grey', },
                                     ), [],[],[],[], options1, options2, options3, options4
-
 
 ## Intermittent
 @app.callback(
@@ -298,9 +305,7 @@ def update_drown(value):
 @app.callback(
     Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")],prevent_initial_call=True,)
 def open_toast(n):
-    if n:
-        return True
-    return False
+    return True
     
 ## FileDownload
 @app.callback(Output("download", "data"),
