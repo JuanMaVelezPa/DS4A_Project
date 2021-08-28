@@ -158,8 +158,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
         color="SUBCATEGORIA",
         hover_data=['REF', 'DESC_LARGA','CATEGORIA'],
         title="\t Sales Subategories | Money vs Units",
-        template='plotly_dark'
-        )
+    )
     return fig
 
 ## Indicators_General_Grapgh_2
@@ -196,7 +195,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
         x= df.index,
         y= df,
         marker_color=colors, # marker color can be a single color value or an iterable
-        )])
+    )])
     
     return fig
 

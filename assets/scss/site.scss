@@ -177,10 +177,11 @@ label {
 	}
 
 	& .internal-menu {
-		position: absolute;
-		top: 0;
-		left: 0;
-
+		position: fixed;
+		top: 75px;
+		left: 20vw;
+		z-index: 1;
+		
 		padding: 10px 20px 20px;
 		
 		background-color: root.$main-color;
@@ -205,11 +206,11 @@ svg.main-svg {
     border-radius: 15px;
 
 	&:first-of-type {
-		background: root.$main-color !important;
+		background: root.$main-color-dim !important;
 	}
 
 	& .legend .bg {
-		fill: root.$main-color !important;
+		fill: root.$main-color-dim !important;
 	}
 }
 

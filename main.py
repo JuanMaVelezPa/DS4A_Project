@@ -3,7 +3,7 @@ import plotly
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
 
-##plotly.io.templates.default = 'plotly_dark'
+plotly.io.templates.default = 'plotly_dark'
 
 import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc

@@ -36,6 +36,22 @@
 /** Base color palette **/
 /** Dim color palette **/
 /** Links palette **/
+/** Base color palette
+$main-color: white;
+$scnd-color: rgb(241,141,25);
+$thrd-color: rgb(156,181,101);
+
+Dim color palette
+$main-color-dim: rgb(240, 240, 240);
+$scnd-color-dim: rgba(241,141,25,0.7);
+$thrd-color-dim: rgba(156,181,101,0.5);
+
+Links palette
+$base-color: rgb(0,0,0);
+$base2-color: #6c757d;
+
+$link-color: rgb(175,139,87);
+$hovr-color: rgb(230,230,230); **/
 @media screen and (max-width: 450px) {
   * {
     max-width: 100vw;
@@ -136,7 +152,7 @@
     margin-top: 20px;
   }
   .preview#webapp_preview {
-    color: white;
+    color: #333333;
   }
 
   .mobile {
