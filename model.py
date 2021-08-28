@@ -60,9 +60,6 @@ class ModelManager(metaclass=SingletonMeta):
         sales_train['fecha']= pd.to_datetime(sales_train['ANIO'].astype(str)+'/'+sales_train['MES'].astype(str))#,format="%Y/%M")
 
         joint=pd.concat([sales_train,sales_test],axis=0)
-
-
-
         return mse(self.br.predict(X_test),y_test)
 
 #ModelManager()
