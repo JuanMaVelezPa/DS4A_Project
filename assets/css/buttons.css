@@ -181,9 +181,9 @@
 }
 
 .btn-main-outline {
-  color: #515151;
-  background-color: #6c757d;
-  border-color: #515151;
+  color: #6c757d;
+  background-color: #515151;
+  border-color: #6c757d;
 }
 .btn-main-outline:hover, .btn-main-outline:active, .btn-main-outline.active, .btn-main-outline:focus {
   color: #515151;

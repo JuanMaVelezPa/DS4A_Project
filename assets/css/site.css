@@ -239,9 +239,9 @@
 }
 
 .btn-main-outline {
-  color: #515151;
-  background-color: #6c757d;
-  border-color: #515151;
+  color: #6c757d;
+  background-color: #515151;
+  border-color: #6c757d;
 }
 .btn-main-outline:hover, .btn-main-outline:active, .btn-main-outline.active, .btn-main-outline:focus {
   color: #515151;
@@ -774,14 +774,14 @@ label {
 .page-content * {
   font-weight: 300 !important;
 }
-.page-content .indicators-menu {
+.page-content .internal-menu {
   position: absolute;
   top: 0;
   left: 0;
   padding: 10px 20px 20px;
   background-color: #333333;
 }
-.page-content .indicators-menu .btn {
+.page-content .internal-menu .btn {
   margin: 0 4px;
 }
 .page-content .content-data {

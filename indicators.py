@@ -18,49 +18,53 @@ plotly.io.templates.default = 'plotly_dark'
 
 indicators_general = [
     dbc.Col([
-        html.Div(
-            [
-                html.H3("Indicadores", className='title'),
-                dcc.Graph(id='graph_general_1', figure={}),
-            ],
-            className='graph-chunk'
+            html.Div(
+                [
+                    html.H3("Indicadores", className='title'),
+                    dcc.Graph(id='graph_general_1', figure={}),
+                ],
+                className='graph-chunk'
+            ),
+            
+            html.Div(
+                [
+                    html.H3(id='prueba', className='title', children=['Colores más vendidos']),
+                    dcc.Graph(id='graph_general_2', figure={})
+                ],
+                className='graph-chunk'
+            )
+        ],
+        className='general-info'
         ),
-        
-        html.Div(
-            [
-                html.H3(id='prueba', className='title', children=['Colores más vendidos']),
-                dcc.Graph(id='graph_general_2', figure={})
-            ],
-            className='graph-chunk'
-        )
-    ],
-    ),
 ]
 
 indicators_features = [
     dbc.Col([
-        html.H3("Caracteristicas",className='title'),
-        html.Div(
-            [
-                dbc.Col([
-                    dcc.Graph(id='graph_features_1', figure={})
-                ]),
+            html.H3("Caracteristicas",className='title'),
+            html.Div(
+                [
+                    dbc.Col([
+                        dcc.Graph(id='graph_features_1', figure={})
+                    ]),
 
-                dbc.Col([
-                    dcc.Graph(id='graph_features_2', figure={})
-                ])
-            ],
-            className='graph-chunk'
-        )
-    ]),
+                    dbc.Col([
+                        dcc.Graph(id='graph_features_2', figure={})
+                    ])
+                ],
+                className='graph-chunk'
+            )
+        ],
+        className='features-info'
+    ),
 ]
 
 menu = dbc.Col([
         dbc.Button("General", href="/indicadores/general", className="btn-main-outline"),
         dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", className="btn-main-outline"),
     ],
-    className='indicators-menu flexy-row start'
+    className='internal-menu flexy-row start'
 )
+
 ind_content = html.Div(className='content-data',id='indicators-container',children=indicators_general)
 
 indicators_container = [
@@ -77,6 +81,8 @@ def render_indicators_content(pathname):
         return indicators_general
     elif pathname == '/indicadores/caracteristicas':
         return indicators_features
+    else:
+        return [html.Div()]
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()

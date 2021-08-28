@@ -40,9 +40,9 @@ def render_page_content(pathname):
     elif pathname == '/indicadores/caracteristicas':
         return features_controls, indicators_container
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
-        return sidebar, demand_classificator
+        return demand_controls, demand_container
     elif pathname == '/demanda/prediccion':
-        return sidebar, demand_predictor
+        return sidebar, demand_container
     elif pathname == '/inventario':
         return sidebar, inventory
     else:
