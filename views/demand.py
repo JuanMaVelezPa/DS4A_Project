@@ -330,22 +330,8 @@ def graph_model(ref):
 
     aux = data.query('REF==@ref')
 
-    """ sales_train = data[:index-1].copy()
-    sales_test = data[index:].copy()
-    sales_train['PREDICTED'] = model.predict(x_train)
-    sales_test['PREDICTED'] = model.predict(x_test)
-    sales_test['DATE'] = pd.to_datetime(sales_test['ANIO'].astype(str)+'/'+sales_test['MES'].astype(str))#,format="%Y/%M")
-    sales_train['DATE'] = pd.to_datetime(sales_train['ANIO'].astype(str)+'/'+sales_train['MES'].astype(str))#,format="%Y/%M")
-    joint = pd.concat([sales_train,sales_test],axis=0)
-    aux = joint.query('REF==@ref & TIENDA==@store') """
-
     fig = go.Figure()
     fig.add_scatter(x=aux['DATE'], y=aux['PREDICTED'], name='Valores predichos')
     fig.add_scatter(x=aux['DATE'], y=aux['CANTIDAD'], name='Valores reales')
 
-    """ plt.figure(figsize=(10,10))
-    plt.plot(aux['DATE'],aux['PREDICTED'],label='predicho',marker='.')
-    plt.plot(aux['DATE'],aux['CANTIDAD'],label='real',marker='.')
-    plt.legend()
-    plot_by_ref_tienda('D00935:00048:00048','PUNTO DE VENTA AV 68') """
     return fig

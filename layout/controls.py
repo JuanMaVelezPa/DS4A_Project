@@ -71,7 +71,6 @@ ref = dbc.FormGroup(
             ],
             value=[],
             placeholder='Please select...',
-            multi=True,
         ),
         html.Br()
     ]
