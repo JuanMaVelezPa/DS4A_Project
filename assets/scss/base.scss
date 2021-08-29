@@ -238,16 +238,16 @@ a.desc:after {
 
 .flex-field {
 	&:nth-child(n) {
-		padding: 0 {
+		margin: 0 {
 			left: 15px;
 		}
 	}
 	&:last-child {
-		padding-right: 15px;
+		margin-right: 15px;
 	}
 	&:only-child {
-		padding-left: 0;
-		padding-right: 0;
+		margin-left: 0;
+		margin-right: 0;
 	}
 	
 	&.start {
