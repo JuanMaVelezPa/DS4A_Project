@@ -244,12 +244,12 @@ class DataManager(metaclass=SingletonMeta):
             sales_ref_month=sales_prod_LD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR_POS':'first','CATEGORIA':'first','SUBCATEGORIA_POS':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL_POS':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
             covid=sales_ref_month[['ANIO','MES']].drop_duplicates().reset_index(drop=True)
             aux2=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,2,2,1,1,2,2,1,1,1]
-            covid['Factor covid']=aux2
-            self.sales_ref_month=sales_ref_month.merge(covid,on=['ANIO','MES'])
-            """ def remove_ventas_anormales(df):
+            covid['F_COVID']=aux2
+            sales_ref_month=sales_ref_month.merge(covid,on=['ANIO','MES'])
+            def remove_ventas_anormales(df):
                 return df.query('CANTIDAD<20')
 
             
-            self.sales_ref_month2=remove_ventas_anormales(sales_ref_month).reset_index(drop=True) """
+            self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
                 
         return self.sales_ref_month
