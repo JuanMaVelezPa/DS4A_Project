@@ -10,7 +10,8 @@
 #
 
 ## Libraries
-from model import ModelManager
+from dash_html_components import Label
+from model import ModelManager as manager
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
@@ -121,16 +122,12 @@ demand_predictor = [
         html.Hr(),
         html.H3("Prediccion de Demanda", style=TEXT_TITLE),
         html.Hr(),
-        dbc.Button("test",id='test'),
-        html.P(id='res'),
-        
-    ])
+        dbc.Row([
+            dbc.Col(dcc.Graph(id='graph_prediction', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
+        ]),
+    ]),
 ]
 
-@app.callback([Output('res','innerhtml')],[Input('test','n_clicks')])
-def nose(clickcount):
-    modelo=ModelManager()
-    return modelo
 
 
 menu = dbc.Col([
@@ -314,3 +311,41 @@ def open_toast(n):
 
 def generate_csv(n_nlicks):
     return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="discontinued.csv")
+
+@app.callback(
+    Output('graph_prediction', 'figure'),
+    [Input('dropdown_ref', 'value')],
+    prevent_initial_call=True
+)
+
+def graph_model(ref):
+    model = manager().br
+    index, x_train, y_train, x_test, y_test = manager().get_data()
+
+    data = DataManager().sales_ref_month_sin_ventas_mayores()
+    data['PREDICTED'] = model.predict(np.concatenate([x_train,x_test],axis=0)).round()
+    data['DATE'] = pd.to_datetime(data['ANIO'].astype(str) + '/' + data['MES'].astype(str))
+    data.CANTIDAD = data.CANTIDAD.fillna(0)
+    data = data.groupby(['REF','DATE']).sum().reset_index()
+
+    aux = data.query('REF==@ref')
+
+    """ sales_train = data[:index-1].copy()
+    sales_test = data[index:].copy()
+    sales_train['PREDICTED'] = model.predict(x_train)
+    sales_test['PREDICTED'] = model.predict(x_test)
+    sales_test['DATE'] = pd.to_datetime(sales_test['ANIO'].astype(str)+'/'+sales_test['MES'].astype(str))#,format="%Y/%M")
+    sales_train['DATE'] = pd.to_datetime(sales_train['ANIO'].astype(str)+'/'+sales_train['MES'].astype(str))#,format="%Y/%M")
+    joint = pd.concat([sales_train,sales_test],axis=0)
+    aux = joint.query('REF==@ref & TIENDA==@store') """
+
+    fig = go.Figure()
+    fig.add_scatter(x=aux['DATE'], y=aux['PREDICTED'], name='Valores predichos')
+    fig.add_scatter(x=aux['DATE'], y=aux['CANTIDAD'], name='Valores reales')
+
+    """ plt.figure(figsize=(10,10))
+    plt.plot(aux['DATE'],aux['PREDICTED'],label='predicho',marker='.')
+    plt.plot(aux['DATE'],aux['CANTIDAD'],label='real',marker='.')
+    plt.legend()
+    plot_by_ref_tienda('D00935:00048:00048','PUNTO DE VENTA AV 68') """
+    return fig

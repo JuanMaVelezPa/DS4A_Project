@@ -233,7 +233,7 @@ class DataManager(metaclass=SingletonMeta):
 
     
     def sales_ref_month_sin_ventas_mayores(self):
-        if self.sales_ref_month2==None:
+        if self.sales_ref_month2 is None:
             sales_prod = self.sales_prod
             sales_prod['AREA']=sales_prod['ANCHO']*sales_prod['FONDO']
             sales_prod['PUESTOS'].fillna(0,inplace=True)
@@ -245,12 +245,11 @@ class DataManager(metaclass=SingletonMeta):
             covid=sales_ref_month[['ANIO','MES']].drop_duplicates().reset_index(drop=True)
             aux2=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,2,2,1,1,2,2,1,1,1]
             covid['Factor covid']=aux2
-            sales_ref_month=sales_ref_month.merge(covid,on=['ANIO','MES'])
-            def remove_ventas_anormales(df):
+            self.sales_ref_month=sales_ref_month.merge(covid,on=['ANIO','MES'])
+            """ def remove_ventas_anormales(df):
                 return df.query('CANTIDAD<20')
 
             
-            self.sales_ref_month2=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
+            self.sales_ref_month2=remove_ventas_anormales(sales_ref_month).reset_index(drop=True) """
                 
-       
-        return self.sales_ref_month2
+        return self.sales_ref_month

@@ -11,6 +11,7 @@ df = DataManager().sales_prod
 category_unique = df['CATEGORIA'].unique()
 subcategory_unique = df['SUBCATEGORIA'].unique()
 tienda_unique = df['TIENDA'].unique()
+ref_unique = df['REF'].unique()
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
@@ -52,6 +53,21 @@ subcat = dbc.FormGroup(
         dcc.Dropdown(id='dropdown_subcategory',
             options=[
                     {'label': i, 'value': i} for i in subcategory_unique
+            ],
+            value=[],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
+ref = dbc.FormGroup(
+    children=[
+        html.P('Referencia'),
+        dcc.Dropdown(id='dropdown_ref',
+            options=[
+                    {'label': i, 'value': i} for i in ref_unique
             ],
             value=[],
             placeholder='Please select...',
@@ -106,4 +122,12 @@ demand_controls = html.Div(
     ],
     id="demand_controls"
 )
+
+predict_controls = html.Div([
+    html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
+    html.Hr(),
+    ref,
+    html.Hr()
+])
+
 inventory_controls = []
