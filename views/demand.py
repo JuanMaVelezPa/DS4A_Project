@@ -32,7 +32,11 @@ demand_classificator = [
     dbc.Col([
         html.Div([
                 html.H3("Clasificador de Demanda",className='title'),
-                html.A(html.I(className='fa fa-info-circle'),id="auto-toast-toggle",n_clicks=0,className='btn btn-primary info-btn'),
+                html.A(html.I("Informacion matriz"),
+                            id="auto-toast-toggle",
+                            n_clicks=0,
+                            className='btn btn-outline-dark',
+                            style={"marginLeft": "50%", "margin-top":"30px"}),
             ],
             className='flexy-row start'
         ),
@@ -41,24 +45,30 @@ demand_classificator = [
                 html.Div([
                     dbc.Toast([
                             html.Div([ 
-                                html.H6('*Smooth demand(ADI> = 1,32 y CV2 <0,49)'),
+                                html.H6('Para determinar la previsibilidad de un producto, aplicamos dos coeficientes:'),
+                                html.Div('- The Average Demand Interval (ADI): Mide la regularidad de la demanda en el tiempo calculando el intervalo promedio entre dos demandas.'),
+                                html.Div('El historial de la demanda muestra muy poca variacion en la cantidad de demanda, pero una gran variacion en el intervalo entre dos demandas. Aunque los metodos de pronostico especificos abordan las demandas intermitentes, el margen de error de pronostico es considerablemente mayor.'),
+                                html.H6('- the square of the Coefficient of Variation (CV2): Es la medida de la variacion en cantidades'),
+                                html.Hr(),
+                                html.H6('- Smooth demand(ADI> = 1,32 y CV2 <0,49)'),
                                 html.Div('El historial de la demanda muestra muy poca variacion en la cantidad de demanda, pero una gran variacion en el intervalo entre dos demandas. Aunque los metodos de pronostico especificos abordan las demandas intermitentes, el margen de error de pronostico es considerablemente mayor.'),
                                 html.Br(),
-                                html.H6('Intermittent demand (ADI <1,32 y CV2 <0,49)'),
+                                html.H6('- Intermittent demand (ADI <1,32 y CV2 <0,49)'),
                                 html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
                                 html.Br(),
-                                html.H6('Erratic demand (ADI> = 1,32 y CV2> = 0,49)'),
+                                html.H6('- Erratic demand (ADI> = 1,32 y CV2> = 0,49)'),
                                 html.Div('La demanda se caracteriza por una gran variacion en cantidad y en el tiempo. En realidad, es imposible producir un pronostico confiable, independientemente de las herramientas de pronostico que utilice. Este tipo particular de patron de demanda es imprevisible.'),
                                 html.Br(),
-                                html.H6('Lumpy demand (ADI <1,32 y CV2 <0,49)'),
+                                html.H6('- Lumpy demand (ADI <1,32 y CV2 <0,49)'),
                                 html.Div('La demanda es muy regular en tiempo y cantidad. Por lo tanto, es facil de pronosticar y no tendra problemas para alcanzar un nivel de error de pronostico bajo.'),
-                            ], className="mb-0",style={'color': 'black', 'fontSize': 14}),
-                        ],
-                        id="auto-toast",
-                        header="Con base en estas 2 dimensiones, la literatura clasifica los perfiles de demanda en 4 categorias diferentes:",
-                        icon="dark",duration=4000,
-                        style={"maxWidth": "80%"},
-                    ),
+                            ], className="mb-0",style={'color': 'black', 'fontSize': 14}),],
+                                    id="auto-toast",
+                                    header="Con base en estas 2 dimensiones, la literatura clasifica los perfiles de demanda en 4 categorias diferentes:",
+                                    icon="dark",
+                                    style={"maxWidth": "80%"},
+                                    is_open=False,
+                                    dismissable=True,
+                                ),
                 ])
             ]),
         ]),
@@ -66,7 +76,10 @@ demand_classificator = [
             dbc.Col(dcc.Graph(id='graph_classificator_1', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
         ]),
         dbc.Row([
-            dbc.Col(html.H6('Por favor seleccionar el producto para mirar su clasificacion:\n'),xs=6,sm=6,md=6,lg=6,xl=6),
+            dbc.Col(html.H6('Por favor seleccionar producto para mirar detalle de clasificacion:\n'),xs=12,sm=12,md=12,lg=12,xl=12),
+        ]),
+        dbc.Row([
+            html.Br(),
         ]),
         dbc.Row([
             dbc.Col(html.H6('INTERMITEENT'),xs=6,sm=6,md=3,lg=3,xl=3),
@@ -104,15 +117,20 @@ demand_classificator = [
             dbc.Col(html.Hr()),
         ]),
         dbc.Row([
-            html.H5('Productos a descontinuar:'),
+            html.H5('Productos propuestos a descontinuar:'),
         ]),
-        
         dbc.Row([
-            dbc.Button("Download discontinued",id="download_discontinued",outline=True, color="dark",n_clicks=0,),
+            html.Br(),
+        ]),
+        dbc.Row([
+            dbc.Button("Descargar csv",id="download_discontinued",outline=True, color="dark",n_clicks=0,),
             dcc.Download(id='download')
         ]),
         dbc.Row([
-            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=6,lg=6,xl=6)
+            html.Br(),
+        ]),
+        dbc.Row([
+            dbc.Col(html.Div(id='datatable1'),xs=6,sm=6,md=5,lg=5,xl=5)
         ]),
     ])
 ]
@@ -206,20 +224,29 @@ def update_graph(value1,value2,start_date,end_date):
     fig.add_annotation(text="SMOOTH", x=0.1, y=0.5, showarrow=False)
     fig.add_annotation(text="ERRATIC", x=2, y=0.5, showarrow=False)
 
-    options1=[{'label':opt, 'value':opt} for opt in intermittent['PROD_REF'].unique()]
-    options2=[{'label':opt, 'value':opt} for opt in lumpy['PROD_REF'].unique()]
-    options3=[{'label':opt, 'value':opt} for opt in smooth['PROD_REF'].unique()]
-    options4=[{'label':opt, 'value':opt} for opt in erratic['PROD_REF'].unique()]
+    options1=[{'label':opt, 'value':opt} for opt in intermittent.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
+    options2=[{'label':opt, 'value':opt} for opt in lumpy.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
+    options3=[{'label':opt, 'value':opt} for opt in smooth.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
+    options4=[{'label':opt, 'value':opt} for opt in erratic.sort_values('DEMAND_BUCKETS',ascending=False)['PROD_REF'].unique()]
 
     return fig, dash_table.DataTable(id='datatable1',data= discontinued.to_dict('records'),
                                     columns=[{'id': x, 'name': x} for x in discontinued.columns],
+                                    sort_action='native',
+                                    page_size=20,
+                                    style_table={'height': '300px', 'overflowY': 'auto'},
                                     style_as_list_view=True,
                                     style_header={'backgroundColor': 'rgb(30, 30, 30)',
-                                                'color':'white'},
+                                                'color':'white',
+                                                'fontWeight': 'bold',
+                                                'font_size':13,
+                                                'textAlign': 'center'},
                                     style_cell={
                                         'backgroundColor': 'white',
-                                        'color': 'black'},
+                                        'color': 'black',
+                                        'border': '1px solid grey',
+                                        'font_size':11},
                                     style_cell_conditional=[{'textAlign': 'left'}],
+                                    style_data={ 'border': '1px solid grey', },
                                     ), [],[],[],[], options1, options2, options3, options4
 
 ## Intermittent
@@ -302,7 +329,9 @@ def update_drown(value):
 @app.callback(
     Output("auto-toast", "is_open"), [Input("auto-toast-toggle", "n_clicks")],prevent_initial_call=True,)
 def open_toast(n):
-    return True
+    if n:
+        return True
+    return False
     
 ## FileDownload
 @app.callback(Output("download", "data"),
