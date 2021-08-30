@@ -349,15 +349,13 @@ def generate_csv(n_nlicks):
 
 def graph_model(ref):
     model = manager().br
-    index, x_train, y_train, x_test, y_test = manager().get_data()
+    index, x_train, y_train, x_test, y_test, data = manager().get_data()
 
-    data = DataManager().sales_ref_month_sin_ventas_mayores()
+    ## data = DataManager().sales_ref_month_sin_ventas_mayores()
     data['PREDICTED'] = model.predict(np.concatenate([x_train,x_test],axis=0)).round()
-    data['DATE'] = pd.to_datetime(data['ANIO'].astype(str) + '/' + data['MES'].astype(str))
-    data.CANTIDAD = data.CANTIDAD.fillna(0)
-    data = data.groupby(['REF','DATE']).sum().reset_index()
+    res = data.groupby(['REF','DATE']).sum().reset_index()
 
-    aux = data.query('REF==@ref')
+    aux = res.query('REF==@ref')
 
     fig = go.Figure()
     fig.add_scatter(x=aux['DATE'], y=aux['PREDICTED'], name='Valores predichos')

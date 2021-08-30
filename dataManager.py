@@ -253,3 +253,26 @@ class DataManager(metaclass=SingletonMeta):
             self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
                 
         return self.sales_ref_month
+
+    def sales_accounting_zeroes(self):
+        prods = self.products.drop_duplicates().copy()
+        prods['AREA'] = prods.ANCHO * prods.FONDO
+
+        data = self.sales_ref_month_sin_ventas_mayores().copy()
+        data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
+
+        df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES'],values='CANTIDAD',aggfunc='sum').reset_index()
+        df = pd.melt(df,id_vars='REF')
+
+        df = df.sort_values(['REF','DATE'])
+        df = df.rename(columns={'value':'CANTIDAD'})
+        df = df.reset_index(drop=True).fillna(0)
+
+        df = df.merge(data.drop(columns=['TIENDA','ANIO','MES','CANTIDAD']).groupby(['REF','DATE']).mean(),on=['REF','DATE'],how='left',validate='1:1')
+        df = df[['REF','DATE','ANIO','MES','CANTIDAD','PRECIO','SUBTOTAL','DESCUENTO(%)','TOTAL','F_COVID']]
+        df = df.fillna(0)
+
+        df = df.merge(prods,on='REF',validate='m:1')
+        df = df.sort_values(['ANIO','MES']).reset_index(drop=True)
+
+        return df
