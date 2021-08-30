@@ -23,7 +23,7 @@ class ModelManager(metaclass=SingletonMeta):
             num_var=['AREA','ALTO','DESCUENTO(%)','PRECIO','CANTIDAD',]
             X_num=data[num_var[:-1]].astype('float')
             
-            cat_var=['MES','Factor covid','PUESTOS','COLOR_POS','CATEGORIA','SUBCATEGORIA_POS','VIGENCIA','ORIGEN','ESTILO','MATERIAL_POS','ACABADO','TIENDA']
+            cat_var=['MES','F_COVID','PUESTOS','COLOR_POS','CATEGORIA','SUBCATEGORIA_POS','VIGENCIA','ORIGEN','ESTILO','MATERIAL_POS','ACABADO','TIENDA']
             X_cat=data[cat_var].astype('category')
             X_cat_dummies=pd.get_dummies(X_cat)
             
