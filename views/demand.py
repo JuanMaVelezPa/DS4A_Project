@@ -342,6 +342,7 @@ def open_toast(n):
 def generate_csv(n_nlicks):
     return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="discontinued.csv")
 
+## Callback used to graph demand prediction accuracy graph
 @app.callback(
     Output('graph_prediction', 'figure'),
     [Input('dropdown_ref', 'value')],
@@ -350,12 +351,13 @@ def generate_csv(n_nlicks):
 
 def graph_model(ref):
     model = manager().br
-    index,date_index,date_before,date_after, x_train, y_train, x_test, y_test, data = manager().get_data()
+    data = DataManager().sales_accounting_zeroes()
+    indexes, x_train, y_train, x_test, y_test = manager().get_data()
+    index, date_index, date_before, date_after = indexes
 
-    ## data = DataManager().sales_ref_month_sin_ventas_mayores()
     data['PREDICTED'] = model.predict(np.concatenate([x_train,x_test],axis=0)).round()
-    df_train=data[:index]
-    df_test=data[index:]
+    df_train = data[:index]
+    df_test = data[index:]
     res = data.groupby(['REF','DATE']).sum().reset_index()
     res_train=df_train.groupby(['REF','DATE']).sum().reset_index()
     res_test=df_test.groupby(['REF','DATE']).sum().reset_index()

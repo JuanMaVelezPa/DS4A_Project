@@ -49,10 +49,10 @@ sidebar_menu = html.Div([
 )
 
 ind_menu = dbc.Col([
-        dbc.Button("General", href="/indicadores/general", color="dark"),
-        dbc.Button("Caracteristicas", href="/indicadores/caracteristicas", color="dark"),
+        dbc.Button("Generales", href="/indicadores/general", color="dark"),
+        dbc.Button("Por caracteristica", href="/indicadores/caracteristicas", color="dark"),
     ],
-    className='internal-menu flexy-row end bg-light'
+    className='internal-menu flexy-row end'
 )
 
 demd_menu = dbc.Col([

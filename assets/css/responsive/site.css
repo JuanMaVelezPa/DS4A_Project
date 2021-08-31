@@ -33,22 +33,6 @@
     float: right;
   }
 }
-/** Base color palette
-$main-color: rgb(51, 51, 51);
-$scnd-color: rgb(241,141,25);
-$thrd-color: rgb(156,181,101);
-
-Dim color palette
-$main-color-dim: rgb(81, 81, 81);
-$scnd-color-dim: rgba(241,141,25,0.7);
-$thrd-color-dim: rgba(156,181,101);
-
-Links palette
-$base-color: rgb(255,255,255);
-$base2-color: #6c757d;
-
-$link-color: rgb(175,139,87);
-$hovr-color: rgb(230,230,230); **/
 /** Base color palette **/
 /** Dim color palette **/
 /** Links palette **/
