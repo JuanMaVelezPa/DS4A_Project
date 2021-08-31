@@ -21,64 +21,52 @@ class ModelManager(metaclass=SingletonMeta):
 
         loaded_model_file = glob.glob("assets/model/model.pkl")
         loaded_model_data_file=glob.glob('assets/model/model_data.txt')
+        
         if(len(loaded_model_file) == 0):
             print('Inició')
             self.__select_data__(3)
             self.__split_data__()
+            
             print('Entrenando modelo')
             start = time.process_time()
-            self.__model__(1)
+            self.__train_model__(1)
             print('Se demora entrenando; ' + str((time.process_time() - start)/60))
             print('Modelo entrenado')
-            self.__predicted_dataframe__()
-            print('datos predecidos')
-
-            to_save = {
-                #'data':self.data.to_json(),
-                'index':self.index.item(),
-                'date_index':self.date_index,
-                'date_before':self.date_before,
-                'date_after':self.date_after,
-                'df_predicted':self.data.to_json()
-            }
-            print('Guardando datos')
-            with open('assets/model/model_data.txt', 'w') as outfile:
-                json.dump(to_save, outfile)
             
-            joblib.dump(self.br,'assets/model/model.pkl')
+            self.__predict_data__()
+            print('Datos predecidos')
+
+            print('Guardando datos')
+            self.__save_data__()
+            
+            print('Guardado modelo')
+            self.__save_model__()
+            
             print('Modelo y datos persistidos')
 
         elif(len(loaded_model_data_file) == 0):
             self.__select_data__(3)
             self.__split_data__()
-            self.br = joblib.load('assets/model/model.pkl')
-            print('El modelo cargó')
-            self.__predicted_dataframe__()
-            print('datos predecidos')
-
-            to_save = {
-                #'data':self.data.to_json(),
-                'index':self.index.item(),
-                'date_index':self.date_index,
-                'date_before':self.date_before,
-                'date_after':self.date_after,
-                'df_predicted':self.data.to_json()
-            }
-            print('Guardando datos')
-            with open('assets/model/model_data.txt', 'w') as outfile:
-                json.dump(to_save, outfile)
             
+            self.br = joblib.load('assets/model/model.pkl')
+            print('Modelo cargado')
+            
+            self.__predict_data__()
+            print('Datos predecidos')
+
+            self.__save_data__()
+            print('Datos guardados')
 
         else:
             with open('assets/model/model_data.txt', 'r') as file:
                 saved_data = json.loads(file.read())
                 file.close()
-                #self.data = pd.read_json(saved_data['data'])
+                
                 self.index = saved_data['index']
                 self.date_index = saved_data['date_index']
                 self.date_before = saved_data['date_before']
                 self.date_after = saved_data['date_after']
-                self.data=pd.read_json(saved_data['df_predicted'])
+                self.predicted = saved_data['df_predicted']
                
             self.br = joblib.load('assets/model/model.pkl')
             print('Todo Cargó')
@@ -124,7 +112,7 @@ class ModelManager(metaclass=SingletonMeta):
         self.x_test = x[self.index:]
         self.y_test = y[self.index:]
 
-    def __model__(self,model_id):
+    def __train_model__(self,model_id):
         if(model_id == 1):
             self.br = GradientBoostingRegressor(**{'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300})
         elif(model_id == 2):
@@ -132,13 +120,25 @@ class ModelManager(metaclass=SingletonMeta):
         
         self.br.fit(self.x_train,self.y_train)
     
-    def __predicted_dataframe__(self):
-         self.data['PREDICTED'] = self.br.predict(np.concatenate([self.x_train,self.x_test],axis=0)).round()
+    def __predict_data__(self):
+         self.predicted = self.br.predict(np.concatenate([self.x_train,self.x_test],axis=0)).round()
         
-    
+    def __save_data__(self):
+        to_save = {
+            'index':self.index.item(),
+            'date_index':self.date_index,
+            'date_before':self.date_before,
+            'date_after':self.date_after,
+            'df_predicted':self.predicted.tolist()
+        }
+
+        with open('assets/model/model_data.txt', 'w') as outfile:
+            json.dump(to_save, outfile)
+
+    def __save_model__(self):
+        with open('assets/model/model.pkl', 'w') as outfile:
+            joblib.dump(self.br,outfile)
 
     def get_data(self):
         indexes = [self.index, self.date_index, self.date_before, self.date_after]
-        return indexes, self.data
-
-
+        return indexes, self.predicted
