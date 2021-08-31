@@ -279,3 +279,25 @@ class DataManager(metaclass=SingletonMeta):
 
         return df
     
+    def sales_accounting_stores(self):
+        prods = data = DataManager().products.drop_duplicates().copy()
+        prods['AREA'] = prods.ANCHO * prods.FONDO
+
+        data = DataManager().sales_ref_month_sin_ventas_mayores()
+        data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
+
+        df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES','TIENDA'],values='CANTIDAD',aggfunc='sum').reset_index()
+        df = pd.melt(df,id_vars='REF')
+
+        df = df.sort_values(['REF','DATE'])
+        df = df.rename(columns={'value':'CANTIDAD'})
+        df = df.reset_index(drop=True).fillna(0)
+
+        df = df.merge(data.drop(columns=['ANIO','MES','CANTIDAD']).groupby(['REF','DATE','TIENDA']).mean(),on=['REF','DATE','TIENDA'],how='left',validate='1:1')
+        df = df[['REF','TIENDA','DATE','ANIO','MES','CANTIDAD','PRECIO','DESCUENTO(%)','F_COVID']]
+        
+        df = df.merge(prods,on='REF',validate='m:1')
+        df = df.sort_values(['ANIO','MES']).reset_index(drop=True)
+        df = df.fillna(0)
+
+        return df

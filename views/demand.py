@@ -31,16 +31,19 @@ from layout.menus import demd_menu
 
 demand_classificator = [
     dbc.Col([
-        html.Div([
+        dbc.Row([
                 html.H3("Clasificador de Demanda",className='title'),
-                html.A(html.I("Informacion matriz"),
-                            id="auto-toast-toggle",
-                            n_clicks=0,
-                            className='btn btn-outline-dark',
-                            style={"marginLeft": "50%", "margin-top":"30px"}),
+                html.A(html.I("I"),
+                    id="auto-toast-toggle",
+                    n_clicks=0,
+                    className='btn btn-outline-dark info-btn flexy-row',
+                ),
+                demd_menu,
             ],
-            className='flexy-row start'
+            className='flexy-row'
         ),
+        html.Hr(),
+
         dbc.Row([
             dbc.Col([
                 html.Div([
@@ -138,28 +141,23 @@ demand_classificator = [
 
 demand_predictor = [
     dbc.Col([
+        dbc.Row([
+                html.H3("Prediccion de Demanda", className='title'),
+                demd_menu,
+            ],
+            className = 'flexy-row'
+        ),
         html.Hr(),
-        html.H3("Prediccion de Demanda", style=TEXT_TITLE),
-        html.Hr(),
+
         dbc.Row([
             dbc.Col(dcc.Graph(id='graph_prediction', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
         ]),
     ]),
 ]
 
-
-
-menu = dbc.Col([
-        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", outline=True, color="secondary", className="mr-1"),
-        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", outline=True, color="secondary", className="mr-1"),
-    ],
-    className='internal-menu flexy-row start'
-)
-
 demd_content = html.Div(className='content-data',id='demand-container',children=demand_classificator)
 
 demand_container = [
-    demd_menu,
     demd_content
 ]
 
@@ -348,12 +346,12 @@ def generate_csv(n_nlicks):
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_ref', 'value'),],
-    prevent_initial_call=False
+    prevent_initial_call=True
 )
         
 def graph_model(categoria,subcategoria,ref):
     model = manager().br
-    data = DataManager().sales_accounting_zeroes()
+    data = DataManager().sales_accounting_stores()
     indexes, x_train, y_train, x_test, y_test = manager().get_data()
     index, date_index, date_before, date_after = indexes
 

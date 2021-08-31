@@ -13,14 +13,22 @@ import joblib
 import glob
 import json
 
+import time
+
+
 class ModelManager(metaclass=SingletonMeta):
     def __init__(self):
 
         loaded_model_file = glob.glob("assets/model/model.pkl")
         if(len(loaded_model_file) == 0):
-            self.__select_data__(2)
+            print('Inició')
+            self.__select_data__(3)
             self.__split_data__()
+            print('Entrenando modelo')
+            start = time.process_time()
             self.__model__(1)
+            print('Se demora entrenando; ' + str((time.process_time() - start)/60))
+            print('Modelo entrenado')
 
             to_save = {
                 #'data':self.data.to_json(),
@@ -33,11 +41,12 @@ class ModelManager(metaclass=SingletonMeta):
                 'x_test':self.x_test.tolist(),
                 'y_test':self.y_test.tolist()
             }
+            print('Guardando datos')
             with open('assets/model/model_data.txt', 'w') as outfile:
                 json.dump(to_save, outfile)
             
             joblib.dump(self.br,'assets/model/model.pkl')
-            print('Persistió')
+            print('Modelo y datos persistidos')
         else:
             with open('assets/model/model_data.txt', 'r') as file:
                 saved_data = json.loads(file.read())
@@ -62,13 +71,17 @@ class ModelManager(metaclass=SingletonMeta):
             self.data = DataManager().sales_ref_month_sin_ventas_mayores()
         elif(data_id == 2):
             self.data = DataManager().sales_accounting_zeroes()
+        elif(data_id == 3):
+            self.data = DataManager().sales_accounting_stores()
 
     def __split_data__(self):
         num_var=['PRECIO','AREA','ALTO','DESCUENTO(%)','CANTIDAD']
         x_num=self.data[num_var[:-1]].astype('float')
 
         cat_var=[
-            'MES','TIENDA', 'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
+            'MES',
+            'TIENDA', 
+            'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
             #quitamos anio, vigencia y estilo. validado: error casi no cambia y en el eda se demuestra
         ]
         x_cat=self.data[cat_var].astype('category')
