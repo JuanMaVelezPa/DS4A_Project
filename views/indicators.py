@@ -127,7 +127,7 @@ def update_historic_sales_money_graph(category, subcat, store, start_date, end_d
     fig = px.line(res, x="MES", y="TOTAL", color='ANIO', 
         labels = {'TOTAL':'Total','MES':'Mes','ANIO':'',1:"Ene",2:"Feb",3:"Mar",4:"Abr",5:"May",6:"Jun",7:"Jul",8:"Ago",9:"Sep",10:"Oct",11:"Nov",12:"Dic"},
         height = 250,
-        width = 500,
+        width = 550,
         color_discrete_sequence=px.colors.qualitative.Prism
     )
     fig.update_layout(
@@ -187,7 +187,8 @@ def update_graph(value1,value2,value3,start_date,end_date):
             xanchor="right",
             x=1,
         ),
-        margin=dict(t=20, l=10, r=10, b=10, pad=0)
+        margin=dict(t=20, l=10, r=10, b=10, pad=0),
+        paper_bgcolor = '#c8c8c8'
     )
     return fig
 
@@ -232,7 +233,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
     )
     return fig
 
-## Colores más vendidos
+""" ## Colores más vendidos
 @app.callback(
     Output('graph_general_4', 'figure'),
     [Input('dropdown_category', 'value'),
@@ -268,7 +269,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
         marker_color=colors, # marker color can be a single color value or an iterable
     )])
     
-    return fig
+    return fig """
 
 
 @app.callback(
