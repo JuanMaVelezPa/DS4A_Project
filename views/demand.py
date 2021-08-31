@@ -350,13 +350,10 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    model = manager().br
-    data = DataManager().sales_accounting_stores()
-    indexes, x_train, y_train, x_test, y_test = manager().get_data()
+    indexes, data_predicted = manager().get_data()
     index, date_index, date_before, date_after = indexes
 
-    data['PREDICTED'] = model.predict(np.concatenate([x_train,x_test],axis=0)).round()
-    df = data
+    df = data_predicted
     a = 'Pronostico General'
 
     if (len(categoria)>0):
@@ -370,8 +367,10 @@ def graph_model(categoria,subcategoria,ref):
         a = 'Pronostico por Referencia'
 
     df = df.groupby(['DATE']).sum().reset_index()
-    res_train=data[:index]
-    res_test=data[index:]
+    res_train=data_predicted[:index]
+    res_test=data_predicted[index:]
+    print(res_train)
+    print(res_test)
     
     fig = go.Figure()
     fig.add_scatter(x=df['DATE'], y=df['PREDICTED'], mode='lines+markers', name='Valores predichos')

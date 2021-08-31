@@ -280,7 +280,7 @@ class DataManager(metaclass=SingletonMeta):
         return df
     
     def sales_accounting_stores(self):
-        prods = data = DataManager().products.drop_duplicates().copy()
+        prods = data = self.products.drop_duplicates().copy()
         prods['AREA'] = prods.ANCHO * prods.FONDO
 
         data = DataManager().sales_ref_month_sin_ventas_mayores()
@@ -301,3 +301,4 @@ class DataManager(metaclass=SingletonMeta):
         df = df.fillna(0)
 
         return df
+    
