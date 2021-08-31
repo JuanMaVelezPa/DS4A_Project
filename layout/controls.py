@@ -9,7 +9,7 @@ from dataManager import *
 df = DataManager().sales_prod
 
 category_unique = df['CATEGORIA'].unique()
-subcategory_unique = df['SUBCATEGORIA'].unique()
+subcategory_unique = df['SUBCATEGORIA_POS'].unique()
 tienda_unique = df['TIENDA'].unique()
 ref_unique = df['REF'].unique()
 
@@ -71,6 +71,7 @@ ref = dbc.FormGroup(
             ],
             value=[],
             placeholder='Please select...',
+            multi=True,
         ),
         html.Br()
     ]
@@ -125,6 +126,8 @@ demand_controls = html.Div(
 predict_controls = html.Div([
     html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
     html.Hr(),
+    category,
+    subcat,
     ref,
     html.Hr()
 ])
