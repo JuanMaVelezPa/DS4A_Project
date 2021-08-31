@@ -21,6 +21,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from sklearn.metrics import mean_squared_error as mse
 
 from styles import *
 from dataManager import *
@@ -349,18 +350,80 @@ def generate_csv(n_nlicks):
 
 def graph_model(ref):
     model = manager().br
-    index, x_train, y_train, x_test, y_test = manager().get_data()
+    index,date_index,date_before,date_after, x_train, y_train, x_test, y_test, data = manager().get_data()
 
-    data = DataManager().sales_ref_month_sin_ventas_mayores()
+    ## data = DataManager().sales_ref_month_sin_ventas_mayores()
     data['PREDICTED'] = model.predict(np.concatenate([x_train,x_test],axis=0)).round()
-    data['DATE'] = pd.to_datetime(data['ANIO'].astype(str) + '/' + data['MES'].astype(str))
-    data.CANTIDAD = data.CANTIDAD.fillna(0)
-    data = data.groupby(['REF','DATE']).sum().reset_index()
+    df_train=data[:index]
+    df_test=data[index:]
+    res = data.groupby(['REF','DATE']).sum().reset_index()
+    res_train=df_train.groupby(['REF','DATE']).sum().reset_index()
+    res_test=df_test.groupby(['REF','DATE']).sum().reset_index()
 
-    aux = data.query('REF==@ref')
-
+    aux = res.query('REF==@ref')
+    
     fig = go.Figure()
-    fig.add_scatter(x=aux['DATE'], y=aux['PREDICTED'], name='Valores predichos')
-    fig.add_scatter(x=aux['DATE'], y=aux['CANTIDAD'], name='Valores reales')
+    fig.add_scatter(x=aux['DATE'], y=aux['PREDICTED'], mode='lines+markers', name='Valores predichos')
+    fig.add_scatter(x=aux['DATE'], y=aux['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="green"
+                    ,y0=-2,y1=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()])+1)
+    fig.add_annotation(x='-'.join([date_after,'5']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()]),
+                text="Test",
+                font=dict(
+                family="Courier New, monospace",
+                size=16,
+                color="black"
+                ),
+                showarrow=True,
+                arrowhead=1,
+                ax=35,
+                ay=0,
+                xanchor="center",
+                yanchor="middle",)
+    fig.add_annotation(x='-'.join([date_before,'25']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()]),
+                text="Train",
+                font=dict(
+                family="Courier New, monospace",
+                size=16,
+                color="black"
+                ),
+                showarrow=True,
+                arrowhead=1,
+                ax=-40,
+                ay=0,
+                xanchor="center",
+                yanchor="middle",)
+
+    fig.add_annotation(x='-'.join([date_after,'31']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()])/2,
+                text="RMSE:<br>{:.2f}".format(mse(res_test.PREDICTED,res_test.CANTIDAD,squared=False)),
+                font=dict(
+                family="Courier New, monospace",
+                size=16,
+                color="black"
+                ),
+                showarrow=False,
+                ax=35,
+                ay=0,
+                )
+    fig.add_annotation(x='-'.join([date_before,'1']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()])/2,
+                text="RMSE:<br>{:.2f}".format(mse(res_train.PREDICTED,res_train.CANTIDAD,squared=False)),
+                font=dict(
+                family="Courier New, monospace",
+                size=16,
+                color="black"
+                ),
+                showarrow=False,
+                arrowhead=1,
+                ax=-40,
+                ay=0,
+                xanchor="center",)
+    fig.update_layout(
+        title="Ventas por referencia",
+        yaxis_title="Número de ventas",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="RebeccaPurple"
+        ))
 
     return fig

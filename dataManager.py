@@ -238,10 +238,11 @@ class DataManager(metaclass=SingletonMeta):
             sales_prod['AREA']=sales_prod['ANCHO']*sales_prod['FONDO']
             sales_prod['PUESTOS'].fillna(0,inplace=True)
             columns_HD = ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA','VIGENCIA','ORIGEN','ESTILO','MATERIAL','ACABADO','COLOR','ALTO','AREA','PUESTOS']
-            columns_LD= ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA_POS','VIGENCIA','ORIGEN','ESTILO','MATERIAL_POS','ACABADO','COLOR_POS','ALTO','AREA','PUESTOS']
+            #columns_LD= ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA_POS','VIGENCIA','ORIGEN','ESTILO','MATERIAL_POS','ACABADO','COLOR_POS','ALTO','AREA','PUESTOS']
             sales_prod_HD=sales_prod[columns_HD]
-            sales_prod_LD=sales_prod[columns_LD]
-            sales_ref_month=sales_prod_LD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR_POS':'first','CATEGORIA':'first','SUBCATEGORIA_POS':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL_POS':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
+            #sales_prod_LD=sales_prod[columns_LD]
+            #sales_ref_month=sales_prod_LD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR_POS':'first','CATEGORIA':'first','SUBCATEGORIA_POS':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL_POS':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
+            sales_ref_month=sales_prod_HD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR':'first','CATEGORIA':'first','SUBCATEGORIA':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
             covid=sales_ref_month[['ANIO','MES']].drop_duplicates().reset_index(drop=True)
             aux2=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,2,2,1,1,2,2,1,1,1]
             covid['F_COVID']=aux2
@@ -253,3 +254,26 @@ class DataManager(metaclass=SingletonMeta):
             self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
                 
         return self.sales_ref_month
+
+    def sales_accounting_zeroes(self):
+        prods = self.products.drop_duplicates().copy()
+        prods['AREA'] = prods.ANCHO * prods.FONDO
+
+        data = self.sales_ref_month_sin_ventas_mayores().copy()
+        data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
+
+        df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES'],values='CANTIDAD',aggfunc='sum').reset_index()
+        df = pd.melt(df,id_vars='REF')
+
+        df = df.sort_values(['REF','DATE'])
+        df = df.rename(columns={'value':'CANTIDAD'})
+        df = df.reset_index(drop=True).fillna(0)
+
+        df = df.merge(data.drop(columns=['TIENDA','ANIO','MES','CANTIDAD']).groupby(['REF','DATE']).mean(),on=['REF','DATE'],how='left',validate='1:1')
+        df = df[['REF','DATE','ANIO','MES','CANTIDAD','PRECIO','SUBTOTAL','DESCUENTO(%)','TOTAL','F_COVID']]
+        df = df.fillna(0)
+
+        df = df.merge(prods,on='REF',validate='m:1')
+        df = df.sort_values(['ANIO','MES']).reset_index(drop=True)
+
+        return df
