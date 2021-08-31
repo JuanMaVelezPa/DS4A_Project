@@ -344,49 +344,50 @@ def generate_csv(n_nlicks):
 
 @app.callback(
     Output('graph_prediction', 'figure'),
-    [Input('dropdown_ref', 'value')],
-    prevent_initial_call=True
+    [Input('dropdown_category', 'value'),
+     Input('dropdown_subcategory', 'value'),
+     Input('dropdown_ref', 'value'),],
+    prevent_initial_call=False
 )
-
-def graph_model(ref):
+        
+def graph_model(categoria,subcategoria,ref):
     model = manager().br
     index,date_index,date_before,date_after, x_train, y_train, x_test, y_test, data = manager().get_data()
 
-    ## data = DataManager().sales_ref_month_sin_ventas_mayores()
     data['PREDICTED'] = model.predict(np.concatenate([x_train,x_test],axis=0)).round()
-    df_train=data[:index]
-    df_test=data[index:]
-    res = data.groupby(['REF','DATE']).sum().reset_index()
-    res_train=df_train.groupby(['REF','DATE']).sum().reset_index()
-    res_test=df_test.groupby(['REF','DATE']).sum().reset_index()
+    df = data
+    a = 'Pronostico General'
 
-    aux = res.query('REF==@ref')
+    if (len(categoria)>0):
+        df = df.query('CATEGORIA == @categoria')
+        a = 'Pronostico por Categoria'
+    if  (len(subcategoria)>0):
+        df = df.query('SUBCATEGORIA_POS== @subcategoria')
+        a = 'Pronostico por Subcategoria'
+    if (len(ref)>0):
+        df = df.query('REF == @ref')
+        a = 'Pronostico por Referencia'
+
+    df = df.groupby(['DATE']).sum().reset_index()
+    res_train=data[:index]
+    res_test=data[index:]
     
     fig = go.Figure()
-    fig.add_scatter(x=aux['DATE'], y=aux['PREDICTED'], mode='lines+markers', name='Valores predichos')
-    fig.add_scatter(x=aux['DATE'], y=aux['CANTIDAD'], mode='lines+markers', name='Valores reales')
-    fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="green"
-                    ,y0=-2,y1=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()])+1)
-    fig.add_annotation(x='-'.join([date_after,'5']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()]),
+    fig.add_scatter(x=df['DATE'], y=df['PREDICTED'], mode='lines+markers', name='Valores predichos')
+    fig.add_scatter(x=df['DATE'], y=df['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="green", y0=0, y1=1.25)
+    fig.add_annotation(x='-'.join([date_after,'5']), y=1.18, yref="paper",
                 text="Test",
-                font=dict(
-                family="Courier New, monospace",
-                size=16,
-                color="black"
-                ),
+                font=dict(family="Courier New, monospace",size=16,color="black"),
                 showarrow=True,
                 arrowhead=1,
                 ax=35,
                 ay=0,
                 xanchor="center",
                 yanchor="middle",)
-    fig.add_annotation(x='-'.join([date_before,'25']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()]),
+    fig.add_annotation(x='-'.join([date_before,'25']), y=1.18, yref="paper",
                 text="Train",
-                font=dict(
-                family="Courier New, monospace",
-                size=16,
-                color="black"
-                ),
+                font=dict(family="Courier New, monospace",size=16,color="black"),
                 showarrow=True,
                 arrowhead=1,
                 ax=-40,
@@ -394,36 +395,25 @@ def graph_model(ref):
                 xanchor="center",
                 yanchor="middle",)
 
-    fig.add_annotation(x='-'.join([date_after,'31']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()])/2,
+    fig.add_annotation(x='-'.join([date_after,'31']), y=1.15, yref="paper",
                 text="RMSE:<br>{:.2f}".format(mse(res_test.PREDICTED,res_test.CANTIDAD,squared=False)),
-                font=dict(
-                family="Courier New, monospace",
-                size=16,
-                color="black"
-                ),
+                font=dict(family="Courier New, monospace",size=16,color="black"),
                 showarrow=False,
                 ax=35,
                 ay=0,
                 )
-    fig.add_annotation(x='-'.join([date_before,'1']), y=max([aux['PREDICTED'].max(),aux['CANTIDAD'].max()])/2,
+    fig.add_annotation(x='-'.join([date_before,'1']), y=1.15, yref="paper",
                 text="RMSE:<br>{:.2f}".format(mse(res_train.PREDICTED,res_train.CANTIDAD,squared=False)),
-                font=dict(
-                family="Courier New, monospace",
-                size=16,
-                color="black"
-                ),
+                font=dict(family="Courier New, monospace",size=16,color="black"),
                 showarrow=False,
                 arrowhead=1,
                 ax=-40,
                 ay=0,
                 xanchor="center",)
     fig.update_layout(
-        title="Ventas por referencia",
-        yaxis_title="Número de ventas",
-        font=dict(
-            family="Courier New, monospace",
-            size=18,
-            color="RebeccaPurple"
-        ))
+        title = a,
+        yaxis_title = "Número de ventas",
+        font=dict(family="Courier New, monospace",size=18,color="RebeccaPurple")
+        )
 
     return fig
