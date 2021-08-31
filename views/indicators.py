@@ -262,6 +262,7 @@ def update_graph(value1,value2,value3,start_date,end_date):
     
     return fig
 
+
 @app.callback(
     Output('heatmap_amount', 'figure'),
     [Input('main_variable', 'value'),

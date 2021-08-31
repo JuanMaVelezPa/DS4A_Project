@@ -250,9 +250,8 @@ class DataManager(metaclass=SingletonMeta):
             sales_ref_month=sales_ref_month.merge(covid,on=['ANIO','MES'])
             def remove_ventas_anormales(df):
                 return df.query('CANTIDAD<20')
-
-            
             self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
+
                 
         return self.sales_ref_month
 
@@ -276,5 +275,7 @@ class DataManager(metaclass=SingletonMeta):
 
         df = df.merge(prods,on='REF',validate='m:1')
         df = df.sort_values(['ANIO','MES']).reset_index(drop=True)
+        df=df.fillna(0)
 
         return df
+    
