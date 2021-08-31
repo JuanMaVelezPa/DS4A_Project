@@ -669,7 +669,7 @@ label {
 
 .sidebar {
   position: fixed;
-  top: 75px;
+  top: 50px;
   left: 0;
   bottom: 0;
   z-index: 1;
@@ -684,7 +684,7 @@ label {
   top: 0;
   left: 0;
   background-color: white;
-  height: 75px;
+  height: 50px;
   width: 100%;
   padding: 20px;
   z-index: 1;

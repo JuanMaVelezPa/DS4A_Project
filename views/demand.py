@@ -11,6 +11,7 @@
 
 ## Libraries
 from dash_html_components import Label
+from dash_html_components.Data import Data
 from model import ModelManager as manager
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
@@ -350,27 +351,32 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    indexes, data_predicted = manager().get_data()
+    df = DataManager().sales_accounting_stores()
+    indexes, column_predicted = manager().get_data()
     index, date_index, date_before, date_after = indexes
 
-    df = data_predicted
     a = 'Pronostico General'
+    df['PREDICTED'] = column_predicted
+    res_train = df[:index]
+    res_test = df[index:]
 
     if (len(categoria)>0):
-        df = df.query('CATEGORIA == @categoria')
         a = 'Pronostico por Categoria'
+        df = df.query('CATEGORIA == @categoria')
+        res_train = res_train.query('CATEGORIA == @categoria')
+        res_test = res_test.query('CATEGORIA == @categoria')
     if  (len(subcategoria)>0):
-        df = df.query('SUBCATEGORIA_POS== @subcategoria')
         a = 'Pronostico por Subcategoria'
+        df = df.query('SUBCATEGORIA_POS== @subcategoria')
+        res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
+        res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
     if (len(ref)>0):
-        df = df.query('REF == @ref')
         a = 'Pronostico por Referencia'
+        df = df.query('REF == @ref')
+        res_train = res_train.query('REF == @ref')
+        res_test = res_test.query('REF == @ref')
 
     df = df.groupby(['DATE']).sum().reset_index()
-    res_train=data_predicted[:index]
-    res_test=data_predicted[index:]
-    print(res_train)
-    print(res_test)
     
     fig = go.Figure()
     fig.add_scatter(x=df['DATE'], y=df['PREDICTED'], mode='lines+markers', name='Valores predichos')
