@@ -68,4 +68,4 @@ def generate_csv(n_nlicks):
 
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
-    app.run_server(debug=True,use_reloader=True)
+    app.run_server(debug=False,use_reloader=False,dev_tools_hot_reload=False)

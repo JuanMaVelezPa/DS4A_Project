@@ -51,7 +51,14 @@ indicators_general = [
 
 indicators_features = [
     dbc.Col([
-        html.H3("Indicadores por aracteristica", className='title'),
+        dbc.Row([
+                html.H3("Indicadores por característica", className='title'),
+                ind_menu
+            ],
+            className = 'flexy-row'
+        ),
+        html.Hr(),
+
         html.P('Mapas de calor de la relación existente entre la categorias o subcategorias y las diferentes características de los muebles'),
         dbc.Row([
                 dbc.Col([
@@ -72,6 +79,7 @@ indicators_container = [
     ind_content
 ]
 
+# Initial callback for content display
 @app.callback(
     [Output("indicators-container", "children")],
     [Input("url", "pathname")]
@@ -87,7 +95,7 @@ def render_indicators_content(pathname):
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
 
-# Analisis de ventas totales
+# Callbask to draw sales($) according to controls
 @app.callback(
     Output('historic_sales_money', 'figure'),
     [Input('dropdown_category', 'value'),

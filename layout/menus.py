@@ -15,8 +15,8 @@ top_menu = dbc.Navbar([
     html.H1('Furni', className='flex-field'),
     dbc.Nav([
             dbc.NavItem(dbc.NavLink('Indicadores', className='btn btn-primary round',href='/indicadores')),
-            dbc.NavItem(dbc.NavLink('Prediccion Demanda', className='btn btn-secondary round',href='/demanda')),
-            dbc.NavItem(dbc.NavLink('Cobertura Inventario', className='btn btn-third round',href='/inventario')),
+            dbc.NavItem(dbc.NavLink('Demanda', className='btn btn-secondary round',href='/demanda')),
+            dbc.NavItem(dbc.NavLink('Inventario', className='btn btn-third round',href='/inventario')),
         ],
         className='top-menu'
     ),
@@ -59,5 +59,5 @@ demd_menu = dbc.Col([
         dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", color="dark"),
         dbc.Button("Prediccion Demanda", href="/demanda/prediccion", color="dark"),
     ],
-    className='internal-menu flexy-row end bg-light'
+    className='internal-menu flexy-row end'
 )

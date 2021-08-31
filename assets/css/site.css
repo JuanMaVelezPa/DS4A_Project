@@ -725,7 +725,15 @@ label {
   box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.7);
 }
 .page-content .content-data .info-btn {
-  margin: 2%;
+  width: 25px;
+  height: 25px;
+  margin: 10px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 8px;
+}
+.page-content .content-data .info-btn i {
+  font-size: 10px;
 }
 
 /*# sourceMappingURL=site.css.map */
