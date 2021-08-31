@@ -62,19 +62,22 @@ class ModelManager(metaclass=SingletonMeta):
             self.data = DataManager().sales_accounting_zeroes()
 
     def __split_data__(self):
-        num_var = ['AREA','ALTO','DESCUENTO(%)','PRECIO','CANTIDAD']
-        x_num = self.data[num_var[:-1]].astype('float')
-        
-        cat_var = ['ANIO', 'MES', 'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'ESTILO', 'F_COVID']
-        x_cat = self.data[cat_var].astype('category')
-        x_cat_dummies = pd.get_dummies(x_cat)
-        
+        num_var=['PRECIO','AREA','ALTO','DESCUENTO(%)','CANTIDAD']
+        x_num=self.data[num_var[:-1]].astype('float')
+
+        cat_var=[
+            'MES','TIENDA', 'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
+            #quitamos anio, vigencia y estilo. validado: error casi no cambia y en el eda se demuestra
+        ]
+        x_cat=self.data[cat_var].astype('category')
+        x_cat_dummies=pd.get_dummies(x_cat)
+
         y = self.data['CANTIDAD']
-        
+
         scaler = MinMaxScaler()
         x_num_norm = scaler.fit_transform(x_num)
         x = np.append(x_num_norm,x_cat_dummies,axis=1)
-
+        
         #split data till januar 2021
         self.index = self.data[(self.data.ANIO==2021)].index[0]
        
