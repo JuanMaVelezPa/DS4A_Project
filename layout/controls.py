@@ -111,6 +111,49 @@ indicators_controls = html.Div(
     id="indicators_controls"
 )
 
+features_controls = html.Div(
+    [
+        html.P('Por favor seleccionar filtro y característica a analizar'),
+        html.Hr(),
+        html.P('Filtro'),
+        dcc.Dropdown(id='main_variable',
+            options=[
+                    {'label': i, 'value': j} for i,j in zip(DataManager().sales_prod[['CATEGORIA','SUBCATEGORIA_POS']].columns.sort_values(), ['Categoría','Sub-categoría'])
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=False,
+        ),
+        html.Br(),
+        html.P('Característica'),
+        dcc.Dropdown(id='second_variable',
+            options=[
+                    {'label': i, 'value': i} for i in DataManager().sales_prod[['COLOR_POS','MATERIAL_POS','ACABADO','VIGENCIA','ESTILO','PUESTOS']].columns.sort_values()
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=False,
+        ),
+        html.Br(),
+        html.P('Calendar'),
+        dcc.DatePickerRange(
+            id='calendar2',
+            with_portal=True,
+            first_day_of_week=1,
+            reopen_calendar_on_clear=True,
+            clearable=True,
+            min_date_allowed=dt(dateMin.year, dateMin.month, dateMin.day),
+            max_date_allowed=dt(2022, 12, 31),
+            initial_visible_month=dt(dateMin.year, dateMin.month, dateMin.day),
+            start_date=dt(2019, 1, 1),
+            end_date=dt(dateMax.year, dateMax.month, dateMax.day),
+            display_format='DD, MMM YY',
+            month_format='MMMM, YYYY',
+        ),
+        html.Br()
+    ]
+)
+
 demand_controls = html.Div(
     [
         html.P('Por favor seleccionar los filtros para visualizar en las graficas'),

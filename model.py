@@ -23,7 +23,7 @@ class ModelManager(metaclass=SingletonMeta):
             self.__model__(1)
 
             to_save = {
-                'data':self.data.to_json(),
+                #'data':self.data.to_json(),
                 'index':self.index.item(),
                 'date_index':self.date_index,
                 'date_before':self.date_before,
@@ -42,7 +42,7 @@ class ModelManager(metaclass=SingletonMeta):
             with open('assets/model/model_data.txt', 'r') as file:
                 saved_data = json.loads(file.read())
                 file.close()
-                self.data = pd.read_json(saved_data['data'])
+                #self.data = pd.read_json(saved_data['data'])
                 self.index = saved_data['index']
                 self.date_index = saved_data['date_index']
                 self.date_before = saved_data['date_before']
@@ -101,7 +101,8 @@ class ModelManager(metaclass=SingletonMeta):
         self.br.fit(self.x_train,self.y_train)
 
     def get_data(self):
-        return self.index, self.date_index, self.date_before,self.date_after, self.x_train, self.y_train, self.x_test, self.y_test, self.data
+        indexes = [self.index, self.date_index, self.date_before, self.date_after]
+        return indexes, self.x_train, self.y_train, self.x_test, self.y_test
 
 
 

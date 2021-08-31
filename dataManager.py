@@ -156,6 +156,7 @@ class DataManager(metaclass=SingletonMeta):
         self.sales_prod = self.__df_mat_mod(sales_prod,ref_materials)
         self.stock_prod = self.__df_mat_mod(stock_prod,ref_materials)
         self.references = self.__df_mat_mod(references,ref_materials)
+        
         self.sales_ref_month2=None
         demand2, self.discontinued, self.demand_classifier, self.classifier=self.demand_data(sales_prod.FECHA.min(),sales_prod.FECHA.max())
 
