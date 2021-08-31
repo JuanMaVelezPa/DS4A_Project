@@ -24,6 +24,9 @@ class ModelManager(metaclass=SingletonMeta):
 
             to_save = {
                 'index':self.index.item(),
+                'date_index':self.date_index,
+                'date_before':self.date_before,
+                'date_after':self.date_after,
                 'x_train':self.x_train.tolist(),
                 'y_train':self.y_train.tolist(),
                 'x_test':self.x_test.tolist(),
@@ -39,6 +42,9 @@ class ModelManager(metaclass=SingletonMeta):
                 data = json.loads(file.read())
                 file.close()
                 self.index = data['index']
+                self.date_index=data['date_index']
+                self.date_before=data['date_before']
+                self.date_after=data['date_after']
                 self.x_train = data['x_train']
                 self.y_train = data['y_train']
                 self.x_test = data['x_test']
@@ -71,11 +77,15 @@ class ModelManager(metaclass=SingletonMeta):
 
         #split data till januar 2021
         self.index = self.data[(self.data.ANIO==2021)].index[0]
+       
+        self.date_index=self.data[(self.data.ANIO==2021)]['DATE'].values[0]
+        self.date_before=self.data.loc[self.index-1]['DATE']
+        self.date_after=self.data.loc[self.index+1]['DATE']
         
-        self.x_train = x[:self.index-1]
-        self.y_train = y[:self.index-1]
-        self.x_test = x[self.index-1:]
-        self.y_test = y[self.index-1:]
+        self.x_train = x[:self.index]
+        self.y_train = y[:self.index]
+        self.x_test = x[self.index:]
+        self.y_test = y[self.index:]
 
     def __model__(self,model_id):
         if(model_id == 1):
@@ -86,7 +96,7 @@ class ModelManager(metaclass=SingletonMeta):
         self.br.fit(self.x_train,self.y_train)
 
     def get_data(self):
-        return self.index, self.x_train, self.y_train, self.x_test, self.y_test, self.data
+        return self.index, self.date_index, self.date_before,self.date_after, self.x_train, self.y_train, self.x_test, self.y_test, self.data
 
 
 
