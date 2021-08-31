@@ -20,6 +20,7 @@ class ModelManager(metaclass=SingletonMeta):
     def __init__(self):
 
         loaded_model_file = glob.glob("assets/model/model.pkl")
+        loaded_model_data_file=glob.glob('assets/model/model_data.txt')
         if(len(loaded_model_file) == 0):
             print('Inició')
             self.__select_data__(3)
@@ -29,6 +30,8 @@ class ModelManager(metaclass=SingletonMeta):
             self.__model__(1)
             print('Se demora entrenando; ' + str((time.process_time() - start)/60))
             print('Modelo entrenado')
+            self.__predicted_dataframe__()
+            print('datos predecidos')
 
             to_save = {
                 #'data':self.data.to_json(),
@@ -36,10 +39,7 @@ class ModelManager(metaclass=SingletonMeta):
                 'date_index':self.date_index,
                 'date_before':self.date_before,
                 'date_after':self.date_after,
-                'x_train':self.x_train.tolist(),
-                'y_train':self.y_train.tolist(),
-                'x_test':self.x_test.tolist(),
-                'y_test':self.y_test.tolist()
+                'df_predicted':self.data.to_json()
             }
             print('Guardando datos')
             with open('assets/model/model_data.txt', 'w') as outfile:
@@ -47,6 +47,28 @@ class ModelManager(metaclass=SingletonMeta):
             
             joblib.dump(self.br,'assets/model/model.pkl')
             print('Modelo y datos persistidos')
+
+        elif(len(loaded_model_data_file) == 0):
+            self.__select_data__(3)
+            self.__split_data__()
+            self.br = joblib.load('assets/model/model.pkl')
+            print('El modelo cargó')
+            self.__predicted_dataframe__()
+            print('datos predecidos')
+
+            to_save = {
+                #'data':self.data.to_json(),
+                'index':self.index.item(),
+                'date_index':self.date_index,
+                'date_before':self.date_before,
+                'date_after':self.date_after,
+                'df_predicted':self.data.to_json()
+            }
+            print('Guardando datos')
+            with open('assets/model/model_data.txt', 'w') as outfile:
+                json.dump(to_save, outfile)
+            
+
         else:
             with open('assets/model/model_data.txt', 'r') as file:
                 saved_data = json.loads(file.read())
@@ -56,15 +78,12 @@ class ModelManager(metaclass=SingletonMeta):
                 self.date_index = saved_data['date_index']
                 self.date_before = saved_data['date_before']
                 self.date_after = saved_data['date_after']
-                self.x_train = saved_data['x_train']
-                self.y_train = saved_data['y_train']
-                self.x_test = saved_data['x_test']
-                self.y_test = saved_data['y_test']
+                self.data=pd.read_json(saved_data['df_predicted'])
                
             self.br = joblib.load('assets/model/model.pkl')
-            print('Cargó')
+            print('Todo Cargó')
 
-        self.mse = mse(self.br.predict(self.x_test),self.y_test)
+
 
     def __select_data__(self,data_id):
         if(data_id == 1):
@@ -112,10 +131,14 @@ class ModelManager(metaclass=SingletonMeta):
             self.br = None
         
         self.br.fit(self.x_train,self.y_train)
+    
+    def __predicted_dataframe__(self):
+         self.data['PREDICTED'] = self.br.predict(np.concatenate([self.x_train,self.x_test],axis=0)).round()
+        
+    
 
     def get_data(self):
         indexes = [self.index, self.date_index, self.date_before, self.date_after]
-        return indexes, self.x_train, self.y_train, self.x_test, self.y_test
-
+        return indexes, self.data
 
 
