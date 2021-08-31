@@ -23,6 +23,7 @@ class ModelManager(metaclass=SingletonMeta):
             self.__model__(1)
 
             to_save = {
+                'data':self.data.to_json(),
                 'index':self.index.item(),
                 'date_index':self.date_index,
                 'date_before':self.date_before,
@@ -39,16 +40,17 @@ class ModelManager(metaclass=SingletonMeta):
             print('Persistió')
         else:
             with open('assets/model/model_data.txt', 'r') as file:
-                data = json.loads(file.read())
+                saved_data = json.loads(file.read())
                 file.close()
-                self.index = data['index']
-                self.date_index=data['date_index']
-                self.date_before=data['date_before']
-                self.date_after=data['date_after']
-                self.x_train = data['x_train']
-                self.y_train = data['y_train']
-                self.x_test = data['x_test']
-                self.y_test = data['y_test']
+                self.data = pd.read_json(saved_data['data'])
+                self.index = saved_data['index']
+                self.date_index = saved_data['date_index']
+                self.date_before = saved_data['date_before']
+                self.date_after = saved_data['date_after']
+                self.x_train = saved_data['x_train']
+                self.y_train = saved_data['y_train']
+                self.x_test = saved_data['x_test']
+                self.y_test = saved_data['y_test']
                
             self.br = joblib.load('assets/model/model.pkl')
             print('Cargó')
