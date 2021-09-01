@@ -351,7 +351,9 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    df = DataManager().sales_accounting_stores()
+    ##
+    df = DataManager().sales_ref_month_sin_ventas_mayores()
+    ##
     indexes, column_predicted = manager().get_data()
     index, date_index, date_before, date_after = indexes
     ##recuperar datos

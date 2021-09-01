@@ -92,6 +92,7 @@ class ModelManager(metaclass=SingletonMeta):
 
         x_num=df_concat[num_var[:-1]].astype('float')
 
+
         cat_var=[
             'MES',
             'TIENDA', 

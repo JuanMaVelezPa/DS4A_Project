@@ -111,10 +111,10 @@ def update_historic_sales_money_graph(category, subcat, store, start_date, end_d
     elif (category != [] and subcat == []):
         sales_prod = temp.query("CATEGORIA==@category")
     elif (category == [] and subcat != []):
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+        sales_prod = temp.query("SUBCATEGORIA_POS==@subcat")
     else:
         sales_prod = temp.query("CATEGORIA==@category")
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+        sales_prod = temp.query("SUBCATEGORIA_POS==@subcat")
     
     mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
     sales_prod = sales_prod.loc[mask]
@@ -154,15 +154,15 @@ def update_graph(categoria,subcat,tienda,start_date,end_date):
         temp = DataManager().sales_prod
     else:
         temp = DataManager().sales_prod.query("TIENDA==@tienda")
-    if (categoria == [] and subcat == []):
+    
+    if (len(categoria) == 0 and len(subcat) == 0):
         sales_prod = temp
-    elif (categoria != [] and subcat == []):
+    elif (len(categoria) > 0 and len(subcat) == 0):
         sales_prod = temp.query("CATEGORIA==@categoria")
-    elif (categoria == [] and subcat != []):
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+    elif (len(categoria) == 0 and len(subcat) > 0):
+        sales_prod = temp.query("SUBCATEGORIA_POS==@subcat")
     else:
-        sales_prod = temp.query("CATEGORIA==@categoria")
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+        sales_prod = temp.query("CATEGORIA==@categoria and SUBCATEGORIA_POS==@subcat")
     
     mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
     sales_prod = sales_prod.loc[mask]
@@ -209,10 +209,9 @@ def update_graph(category,subcat,tienda,start_date,end_date):
     elif (category != [] and subcat == []):
         sales_prod = temp.query("CATEGORIA==@category")
     elif (category == [] and subcat != []):
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+        sales_prod = temp.query("SUBCATEGORIA_POS==@subcat")
     else:
-        sales_prod = temp.query("CATEGORIA==@category")
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+        sales_prod = temp.query("CATEGORIA==@category and SUBCATEGORIA_POS==@subcat")
 
     if (start_date is None or start_date == ""):
         start_date = sales_prod['FECHA'].min()
