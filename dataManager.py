@@ -283,7 +283,7 @@ class DataManager(metaclass=SingletonMeta):
         prods = data = self.products.drop_duplicates().copy()
         prods['AREA'] = prods.ANCHO * prods.FONDO
 
-        data = DataManager().sales_ref_month_sin_ventas_mayores()
+        data = self.sales_ref_month_sin_ventas_mayores()
         data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
 
         df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES','TIENDA'],values='CANTIDAD',aggfunc='sum').reset_index()
@@ -301,4 +301,23 @@ class DataManager(metaclass=SingletonMeta):
         df = df.fillna(0)
 
         return df
-    
+    def data_forecasting_2021(self):
+        ##sacar productos descontinuados
+        aux=self.sales_ref_month_sin_ventas_mayores().query('VIGENCIA != "DESCONTINUADO"')
+        aux=aux.groupby(['REF','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
+                                                    'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first', 
+                                                    'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
+                                                    'CATEGORIA':'first','ORIGEN':'first'}).reset_index()
+        # 2021 future months and covid
+        months=[5,6,7,8,9,10,11,12]
+        covid=[1,1,1,1,1,1,1,1]
+        aux0=aux[['REF','TIENDA']].copy()
+        for m,c in zip(months,covid):
+            aux0[m]=c
+        #display(aux0)
+        aux1=pd.melt(aux0,id_vars=['REF','TIENDA'],var_name='MES',value_name='F_COVID')
+        #display(aux1.sort_values(by=['REF','TIENDA']))
+        final_df_future=aux1.merge(aux,on=['REF','TIENDA'],how='left')
+        final_df_future['ANIO']=2021
+        final_df_future['DATE'] = final_df_future['ANIO'].astype(str) + '-' +final_df_future['MES'].astype(str).str.zfill(2)
+        return final_df_future.sort_values(['ANIO','MES']).reset_index(drop=True)

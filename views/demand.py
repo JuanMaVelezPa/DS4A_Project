@@ -351,14 +351,21 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    df = DataManager().sales_ref_month_sin_ventas_mayores()
+    df = DataManager().sales_accounting_stores()
     indexes, column_predicted = manager().get_data()
     index, date_index, date_before, date_after = indexes
-
+    ##recuperar datos
+    max_index_known=df.tail(1).index[0]
+    max_date_known=df.tail(1)['DATE']
+    ##futuro
+    data_future=DataManager().data_forecasting_2021()
+    data_future['CANTIDAD']=np.nan
+    df=pd.concat([df,data_future],axis=0)
     a = 'Pronostico General'
     df['PREDICTED'] = column_predicted
     res_train = df[:index]
-    res_test = df[index:]
+    res_test = df[index:max_index_known+1]
+    res_future=df[max_index_known+1:]
 
     if (len(categoria)>0):
         a = 'Pronostico por Categoria'
