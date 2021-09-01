@@ -1,8 +1,9 @@
-__pycache__/*
-views/__pycache__/*
-layout/__pycache__/*
+__pycache__/
+views/__pycache__/
+layout/__pycache__/
 temp.ipynb
 .DS_Store
-.ipynb_checkpoints/*
+.ipynb_checkpoints/
 .Rhistory
 ModelTest.ipynb
+project-venv/
