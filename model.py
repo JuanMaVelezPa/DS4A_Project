@@ -39,7 +39,7 @@ class ModelManager(metaclass=SingletonMeta):
             print('Guardando datos')
             self.__save_data__()
             
-            print('Guardado modelo')
+            print('Guardando modelo')
             self.__save_model__()
             
             print('Modelo y datos persistidos')
@@ -95,7 +95,10 @@ class ModelManager(metaclass=SingletonMeta):
         cat_var=[
             'MES',
             'TIENDA', 
-            'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
+            'PUESTOS', 
+            'COLOR_POS', 'SUBCATEGORIA_POS', 'MATERIAL_POS',
+            #'SUBCATEGORIA','MATERIAL','COLOR',
+            'F_COVID' , 'ACABADO', 'CATEGORIA', 'ORIGEN'
             #quitamos anio, vigencia y estilo. validado: error casi no cambia y en el eda se demuestra
         ]
         x_cat=df_concat[cat_var].astype('category')
@@ -124,7 +127,6 @@ class ModelManager(metaclass=SingletonMeta):
         self.x_future=x[self.max_index+1:]
 
 
-
        
     def __train_model__(self,model_id):
         if(model_id == 1):
@@ -136,8 +138,11 @@ class ModelManager(metaclass=SingletonMeta):
     
     def __predict_data__(self):
         self.predicted = self.br.predict(np.concatenate([self.x_train,self.x_test,self.x_future],axis=0)).round()
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> cf069b17583c24261604fde44db6db8d4495845e
         
     def __save_data__(self):
         to_save = {
@@ -152,8 +157,7 @@ class ModelManager(metaclass=SingletonMeta):
             json.dump(to_save, outfile)
 
     def __save_model__(self):
-        with open('assets/model/model.pkl', 'w') as outfile:
-            joblib.dump(self.br,outfile)
+        joblib.dump(self.br,'assets/model/model.pkl')
 
     def get_data(self):
         indexes = [self.index, self.date_index, self.date_before, self.date_after]
