@@ -231,27 +231,27 @@ class DataManager(metaclass=SingletonMeta):
             self.last_classifier=classifier
         return demand2, discontinued, demand3, classifier
     
-
-    
     def sales_ref_month_sin_ventas_mayores(self):
         if self.sales_ref_month2 is None:
             sales_prod = self.sales_prod
             sales_prod['AREA']=sales_prod['ANCHO']*sales_prod['FONDO']
             sales_prod['PUESTOS'].fillna(0,inplace=True)
-            columns_HD = ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA','VIGENCIA','ORIGEN','ESTILO','MATERIAL','ACABADO','COLOR','ALTO','AREA','PUESTOS']
-            #columns_LD= ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA_POS','VIGENCIA','ORIGEN','ESTILO','MATERIAL_POS','ACABADO','COLOR_POS','ALTO','AREA','PUESTOS']
-            sales_prod_HD=sales_prod[columns_HD]
-            #sales_prod_LD=sales_prod[columns_LD]
-            #sales_ref_month=sales_prod_LD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR_POS':'first','CATEGORIA':'first','SUBCATEGORIA_POS':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL_POS':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
-            sales_ref_month=sales_prod_HD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR':'first','CATEGORIA':'first','SUBCATEGORIA':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
+            #columns_HD = ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA','VIGENCIA','ORIGEN','ESTILO','MATERIAL','ACABADO','COLOR','ALTO','AREA','PUESTOS']
+            columns_LD= ['REF','TIENDA', 'PRECIO', 'SUBTOTAL','DESCUENTO(%)','TOTAL','CANTIDAD','ANIO','MES','CATEGORIA','SUBCATEGORIA_POS','VIGENCIA','ORIGEN','ESTILO','MATERIAL_POS','ACABADO','COLOR_POS','ALTO','AREA','PUESTOS']
+            #sales_prod_HD=sales_prod[columns_HD]
+            sales_prod_LD=sales_prod[columns_LD]
+            #sales_ref_month=sales_prod_HD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR':'first','CATEGORIA':'first','SUBCATEGORIA':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
+            sales_ref_month=sales_prod_LD.groupby(['ANIO','MES','REF','TIENDA']).agg({'PRECIO':'mean','SUBTOTAL':'sum','DESCUENTO(%)':'mean','TOTAL':'sum','CANTIDAD':'sum','ALTO':'first','AREA':'first','PUESTOS':'first','COLOR_POS':'first','CATEGORIA':'first','SUBCATEGORIA_POS':'first','VIGENCIA':'first','ORIGEN':'first','ESTILO':'first','MATERIAL_POS':'first','ACABADO':'first'}).reset_index().sort_values(by=['ANIO','MES'])
             covid=sales_ref_month[['ANIO','MES']].drop_duplicates().reset_index(drop=True)
             aux2=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,2,2,1,1,2,2,1,1,1]
             covid['F_COVID']=aux2
             sales_ref_month=sales_ref_month.merge(covid,on=['ANIO','MES'])
+            ##
+            sales_ref_month['DATE'] = sales_ref_month['ANIO'].astype(str) + '-' + sales_ref_month['MES'].astype(str).str.zfill(2)
+            ##
             def remove_ventas_anormales(df):
                 return df.query('CANTIDAD<20')
             self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
-
                 
         return self.sales_ref_month
 

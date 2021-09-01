@@ -24,7 +24,7 @@ class ModelManager(metaclass=SingletonMeta):
         
         if(len(loaded_model_file) == 0):
             print('Inició')
-            self.__select_data__(3)
+            self.__select_data__(1)
             self.__split_data__()
             
             print('Entrenando modelo')
@@ -39,13 +39,13 @@ class ModelManager(metaclass=SingletonMeta):
             print('Guardando datos')
             self.__save_data__()
             
-            print('Guardado modelo')
+            print('Guardando modelo')
             self.__save_model__()
             
             print('Modelo y datos persistidos')
 
         elif(len(loaded_model_data_file) == 0):
-            self.__select_data__(3)
+            self.__select_data__(1)
             self.__split_data__()
             
             self.br = joblib.load('assets/model/model.pkl')
@@ -88,7 +88,10 @@ class ModelManager(metaclass=SingletonMeta):
         cat_var=[
             'MES',
             'TIENDA', 
-            'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
+            'PUESTOS', 
+            'COLOR_POS', 'SUBCATEGORIA_POS', 'MATERIAL_POS',
+            #'SUBCATEGORIA','MATERIAL','COLOR',
+            'F_COVID' , 'ACABADO', 'CATEGORIA', 'ORIGEN'
             #quitamos anio, vigencia y estilo. validado: error casi no cambia y en el eda se demuestra
         ]
         x_cat=self.data[cat_var].astype('category')
@@ -136,8 +139,7 @@ class ModelManager(metaclass=SingletonMeta):
             json.dump(to_save, outfile)
 
     def __save_model__(self):
-        with open('assets/model/model.pkl', 'w') as outfile:
-            joblib.dump(self.br,outfile)
+        joblib.dump(self.br,'assets/model/model.pkl')
 
     def get_data(self):
         indexes = [self.index, self.date_index, self.date_before, self.date_after]

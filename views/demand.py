@@ -351,7 +351,7 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    df = DataManager().sales_accounting_stores()
+    df = DataManager().sales_ref_month_sin_ventas_mayores()
     indexes, column_predicted = manager().get_data()
     index, date_index, date_before, date_after = indexes
 
@@ -363,19 +363,21 @@ def graph_model(categoria,subcategoria,ref):
     if (len(categoria)>0):
         a = 'Pronostico por Categoria'
         df = df.query('CATEGORIA == @categoria')
-        res_train = res_train.query('CATEGORIA == @categoria')
-        res_test = res_test.query('CATEGORIA == @categoria')
+        #res_train = res_train.query('CATEGORIA == @categoria')
+        #res_test = res_test.query('CATEGORIA == @categoria')
     if  (len(subcategoria)>0):
         a = 'Pronostico por Subcategoria'
         df = df.query('SUBCATEGORIA_POS== @subcategoria')
-        res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
-        res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
+        #res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
+        #res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
     if (len(ref)>0):
         a = 'Pronostico por Referencia'
         df = df.query('REF == @ref')
-        res_train = res_train.query('REF == @ref')
-        res_test = res_test.query('REF == @ref')
+        #res_train = res_train.query('REF == @ref')
+        #res_test = res_test.query('REF == @ref')
 
+    print(len(res_test))
+    print(len(res_train))
     df = df.groupby(['DATE']).sum().reset_index()
     
     fig = go.Figure()
