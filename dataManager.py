@@ -251,9 +251,8 @@ class DataManager(metaclass=SingletonMeta):
             ##
             def remove_ventas_anormales(df):
                 return df.query('CANTIDAD<20')
-            #self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
+            self.sales_ref_month=remove_ventas_anormales(sales_ref_month).reset_index(drop=True)
                 
-        self.sales_ref_month = sales_ref_month
         return self.sales_ref_month
 
     def sales_accounting_zeroes(self):
