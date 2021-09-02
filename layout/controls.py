@@ -116,9 +116,9 @@ features_controls = html.Div(
         html.P('Por favor seleccionar filtro y característica a analizar'),
         html.Hr(),
         html.P('Filtro'),
-        dcc.Dropdown(id='main_variable',
+        dcc.Dropdown(id='filter',
             options=[
-                    {'label': i, 'value': j} for i,j in zip(DataManager().sales_prod[['CATEGORIA','SUBCATEGORIA_POS']].columns.sort_values(), ['Categoría','Sub-categoría'])
+                    {'label': i, 'value': j} for i,j in zip(['Categoría','Sub-categoría'], DataManager().sales_prod[['CATEGORIA','SUBCATEGORIA_POS']].columns.sort_values())
             ],
             value = [],
             placeholder='Please select...',
@@ -126,7 +126,7 @@ features_controls = html.Div(
         ),
         html.Br(),
         html.P('Característica'),
-        dcc.Dropdown(id='second_variable',
+        dcc.Dropdown(id='feature',
             options=[
                     {'label': i, 'value': i} for i in DataManager().sales_prod[['COLOR_POS','MATERIAL_POS','ACABADO','VIGENCIA','ESTILO','PUESTOS']].columns.sort_values()
             ],
