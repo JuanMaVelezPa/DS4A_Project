@@ -320,9 +320,9 @@ class DataManager(metaclass=SingletonMeta):
             aux=data.drop(columns=['ANIO','MES','CANTIDAD']).groupby(['REF','DATE','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
                                                                                                     'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first',
                                                                                                         'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
-                                                                                                        'CATEGORIA':'first','ORIGEN':'first','F_COVID':'first'}).reset_index()
+                                                                                                        'CATEGORIA':'first','ORIGEN':'first','F_COVID':'first','VIGENCIA':'first'}).reset_index()
             df = df.merge(aux,on=['REF','DATE','TIENDA'],how='left',validate='1:1')
-            prods=aux[['REF','AREA','ALTO','PUESTOS', 'COLOR_POS','SUBCATEGORIA_POS','MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN']].drop_duplicates()
+            prods=aux[['REF','AREA','ALTO','PUESTOS', 'COLOR_POS','SUBCATEGORIA_POS','MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN','VIGENCIA']].drop_duplicates()
             df = df[['REF','TIENDA','DATE','ANIO','MES','CANTIDAD','PRECIO','DESCUENTO(%)']]
             df = df.merge(prods,on='REF')
             df = df.sort_values(['ANIO','MES']).reset_index(drop=True)
@@ -353,7 +353,7 @@ class DataManager(metaclass=SingletonMeta):
     
     def data_forecasting_2021(self):
         ##sacar productos descontinuados
-        aux=self.all_incorporated()#.query('VIGENCIA != "DESCONTINUADO"')
+        aux=self.all_incorporated().query('VIGENCIA != "DESCONTINUADO"')
         aux=aux.groupby(['REF','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
                                                     'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first', 
                                                     'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
