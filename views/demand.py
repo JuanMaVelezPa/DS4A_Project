@@ -28,7 +28,6 @@ from styles import *
 from dataManager import *
 from mainDash import *
 import dash_table
-from layout.menus import demd_menu
 
 demand_classificator = [
     dbc.Col([
@@ -39,7 +38,6 @@ demand_classificator = [
                     n_clicks=0,
                     className='btn btn-outline-dark info-btn flexy-row',
                 ),
-                demd_menu,
             ],
             className='flexy-row'
         ),
@@ -144,7 +142,6 @@ demand_predictor = [
     dbc.Col([
         dbc.Row([
                 html.H3("Prediccion de Demanda", className='title'),
-                demd_menu,
             ],
             className = 'flexy-row'
         ),

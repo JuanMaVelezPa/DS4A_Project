@@ -14,9 +14,10 @@ from layout.controls import indicators_controls
 top_menu = dbc.Navbar([
     html.H1('Furni', className='flex-field'),
     dbc.Nav([
-            dbc.NavItem(dbc.NavLink('Indicadores', className='btn btn-primary round',href='/indicadores')),
-            dbc.NavItem(dbc.NavLink('Demanda', className='btn btn-secondary round',href='/demanda')),
-            dbc.NavItem(dbc.NavLink('Inventario', className='btn btn-third round',href='/inventario')),
+            dbc.NavItem(dbc.NavLink('Indicadores generales', className='btn btn-primary round',href='/indicadores')),
+            dbc.NavItem(dbc.NavLink('Características', className='btn btn-primary round',href="/indicadores/caracteristicas")),
+            dbc.NavItem(dbc.NavLink('Clasificador demanda', className='btn btn-secondary round',href='/demanda')),
+            dbc.NavItem(dbc.NavLink('Predicción futura', className='btn btn-third round',href='/demanda/prediccion')),
         ],
         className='top-menu'
     ),
@@ -46,18 +47,4 @@ sidebar_menu = html.Div([
     ],
     id='sidebar',
     className='sidebar bg-light'
-)
-
-ind_menu = dbc.Col([
-        dbc.Button("Generales", href="/indicadores/general", color="dark"),
-        dbc.Button("Por caracteristica", href="/indicadores/caracteristicas", color="dark"),
-    ],
-    className='internal-menu flexy-row end'
-)
-
-demd_menu = dbc.Col([
-        dbc.Button("Clasificador de Demanda", href="/demanda/clasificador", color="dark"),
-        dbc.Button("Prediccion Demanda", href="/demanda/prediccion", color="dark"),
-    ],
-    className='internal-menu flexy-row end'
 )
