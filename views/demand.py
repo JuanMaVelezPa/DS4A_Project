@@ -351,7 +351,7 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    df = DataManager().sales_accounting_stores()
+    df = DataManager().all_incorporated()
     indexes, column_predicted = manager().get_data()
     index, date_index, date_before, date_after = indexes
     ##recuperar datos
@@ -365,7 +365,7 @@ def graph_model(categoria,subcategoria,ref):
     df['PREDICTED'] = column_predicted
     res_train = df[:index]
     res_test = df[index:max_index_known+1]
-    res_future=df[max_index_known+1:]
+    #res_future=df[max_index_known+1:]
 
     if (len(categoria)>0):
         a = 'Pronostico por Categoria'
@@ -383,8 +383,6 @@ def graph_model(categoria,subcategoria,ref):
         #res_train = res_train.query('REF == @ref')
         #res_test = res_test.query('REF == @ref')
 
-    print(len(res_test))
-    print(len(res_train))
     df = df.groupby(['DATE']).sum().reset_index()
     
     fig = go.Figure()

@@ -156,6 +156,9 @@ class DataManager(metaclass=SingletonMeta):
         self.sales_prod = self.__df_mat_mod(sales_prod,ref_materials)
         self.stock_prod = self.__df_mat_mod(stock_prod,ref_materials)
         self.references = self.__df_mat_mod(references,ref_materials)
+
+        self.all_incorporated_df=None
+        self.all_incorporated_lag_df=None
         
         self.sales_ref_month2=None
         demand2, self.discontinued, self.demand_classifier, self.classifier=self.demand_data(sales_prod.FECHA.min(),sales_prod.FECHA.max())
@@ -301,16 +304,63 @@ class DataManager(metaclass=SingletonMeta):
         df = df.fillna(0)
 
         return df
+
+    def all_incorporated(self):
+        if self.all_incorporated_df is None:
+            data = self.sales_ref_month_sin_ventas_mayores()
+            data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
+
+            df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES','TIENDA'],values='CANTIDAD',aggfunc='sum').reset_index()
+            df = pd.melt(df,id_vars='REF')
+
+            df = df.sort_values(['REF','DATE'])
+            df = df.rename(columns={'value':'CANTIDAD'})
+            df = df.reset_index(drop=True).fillna(0)
+
+            aux=data.drop(columns=['ANIO','MES','CANTIDAD']).groupby(['REF','DATE','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
+                                                                                                    'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first',
+                                                                                                        'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
+                                                                                                        'CATEGORIA':'first','ORIGEN':'first','F_COVID':'first'}).reset_index()
+            df = df.merge(aux,on=['REF','DATE','TIENDA'],how='left',validate='1:1')
+            prods=aux[['REF','AREA','ALTO','PUESTOS', 'COLOR_POS','SUBCATEGORIA_POS','MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN']].drop_duplicates()
+            df = df[['REF','TIENDA','DATE','ANIO','MES','CANTIDAD','PRECIO','DESCUENTO(%)']]
+            df = df.merge(prods,on='REF')
+            df = df.sort_values(['ANIO','MES']).reset_index(drop=True)
+
+            Dfinal=df.sort_values(['DATE'])
+            covid=self.sales_ref_month[['ANIO','MES']].drop_duplicates().reset_index(drop=True)
+            aux2=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,2,2,1,1,2,2,1,1,1]
+            covid['F_COVID']=aux2
+            Dfinal=Dfinal.merge(covid,on=['ANIO','MES'])
+
+
+            Dfinal['PRECIO']=Dfinal.groupby(['REF','TIENDA'])['PRECIO'].apply(lambda group: group.interpolate(method='index').ffill().bfill())
+            Dfinal['DESCUENTO(%)']=Dfinal.groupby(['REF','TIENDA'])['DESCUENTO(%)'].apply(lambda group: group.interpolate(method='index').ffill().bfill())
+            self.all_incorporated_df=Dfinal.dropna().reset_index(drop=True)
+        return self.all_incorporated_df
+
+
+    def all_incorporated_lag(self):
+        if self.all_incorporated_lag_df is None:
+            def df_lag_generator(n):
+                df_lag=self.all_incorporated().copy()
+                for i in range(n):
+                    df_lag['CANTIDAD_{}'.format(i+1)]=df_lag.groupby(['REF','TIENDA'])[['CANTIDAD']].shift(i+1)
+                return df_lag
+            self.all_incorporated_lag_df=df_lag_generator(12).dropna().reset_index(drop=True)
+        return self.all_incorporated_lag_df
+
+    
     def data_forecasting_2021(self):
         ##sacar productos descontinuados
-        aux=self.sales_ref_month_sin_ventas_mayores().query('VIGENCIA != "DESCONTINUADO"')
+        aux=self.all_incorporated()#.query('VIGENCIA != "DESCONTINUADO"')
         aux=aux.groupby(['REF','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
                                                     'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first', 
                                                     'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
                                                     'CATEGORIA':'first','ORIGEN':'first'}).reset_index()
         # 2021 future months and covid
         months=[5,6,7,8,9,10,11,12]
-        covid=[1,1,1,1,1,1,1,1]
+        covid=[0,0,0,0,0,0,0,0]
         aux0=aux[['REF','TIENDA']].copy()
         for m,c in zip(months,covid):
             aux0[m]=c
@@ -321,3 +371,5 @@ class DataManager(metaclass=SingletonMeta):
         final_df_future['ANIO']=2021
         final_df_future['DATE'] = final_df_future['ANIO'].astype(str) + '-' +final_df_future['MES'].astype(str).str.zfill(2)
         return final_df_future.sort_values(['ANIO','MES']).reset_index(drop=True)
+    
+    
