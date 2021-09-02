@@ -8,14 +8,12 @@ import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from styles import *
 from dataManager import *
 from mainDash import *
 from datetime import date as dt
-
-from layout.menus import ind_menu
 
 indicators_general = [
     dbc.Col([
@@ -49,7 +47,6 @@ indicators_features = [
     dbc.Col([
         dbc.Row([
                 html.H3("Indicadores por característica", className='title'),
-                ind_menu
             ],
             className = 'flexy-row'
         ),
@@ -91,43 +88,100 @@ def render_indicators_content(pathname):
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
 
-# Callbask to draw sales($) graph according to controls
+## ---------------------------------------------------------------------- ##
+## ------------------------ GENERAL CALLBACKS --------------------------- ##
+## ---------------------------------------------------------------------- ##
+
+
+## --------------------------- CALLBACK STORE --------------------------- ##
+@app.callback(
+    Output('dropdown_category', 'options'),
+    Output('dropdown_category', 'value'),
+    Input('dropdown_tienda', 'value'),
+    prevent_initial_call=True
+)
+def update_on_store(store):
+    data = get_filtered(DataManager().sales_prod,'store',store)
+
+    cats = data['CATEGORIA'].unique()
+    return [{'label': i, 'value': i} for i in cats], ''
+
+
+## ------------------------- CALLBACK CATEGORIA ------------------------- ##
+@app.callback(
+    Output('dropdown_subcategory', 'options'),
+    Output('dropdown_subcategory', 'value'),
+    Input('dropdown_category', 'value'),
+    State('dropdown_tienda', 'value')
+)
+def update_on_cat(cat, state_store):
+    data = DataManager().sales_prod
+
+    if(len(state_store) > 0):
+        data = get_filtered(data,'store',state_store)
+    if(len(cat) > 0):
+        data = get_filtered(data,'cat',cat)
+
+    subcats = data['SUBCATEGORIA_POS'].unique()
+
+    return [{'label': i, 'value': i} for i in subcats], ''
+
+
+## ----------------------- CALLBACK SUBCATEGORIA ----------------------- ##
 @app.callback(
     Output('historic_sales_money', 'figure'),
-    [Input('dropdown_category', 'value'),
-     Input('dropdown_subcategory', 'value'),
-     Input('dropdown_tienda', 'value'),
-     Input('calendar', 'start_date'),
-     Input('calendar', 'end_date')])
+    Output('historic_sales_mean', 'figure'),
+    Output('sales_map', 'figure'),
+    [
+        Input('dropdown_subcategory', 'value'), 
+        Input('calendar', 'start_date'),
+        Input('calendar', 'end_date')
+    ],
+    State('dropdown_tienda', 'value'),
+    State('dropdown_category', 'value')
+)
+def update_on_subcat(subcat, start_date, end_date, state_store, state_cat):
+    data = DataManager().sales_prod
 
-def update_historic_sales_money_graph(category, subcat, store, start_date, end_date):
-    if(store == []):
-        temp = DataManager().sales_prod
-    else:
-        temp = DataManager().sales_prod.query("TIENDA==@store")
+    if(len(state_store) > 0):
+        data = get_filtered(data,'store',state_store)
+    if(len(state_cat) > 0):
+        data = get_filtered(data,'cat',state_cat)
+    if(len(subcat) > 0):
+        data = data.query('SUBCATEGORIA_POS == @subcat')
+
+    graph_1 = update_historic_sales_money_graph(data, start_date, end_date)
+    graph_2 = update_historic_sales_mean_graph(data, start_date, end_date)
+    graph_3 = update_map_graph(data, start_date, end_date)
+
+    return graph_1, graph_2, graph_3
+
+
+def get_filtered(data, column, l):
+    print('Iniciando filtro')
+
+    if(column == 'store'):
+        return data.query('TIENDA == @l')
+    elif(column == 'cat'):
+        return data.query('CATEGORIA == @l')
+
+
+def update_historic_sales_money_graph(data, start_date, end_date):
     
-    if (category == [] and subcat == []):
-        sales_prod = temp
-    elif (category != [] and subcat == []):
-        sales_prod = temp.query("CATEGORIA==@category")
-    elif (category == [] and subcat != []):
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
-    else:
-        sales_prod = temp.query("CATEGORIA==@category")
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+    mask = (data['FECHA'] >= start_date) & (data['FECHA'] <= end_date)
+    data = data.loc[mask].groupby(['ANIO','MES'])['TOTAL'].sum().to_frame().reset_index()
     
-    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
-    sales_prod = sales_prod.loc[mask]
-    res = sales_prod.groupby(['ANIO','MES'])['TOTAL'].sum().to_frame().reset_index()
-    
-    fig = px.line(res, x="MES", y="TOTAL", color='ANIO', 
+    fig = go.Figure()
+
+    fig = px.line(data, x="MES", y="TOTAL", color='ANIO', 
         labels = {'TOTAL':'Total ($)','MES':'Mes','ANIO':'',1:"Ene",2:"Feb",3:"Mar",4:"Abr",5:"May",6:"Jun",7:"Jul",8:"Ago",9:"Sep",10:"Oct",11:"Nov",12:"Dic"},
         height = 250,
-        width = 550,
-        color_discrete_sequence=px.colors.qualitative.Prism
+        width = 500,
+        color_discrete_sequence=px.colors.qualitative.Vivid,
+        markers=True
     )
     fig.update_layout(
-        font_size = 12,
+        font_size = 10,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -140,44 +194,19 @@ def update_historic_sales_money_graph(category, subcat, store, start_date, end_d
     )
     return fig
 
-# Callback to draw average sales graph according to controls
-@app.callback(
-    Output('historic_sales_mean', 'figure'),
-    [Input('dropdown_category', 'value'),
-     Input('dropdown_subcategory', 'value'),
-     Input('dropdown_tienda', 'value'),
-     Input('calendar', 'start_date'),
-     Input('calendar', 'end_date')])
-
-def update_graph(categoria,subcat,tienda,start_date,end_date):
-    if(tienda == []):
-        temp = DataManager().sales_prod
-    else:
-        temp = DataManager().sales_prod.query("TIENDA==@tienda")
-    if (categoria == [] and subcat == []):
-        sales_prod = temp
-    elif (categoria != [] and subcat == []):
-        sales_prod = temp.query("CATEGORIA==@categoria")
-    elif (categoria == [] and subcat != []):
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
-    else:
-        sales_prod = temp.query("CATEGORIA==@categoria")
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
+def update_historic_sales_mean_graph(data,start_date,end_date):
+    mask = (data['FECHA'] >= start_date) & (data['FECHA'] <= end_date)
+    data = data.loc[mask].groupby(['ANIO','MES'])['TOTAL'].sum().to_frame().reset_index()
+    data['ANIO'] = data['ANIO'].astype("category")
     
-    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
-    sales_prod = sales_prod.loc[mask]
-    
-    
-    sales1 = sales_prod.groupby(['ANIO','MES'])['TOTAL'].mean().to_frame().reset_index()
-    sales1['ANIO'] = sales1['ANIO'].astype("category")
-    fig = px.bar(sales1, x="MES", y="TOTAL", color='ANIO',barmode='group',
+    fig = px.bar(data, x="MES", y="TOTAL", color='ANIO',barmode='group',
         labels = {'TOTAL':'Total ($)','MES':'Mes','ANIO':''},
         height = 250,
-        width = 350,
-        color_discrete_sequence=px.colors.qualitative.Safe
+        width = 400,
+        color_discrete_sequence=px.colors.qualitative.Vivid
     )
     fig.update_layout(
-        font_size=12,
+        font_size = 10,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -190,45 +219,17 @@ def update_graph(categoria,subcat,tienda,start_date,end_date):
     )
     return fig
 
-## Callback to draw the category map sales graph
-@app.callback(
-    Output('sales_map', 'figure'),
-    [Input('dropdown_category', 'value'),
-     Input('dropdown_subcategory', 'value'),
-     Input('dropdown_tienda', 'value'),
-     Input('calendar', 'start_date'),
-     Input('calendar', 'end_date')])
-
-def update_graph(category,subcat,tienda,start_date,end_date):
-    if(tienda == []):
-        temp = DataManager().sales_prod
-    else:
-        temp = DataManager().sales_prod.query("TIENDA==@tienda")
-    if (category == [] and subcat == []):
-        sales_prod = temp
-    elif (category != [] and subcat == []):
-        sales_prod = temp.query("CATEGORIA==@category")
-    elif (category == [] and subcat != []):
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
-    else:
-        sales_prod = temp.query("CATEGORIA==@category")
-        sales_prod = temp.query("SUBCATEGORIA==@subcat")
-
-    if (start_date is None or start_date == ""):
-        start_date = sales_prod['FECHA'].min()
-    
-    if (end_date is None or end_date == ""):
-        end_date = sales_prod['FECHA'].max()
+def update_map_graph(data,start_date,end_date):
+    mask = (data['FECHA'] >= start_date) & (data['FECHA'] <= end_date)
+    data = data.loc[mask]
         
-    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
-    sales_prod = sales_prod.loc[mask]
-    fig = px.scatter(sales_prod,
+    fig = px.scatter(data,
         labels = {'TOTAL':'Valor vendido ($)','CANTIDAD':'Cantidad vendida','SUBCATEGORIA':'Subcategoría'},
         x="CANTIDAD",
         y="TOTAL",
         color="SUBCATEGORIA",
         hover_data=['REF', 'DESC_LARGA','CATEGORIA'],
-        color_discrete_sequence=px.colors.qualitative.Safe
+        color_discrete_sequence=px.colors.qualitative.Vivid
     )
     fig.update_layout(
         font_size=12,
@@ -237,44 +238,9 @@ def update_graph(category,subcat,tienda,start_date,end_date):
     )
     return fig
 
-""" ## Colores más vendidos
-@app.callback(
-    Output('graph_general_4', 'figure'),
-    [Input('dropdown_category', 'value'),
-     Input('dropdown_subcategory', 'value'),
-     Input('dropdown_tienda', 'value'),
-     Input('calendar', 'start_date'),
-     Input('calendar', 'end_date')])
-
-def update_graph(value1,value2,value3,start_date,end_date):
-    if(value3 == []):
-        temp = DataManager().sales_prod
-    else:
-        temp = DataManager().sales_prod.query("TIENDA==@value3")
-    if (value1 == [] and value2 == []):
-        sales_prod = temp
-    elif (value1 != [] and value2 == []):
-        sales_prod = temp.query("CATEGORIA==@value1")
-    elif (value1 == [] and value2 != []):
-        sales_prod = temp.query("SUBCATEGORIA==@value2")
-    else:
-        sales_prod = temp.query("CATEGORIA==@value1")
-        sales_prod = temp.query("SUBCATEGORIA==@value2")
-    mask = (sales_prod['FECHA'] >= start_date) & (sales_prod['FECHA'] <= end_date)
-    sales_prod = sales_prod.loc[mask]
-    
-    df = sales_prod.groupby(['COLOR_POS'])['CANTIDAD'].sum()
-    colors = ["#FFFF00","#0000FF","#e4e4a1","#FFFFFF","#A52A2A", "#9999ff","#808080","#FFA500","#000000", 
-    "#0f3c14", "#ff0000" ]
-    
-    fig = go.Figure(data=[go.Bar(
-        x= df.index,
-        y= df,
-        marker_color=colors, # marker color can be a single color value or an iterable
-    )])
-    
-    return fig """
-
+## ---------------------------------------------------------------------- ##
+## ----------------------- FEATURES CALLBACKS --------------------------- ##
+## ---------------------------------------------------------------------- ##
 
 @app.callback(
     Output('heatmap_amount', 'figure'),

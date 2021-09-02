@@ -14,7 +14,6 @@ from mainDash import *
 
 from views.indicators import *
 from views.demand import *
-from views.inventory import *
 
 from dataManager import *
 
@@ -48,8 +47,6 @@ def render_page_content(pathname):
         return demand_controls, demand_container
     elif pathname == '/demanda/prediccion':
         return predict_controls, demand_container
-    elif pathname == '/inventario':
-        return inventory_controls, inventory
     else:
         return [], dbc.Jumbotron(
         [

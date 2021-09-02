@@ -27,37 +27,37 @@ class ModelManager(metaclass=SingletonMeta):
         
         if(len(loaded_model_file) == 0):
             print('Inició')
-            self.__select_data__(4)
-            self.__split_data__(1)
+            self.__select_data(4)
+            self.__split_data(1)
             
             print('Entrenando modelo')
             start = time.process_time()
-            self.__train_model__(2)
+            self.__train_model(2)
             print('Se demora entrenando; ' + str((time.process_time() - start)/60))
             print('Modelo entrenado')
             
-            self.__predict_data__(2)
+            self.__predict_data(2)
             print('Datos predecidos')
 
             print('Guardando datos')
-            self.__save_data__()
+            self.__save_data()
             
             print('Guardando modelo')
-            self.__save_model__()
+            self.__save_model()
             
             print('Modelo y datos persistidos')
 
         elif(len(loaded_model_data_file) == 0):
-            self.__select_data__(4)
-            self.__split_data__(1)
+            self.__select_data(4)
+            self.__split_data(1)
             
             self.model = joblib.load('assets/model/model.pkl')
             print('Modelo cargado')
             
-            self.__predict_data__(2)
+            self.__predict_data(2)
             print('Datos predecidos')
 
-            self.__save_data__()
+            self.__save_data()
             print('Datos guardados')
 
         else:
@@ -77,7 +77,7 @@ class ModelManager(metaclass=SingletonMeta):
 
 
 
-    def __select_data__(self,data_id):
+    def __select_data(self,data_id):
         if(data_id == 1):
             self.data = DataManager().sales_ref_month_sin_ventas_mayores()
         elif(data_id == 2):
@@ -89,18 +89,17 @@ class ModelManager(metaclass=SingletonMeta):
         elif(data_id == 5):
             self.data = DataManager().all_incorporated_lag() #ONLY FOR USE IN SPLIT MODE 2
 
-    def __split_data__(self,mode_id):
+    def __split_data(self,mode_id):
         if mode_id==1:
+            scaler = MinMaxScaler()
 
             #incorporate data future
-            num_var=['PRECIO','AREA','ALTO','DESCUENTO(%)','CANTIDAD']
-
             data_future=DataManager().data_forecasting_2021()
-
             df_concat=pd.concat([self.data.drop('CANTIDAD',axis=1),data_future]).reset_index(drop=True)
-            self.max_index=self.data.tail(1).index[0]
-
+            
+            num_var=['PRECIO','AREA','ALTO','DESCUENTO(%)','CANTIDAD']
             x_num=df_concat[num_var[:-1]].astype('float')
+            x_num_norm = scaler.fit_transform(x_num)
 
             cat_var=[
                 'MES',
@@ -116,8 +115,6 @@ class ModelManager(metaclass=SingletonMeta):
 
             y = self.data['CANTIDAD']
 
-            scaler = MinMaxScaler()
-            x_num_norm = scaler.fit_transform(x_num)
             self.x = np.append(x_num_norm,x_cat_dummies,axis=1)
             
             #split data till januar 2021 and future
@@ -129,24 +126,21 @@ class ModelManager(metaclass=SingletonMeta):
             self.date_after=self.data.loc[self.index+1]['DATE']
             self.last_date_known=self.data.tail(1)['DATE'] #future begins here
             
-
             self.x_train = self.x[:self.index]
             self.y_train = y[:self.index]
             self.x_test = self.x[self.index:self.max_index+1]
             self.y_test = y[self.index:]
             self.x_future=self.x[self.max_index+1:]
-            
-
-
-        if mode_id==2:
-
         
+        if mode_id==2:
+            scaler = MinMaxScaler()
+            
             num_var=['AREA','ALTO','DESCUENTO(%)','PRECIO']
             for i in range(1,13):
                 num_var.append('CANTIDAD_{}'.format(i))
             num_var.append('CANTIDAD')
             x_num=self.data[num_var[:-1]].astype('float')
-
+            x_num_norm = scaler.fit_transform(x_num)
 
             cat_var=[ 'MES','TIENDA', 'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,
                         'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
@@ -155,13 +149,8 @@ class ModelManager(metaclass=SingletonMeta):
             x_cat=self.data[cat_var].astype('category')
             x_cat_dummies=pd.get_dummies(x_cat)
 
-            y = self.data['CANTIDAD']
-
-            scaler = MinMaxScaler()
-            x_num_norm = scaler.fit_transform(x_num)
             self.x = np.append(x_num_norm,x_cat_dummies,axis=1)
-
-            #split data till januar 2021
+            y = self.data['CANTIDAD']
 
             self.index = self.data[(self.data.ANIO==2021)].index[0]
             self.date_index=self.data[(self.data.ANIO==2021)]['DATE'].values[0]
@@ -178,12 +167,7 @@ class ModelManager(metaclass=SingletonMeta):
             print(self.x_test.shape)
             print(self.y_test.shape)
             
-
-
-
-
-       
-    def __train_model__(self,model_id):
+    def __train_model(self,model_id):
         if(model_id == 1):
             self.model = GradientBoostingRegressor(**{'learning_rate': 0.01, 'max_depth': 6, 'n_estimators': 200})
             self.model.fit(self.x_train,self.y_train)
@@ -191,14 +175,13 @@ class ModelManager(metaclass=SingletonMeta):
             self.model = sm.OLS(self.y_train, sm.add_constant(self.x_train,has_constant='add'))
             self.model=self.model.fit()
     
-    def __predict_data__(self,predict_id):
+    def __predict_data(self,predict_id):
         if(predict_id==1):
             self.predicted = self.model.predict(self.x).round()
         elif(predict_id==2):
             self.predicted=self.model.predict(sm.add_constant(self.x,has_constant='add')) #es similar a L2 de Ridge de sklearn, o tal vez algo pasa con sklearn.. porque si hago l2 con alpha peque;o coincide.. raro
 
-
-    def __save_data__(self):
+    def __save_data(self):
         to_save = {
             'index':self.index.item(),
             'date_index':self.date_index,
@@ -210,7 +193,7 @@ class ModelManager(metaclass=SingletonMeta):
         with open('assets/model/model_data.txt', 'w') as outfile:
             json.dump(to_save, outfile)
 
-    def __save_model__(self):
+    def __save_model(self):
         joblib.dump(self.model,'assets/model/model.pkl')
 
     def get_data(self):
