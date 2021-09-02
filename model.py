@@ -61,6 +61,7 @@ class ModelManager(metaclass=SingletonMeta):
             print('Datos guardados')
 
         else:
+            print('cargando datos')
             with open('assets/model/model_data.txt', 'r') as file:
                 saved_data = json.loads(file.read())
                 file.close()
