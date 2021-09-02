@@ -640,12 +640,6 @@ label {
   font-weight: normal;
 }
 
-.site-content {
-  color: black;
-  font-family: "Orkney Light";
-  font-size: 15px;
-}
-
 .title {
   margin: 2% 0 2% 0;
 }
@@ -666,7 +660,25 @@ label {
   color: black;
 }
 
-.sidebar {
+.site-content {
+  color: black;
+  font-family: "Orkney Light";
+  font-size: 15px;
+}
+.site-content .menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: white;
+  height: 50px;
+  width: 100%;
+  padding: 20px;
+  z-index: 1;
+}
+.site-content .menu .nav-item {
+  padding: 0 4px;
+}
+.site-content .sidebar {
   position: fixed;
   top: 50px;
   left: 0;
@@ -677,22 +689,7 @@ label {
   overflow: scroll;
   background-color: white;
 }
-
-.menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: white;
-  height: 50px;
-  width: 100%;
-  padding: 20px;
-  z-index: 1;
-}
-.menu .nav-item {
-  padding: 0 4px;
-}
-
-.page-content {
+.site-content #page-content {
   position: relative;
   left: 20vw;
   z-index: 0;
@@ -701,32 +698,32 @@ label {
   background-color: #c8c8c8;
   font-family: "Fira Code VF";
 }
-.page-content * {
+.site-content #page-content * {
   font-weight: 300 !important;
 }
-.page-content .content-data {
+.site-content #page-content .content-data {
   position: relative;
   top: 55px;
   background-color: #c8c8c8;
 }
-.page-content .content-data .internal-menu {
+.site-content #page-content .content-data .internal-menu {
   z-index: 1;
   width: inherit;
 }
-.page-content .content-data .internal-menu .btn {
+.site-content #page-content .content-data .internal-menu .btn {
   margin: 0 4px;
 }
-.page-content .content-data .graph-chunk {
+.site-content #page-content .content-data .graph-chunk {
   margin-bottom: 3em;
 }
-.page-content .content-data .graph-chunk h4 {
+.site-content #page-content .content-data .graph-chunk h4 {
   font-size: 18px !important;
 }
-.page-content .content-data .graph-chunk .dash-graph {
+.site-content #page-content .content-data .graph-chunk .dash-graph {
   border: solid 1px;
   box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.7);
 }
-.page-content .content-data .info-btn {
+.site-content #page-content .content-data .info-btn {
   width: 25px;
   height: 25px;
   margin: 10px;
@@ -734,7 +731,7 @@ label {
   padding: 0;
   font-size: 8px;
 }
-.page-content .content-data .info-btn i {
+.site-content #page-content .content-data .info-btn i {
   font-size: 10px;
 }
 
