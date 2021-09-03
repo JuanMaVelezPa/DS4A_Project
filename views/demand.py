@@ -334,14 +334,14 @@ def generate_csv(n_nlicks):
 )
         
 def graph_model(categoria,subcategoria,ref):
-    df = DataManager().all_incorporated()
+    df = DataManager().all_incorporated_lag()
     indexes, column_predicted = ModelManager().get_data()
     index, date_index, date_before, date_after = indexes
     ##recuperar datos
     max_index_known=df.tail(1).index[0]
     max_date_known=df.tail(1)['DATE']
     ##futuro
-    data_future=DataManager().data_forecasting_2021()
+    data_future=DataManager().data_forecasting_2021_lag()
     data_future['CANTIDAD'] = np.nan
     df=pd.concat([df,data_future],axis=0)
     a = 'Pronostico General'
