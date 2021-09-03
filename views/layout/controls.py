@@ -1,10 +1,9 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
-from dash_html_components.Div import Div
 
 from datetime import date as dt
-from dataManager import *
+from managers.dataManager import *
 
 df = DataManager().sales_prod
 
@@ -15,7 +14,6 @@ ref_unique = df['REF'].unique()
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
-
 
 store = dbc.FormGroup(
     children=[
