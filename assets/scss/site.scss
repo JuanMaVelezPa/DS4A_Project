@@ -82,6 +82,7 @@ label {
 		z-index: 0;
 	
 		width: 80vw;
+		height: 100vh;
 		padding: 20px;
 	
 		background-color: root.$base2-color;
@@ -96,6 +97,10 @@ label {
 			top: 55px;
 	
 			background-color: root.$base2-color;
+
+			&.features-content {
+				margin-top: 5vh;
+			}
 	
 			& .internal-menu {
 				z-index: 1;

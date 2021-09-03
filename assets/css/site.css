@@ -694,6 +694,7 @@ label {
   left: 20vw;
   z-index: 0;
   width: 80vw;
+  height: 100vh;
   padding: 20px;
   background-color: #c8c8c8;
   font-family: "Fira Code VF";
@@ -705,6 +706,9 @@ label {
   position: relative;
   top: 55px;
   background-color: #c8c8c8;
+}
+.site-content #page-content .content-data.features-content {
+  margin-top: 5vh;
 }
 .site-content #page-content .content-data .internal-menu {
   z-index: 1;
