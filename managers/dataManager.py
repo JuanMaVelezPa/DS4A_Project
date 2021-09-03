@@ -159,6 +159,9 @@ class DataManager(metaclass=SingletonMeta):
 
         self.all_incorporated_df=None
         self.all_incorporated_lag_df=None
+        self.final_df_future=None
+        self.join_lag_future=None
+        self.num_shift=-1
         
         self.sales_ref_month2=None
         demand2, self.discontinued, self.demand_classifier, self.classifier=self.demand_data(sales_prod.FECHA.min(),sales_prod.FECHA.max())
@@ -336,43 +339,69 @@ class DataManager(metaclass=SingletonMeta):
 
             Dfinal['PRECIO']=Dfinal.groupby(['REF','TIENDA'])['PRECIO'].apply(lambda group: group.interpolate(method='index').ffill().bfill())
             Dfinal['DESCUENTO(%)']=Dfinal.groupby(['REF','TIENDA'])['DESCUENTO(%)'].apply(lambda group: group.interpolate(method='index').ffill().bfill())
-            self.all_incorporated_df=Dfinal.dropna().reset_index(drop=True)
+            self.all_incorporated_df=Dfinal.dropna().query('DATE != "2021-04"').reset_index(drop=True) #drops only 3% of all data for modeling purposes
         return self.all_incorporated_df
 
 
-    def all_incorporated_lag(self):
-        if self.all_incorporated_lag_df is None:
+    def all_incorporated_lag(self,num=12):#change num for selection of laggy months
+        if self.all_incorporated_lag_df is None or num!=self.num_shift:
             def df_lag_generator(n):
                 df_lag=self.all_incorporated().copy()
                 for i in range(n):
                     df_lag['CANTIDAD_{}'.format(i+1)]=df_lag.groupby(['REF','TIENDA'])[['CANTIDAD']].shift(i+1)
                 return df_lag
-            self.all_incorporated_lag_df=df_lag_generator(12).dropna().reset_index(drop=True)
-            for i in range(1,12):
-                self.all_incorporated_lag_df['Diff_{}'.format(i)]=(self.all_incorporated_lag_df['CANTIDAD_{}'.format(i)]-self.all_incorporated_lag_df['CANTIDAD_{}'.format(1+i)])
+        
+            self.all_incorporated_lag_df=df_lag_generator(num).dropna().reset_index(drop=True)
+            for i in range(1,num):
+                self.all_incorporated_lag_df['DIFF_{}'.format(i)]=(self.all_incorporated_lag_df['CANTIDAD_{}'.format(i)]-self.all_incorporated_lag_df['CANTIDAD_{}'.format(1+i)])
+        self.num_shift=num
         return self.all_incorporated_lag_df
 
     
     def data_forecasting_2021(self):
         ##sacar productos descontinuados
-        aux=self.all_incorporated()#.query('VIGENCIA != "DESCONTINUADO"')
-        aux=aux.groupby(['REF','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
-                                                    'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first', 
-                                                    'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
-                                                    'CATEGORIA':'first','ORIGEN':'first'}).reset_index()
-        # 2021 future months and covid
-        months=[5,6,7,8,9,10,11,12]
-        covid=[0,0,0,0,0,0,0,0]
-        aux0=aux[['REF','TIENDA']].copy()
-        for m,c in zip(months,covid):
-            aux0[m]=c
-        #display(aux0)
-        aux1=pd.melt(aux0,id_vars=['REF','TIENDA'],var_name='MES',value_name='F_COVID')
-        #display(aux1.sort_values(by=['REF','TIENDA']))
-        final_df_future=aux1.merge(aux,on=['REF','TIENDA'],how='left')
-        final_df_future['ANIO']=2021
-        final_df_future['DATE'] = final_df_future['ANIO'].astype(str) + '-' +final_df_future['MES'].astype(str).str.zfill(2)
-        return final_df_future.sort_values(['ANIO','MES']).reset_index(drop=True)
+        if self.final_df_future is None:
+            aux=self.all_incorporated()#.query('VIGENCIA != "DESCONTINUADO"')
+            aux=aux.groupby(['REF','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
+                                                        'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first', 
+                                                        'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
+                                                        'CATEGORIA':'first','ORIGEN':'first'}).reset_index()
+            # 2021 future months and covid
+            months=[4,5,6,7,8,9,10,11,12]# 4 because there is no complete data, better to ignore it, then to predict.
+            covid=[0,0,0,0,0,0,0,0,0]
+            aux0=aux[['REF','TIENDA']].copy()
+            for m,c in zip(months,covid):
+                aux0[m]=c
+            #display(aux0)
+            aux1=pd.melt(aux0,id_vars=['REF','TIENDA'],var_name='MES',value_name='F_COVID')
+            #display(aux1.sort_values(by=['REF','TIENDA']))
+            final_df_future=aux1.merge(aux,on=['REF','TIENDA'],how='left')
+            final_df_future['ANIO']=2021
+            final_df_future['DATE'] = final_df_future['ANIO'].astype(str) + '-' +final_df_future['MES'].astype(str).str.zfill(2)
+            self.final_df_future=final_df_future.sort_values(['ANIO','MES']).reset_index(drop=True)
+        return self.final_df_future
+
     
+    def data_forecasting_2021_lag(self,num=12):# change num if you want different months 
+        if self.join_lag_future is None or num!=self.num_shift:
+            pasado=self.all_incorporated()
+            futuro=self.data_forecasting_2021()    
+            join=pd.concat([pasado,futuro],axis=0).sort_values(['DATE'])
+            
+            def df_lag_generator(n):
+                df_lag=join.copy()
+                for i in range(n):
+                    df_lag['CANTIDAD_{}'.format(i+1)]=df_lag.groupby(['REF','TIENDA'])[['CANTIDAD']].shift(i+1)
+                return df_lag
+            #num=12 # change num if you want different months
+            join_lag=df_lag_generator(num).reset_index(drop=True)
+            aux_index=join_lag.query('DATE=="2021-04"').index[0]
+            join_lag_future=join_lag[aux_index:].copy()
+            for i in range(1,num):
+                join_lag_future['DIFF_{}'.format(i)]=(join_lag_future['CANTIDAD_{}'.format(i)]-join_lag_future['CANTIDAD_{}'.format(1+i)])
+            self.join_lag_future=join_lag_future
+            self.num_shift=num
+        return self.join_lag_future
+                
     
     
