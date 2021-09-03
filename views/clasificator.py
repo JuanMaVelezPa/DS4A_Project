@@ -185,7 +185,7 @@ classificator = [
                 )
             ),
         ],
-        id = "modal",
+        id = "modal-clasf",
         size = 'lg',
         is_open = False,
         centered = True,
@@ -265,14 +265,14 @@ def update_graph(category,subcategory,start_date,end_date):
 
 ## -------------------------- MODALS CALLBACK -------------------------- ##
 @app.callback(
-    Output("modal", "is_open"),
+    Output("modal-clasf", "is_open"),
     Output('modal-body', 'children'),
     Output('modal-header', 'children'),
     [
         Input({'type': 'modal_button', 'index': ALL}, "n_clicks"), 
         Input("modal-close", "n_clicks")
     ],
-    State("modal", "is_open"),
+    State("modal-clasf", "is_open"),
     prevent_initial_call = True,
 )
 def toggle_modal(n1, n2, is_open):

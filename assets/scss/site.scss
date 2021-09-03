@@ -41,6 +41,8 @@ body {
 }
 
 .site-content {
+	height: 100vh;
+	
 	color: root.$base-color;
 	font-family: 'Orkney Light';
 	font-size: 15px;
@@ -80,7 +82,7 @@ body {
 		z-index: 0;
 	
 		width: 80vw;
-		height: 100vh;
+		height: 100%;
 		padding: 20px;
 	
 		background-color: root.$base2-color;
