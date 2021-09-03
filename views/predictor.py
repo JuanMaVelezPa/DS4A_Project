@@ -128,22 +128,25 @@ def update_on_refs(ref, categoria, subcategoria):
    
     df1 = df1.groupby(['DATE']).sum().reset_index()
     df2 = df2.groupby(['DATE']).sum().reset_index()
+    df1['PREDICTED'] = df1['PREDICTED'].round()
     df2['PREDICTED'] = df2['PREDICTED'].round()
     res_train = res_train.groupby(['REF','DATE']).sum().reset_index()
     res_test = res_test.groupby(['REF','DATE']).sum().reset_index()
 
     fig = go.Figure()
-    fig.add_scatter(x=df1['DATE'], y=df1['PREDICTED'], mode='lines+markers', name='Valores predichos')
-    fig.add_scatter(x=df1['DATE'], y=df1['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    fig.add_scatter(x=df1['DATE'], y=df1['PREDICTED'], mode='lines+markers', name='Valores predichos',
+                    line_width=2, line_dash="dot")
+    fig.add_scatter(x=df1['DATE'], y=df1['CANTIDAD'], mode='lines+markers', name='Valores reales',
+                    line_width=2)
     fig.add_scatter(x=df2['DATE'], y=df2['PREDICTED'], mode='lines+markers', name='Valores futuros', 
                     line_width=2, line_dash="dash", line_color="green")
 
-    fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="green", y0=0, y1=1.25)
+    fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="orange", y0=0, y1=1.25)
 
     # Add shape regions
     fig.add_vrect(
         x0=date_index, x1=df1['DATE'].sort_values(ascending=False).unique()[0],
-        fillcolor='rgb(184, 247, 212)', opacity=0.5, layer="below", line_width=0,
+        fillcolor='orange', opacity=0.1, layer="below", line_width=0,
     ),
 
     fig.add_annotation(x='-'.join([date_after,'5']), y=1.18, yref="paper",
@@ -178,6 +181,9 @@ def update_on_refs(ref, categoria, subcategoria):
                     title = a,
                     yaxis_title = "Número de ventas",
                     font=dict(family="Courier New, monospace",size=18,color="RebeccaPurple")
+                    )
+    fig.update_xaxes(
+                    tickangle = 90
                     )         
 
     table_predictor = table_predictor.groupby(['REF','DATE','CATEGORIA','SUBCATEGORIA_POS',
