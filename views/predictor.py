@@ -226,7 +226,6 @@ def update_on_refs(ref, categoria, subcategoria):
         xanchor="center"
     )
     fig.update_layout(
-        width = 600,
         height = 450,
         font_size = 10,
         margin=dict(t=25, l=10, r=10, b=10, pad=0),
