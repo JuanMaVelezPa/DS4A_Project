@@ -437,7 +437,7 @@ a.desc:after {
   border-radius: 5px;
 }
 
-.site-error, .footer, .form-basic, .flexy-col, .flexy-row {
+.footer, .form-basic, .flexy-col, .flexy-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -451,7 +451,7 @@ a.desc:after {
   margin-right: -15px;
 }
 
-.site-error, .footer, .form-basic, .flexy-col {
+.footer, .form-basic, .flexy-col {
   flex-direction: column;
   align-items: center;
 }
@@ -636,28 +636,29 @@ body {
   background-color: white;
 }
 
-label {
-  font-weight: normal;
-}
-
 .title {
   margin: 2% 0 2% 0;
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  font-size: 16px;
-}
-
-.site-error {
-  height: 85vh;
 }
 
 .Select-menu-outer {
   position: relative;
   z-index: 1000;
   color: black;
+}
+
+.graph-chunk {
+  margin-bottom: 3em;
+}
+.graph-chunk h4 {
+  font-size: 18px !important;
+}
+.graph-chunk.modal-graph {
+  align-self: center;
+  margin-top: 1em;
+}
+.graph-chunk .dash-graph {
+  border: solid 1px;
+  box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.7);
 }
 
 .site-content {
@@ -717,26 +718,18 @@ label {
 .site-content #page-content .content-data .internal-menu .btn {
   margin: 0 4px;
 }
-.site-content #page-content .content-data .graph-chunk {
-  margin-bottom: 3em;
-}
-.site-content #page-content .content-data .graph-chunk h4 {
-  font-size: 18px !important;
-}
-.site-content #page-content .content-data .graph-chunk .dash-graph {
-  border: solid 1px;
-  box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.7);
-}
 .site-content #page-content .content-data .info-btn {
-  width: 25px;
-  height: 25px;
-  margin: 10px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   padding: 0;
-  font-size: 8px;
 }
 .site-content #page-content .content-data .info-btn i {
-  font-size: 10px;
+  font-size: 5px;
+}
+
+.modal-content {
+  background-color: #f0f0f0;
 }
 
 /*# sourceMappingURL=site.css.map */

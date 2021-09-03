@@ -224,7 +224,7 @@ class DataManager(metaclass=SingletonMeta):
 
         demand2['CLASSIFIER'] = demand2.apply(classifier_fun, axis=1)
         discontinued = demand2[demand2['N_LAST']<12]
-        discontinued = discontinued[['PROD_REF','DESCRIPCION','CATEGORIA','FIRST','LAST']]
+        discontinued = discontinued[['PROD_REF','DESCRIPCION','CATEGORIA','SUBCATEGORIA_POS','FIRST','LAST']]
         demand2 = demand2[demand2['N_LAST']>=12]
         classifier = demand2[['PROD_REF','CLASSIFIER']]
         demand3 = demand['CANTIDAD'].stack().reset_index().rename(columns={0: 'CANTIDAD'})

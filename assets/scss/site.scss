@@ -14,25 +14,8 @@ body {
 	background-color: root.$main-color;
 }
 
-label {
-	font-weight: normal;
-}
-
 .title {
 	margin: 2% 0 2% 0;
-}
-
-.footer {
-	position: fixed;
-	bottom: 0;
-	font-size: 16px;
-}
-
-
-.site-error {
-	@extend %flexy-col;
-	
-	height: 85vh;
 }
 
 .Select-menu-outer {
@@ -40,6 +23,21 @@ label {
     z-index: 1000;
 	
 	color: root.$base-color;
+}
+
+.graph-chunk {
+	margin-bottom: 3em;
+	& h4 {font-size: 18px !important;}
+
+	&.modal-graph {
+		align-self: center;
+    	margin-top: 1em;
+	}
+
+	& .dash-graph {
+		border: solid 1px;
+		box-shadow: 2px 2px 5px 1px rgb(0 0 0 / 70%);
+	}
 }
 
 .site-content {
@@ -111,29 +109,20 @@ label {
 				}
 			}
 	
-			& .graph-chunk {
-				margin-bottom: 3em;
-				& h4 {font-size: 18px !important;}
-	
-				& .dash-graph {
-					border: solid 1px;
-					box-shadow: 2px 2px 5px 1px rgb(0 0 0 / 70%);
-				}
-			}
-	
 			& .info-btn {
-				width: 25px;
-				height: 25px;
-				margin: 10px;
+				width: 15px;
+				height: 15px;
 				border-radius: 50%;
 				padding: 0;
-				
-				font-size: 8px;
 	
 				& i {
-					font-size: 10px;
+					font-size: 5px;
 				}
 			}
 		}
 	}
+}
+
+.modal-content {
+	background-color: root.$main-color-dim;
 }
