@@ -1,32 +1,18 @@
-#
-# Version: 0001
-# 
-# Version           Date            Developer               Description
-# ------------------------------------------------------------------------------------------------------
-# ==========        ===========     ================        ============================================
-# 0001              28/08/2021      jmvelez                 . Demand classifier creation
-# ==========        ===========     ================        ============================================
-# ------------------------------------------------------------------------------------------------------
-#
-
-## Libraries
-from dash_html_components import Label
-from dash_html_components.Data import Data
-from model import ModelManager as manager
+import numpy as np
 import pandas as pd
 import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
 
-import dash  # (version 1.12.0) pip install dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
+
 from sklearn.metrics import mean_squared_error as mse
 
-from styles import *
-from dataManager import *
 from mainDash import *
+from managers.modelManager import ModelManager
+from managers.dataManager import DataManager
 import dash_table
 
 demand_classificator = [
@@ -349,14 +335,14 @@ def generate_csv(n_nlicks):
         
 def graph_model(categoria,subcategoria,ref):
     df = DataManager().all_incorporated()
-    indexes, column_predicted = manager().get_data()
+    indexes, column_predicted = ModelManager().get_data()
     index, date_index, date_before, date_after = indexes
     ##recuperar datos
     max_index_known=df.tail(1).index[0]
     max_date_known=df.tail(1)['DATE']
     ##futuro
     data_future=DataManager().data_forecasting_2021()
-    data_future['CANTIDAD']=np.nan
+    data_future['CANTIDAD'] = np.nan
     df=pd.concat([df,data_future],axis=0)
     a = 'Pronostico General'
     df['PREDICTED'] = column_predicted

@@ -1,6 +1,4 @@
-from dash_html_components.P import P
-from numpy.lib.type_check import asfarray
-import plotly.express as px  # (version 4.7.0)
+import plotly.express as px 
 import plotly.graph_objects as go
 
 import dash_bootstrap_components as dbc
@@ -8,10 +6,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-from styles import *
-from dataManager import *
 from mainDash import *
-from datetime import date as dt
+from managers.dataManager import *
 
 ## ---------------------------------------------------------------------- ##
 ## ------------------------------- LAYOUT ------------------------------- ##

@@ -1,15 +1,7 @@
-##
-##
-## developer: JuanMa y Andres
-##
-##
-
-from typing import Container
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from styles import *
 
-from layout.controls import indicators_controls
+from views.layout.controls import indicators_controls
 
 top_menu = dbc.Navbar([
     html.H1('Furni', className='flex-field'),
