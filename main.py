@@ -66,6 +66,8 @@ def render_page_content(pathname):
             html.P(f"The pathname {pathname} was not recognised..."),
         ])
 
-## --------------------------- SERVER RUN ----------------------------- ##
+server = app.server
+"""
 if __name__ == '__main__':
     app.run_server(debug=True,use_reloader=True,dev_tools_hot_reload=False)
+    """
