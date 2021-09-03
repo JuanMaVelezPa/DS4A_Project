@@ -122,6 +122,7 @@ def update_on_refs(ref, categoria, subcategoria):
 
     df1 = df1.groupby(['DATE']).sum().reset_index()
     df2 = df2.groupby(['DATE']).sum().reset_index()
+    df1['PREDICTED'] = df1['PREDICTED'].round()
     df2['PREDICTED'] = df2['PREDICTED'].round()
     res_train = res_train.groupby(['REF','DATE']).sum().reset_index()
     res_test = res_test.groupby(['REF','DATE']).sum().reset_index()
@@ -143,7 +144,7 @@ def update_on_refs(ref, categoria, subcategoria):
         x0 = date_index, 
         x1 = df1['DATE'].sort_values(ascending=False).unique()[0],
         fillcolor = 'orange', 
-        opacity = 0.2, 
+        opacity = 0.1, 
         layer = "below", 
         line_width = 0
     )
