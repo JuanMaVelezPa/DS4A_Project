@@ -662,6 +662,7 @@ body {
 }
 
 .site-content {
+  height: 100vh;
   color: black;
   font-family: "Orkney Light";
   font-size: 15px;
@@ -695,7 +696,7 @@ body {
   left: 20vw;
   z-index: 0;
   width: 80vw;
-  height: 100vh;
+  height: 100%;
   padding: 20px;
   background-color: #c8c8c8;
   font-family: "Fira Code VF";
