@@ -60,6 +60,36 @@ subcat = dbc.FormGroup(
     ]
 )
 
+category_pred = dbc.FormGroup(
+    children=[
+        html.P('Categoria'),
+        dcc.Dropdown(id='dropdown_category_pred',
+            options=[
+                    {'label': i, 'value': i} for i in category_unique
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
+subcat_pred = dbc.FormGroup(
+    children=[
+        html.P('SubCategoria'),
+        dcc.Dropdown(id='dropdown_subcategory_pred',
+            options=[
+                    {'label': i, 'value': i} for i in subcategory_unique
+            ],
+            value=[],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
 ref = dbc.FormGroup(
     children=[
         html.P('Referencia'),
@@ -152,13 +182,67 @@ features_controls = html.Div(
     ]
 )
 
+# ---------------------------------------------------------------------- #
+# ---------------------------- CLASIFICATOR ---------------------------- #
+# ---------------------------------------------------------------------- #
+category_clasf = dbc.FormGroup(
+    children=[
+        html.P('Categoria'),
+        dcc.Dropdown(id='dropdown_category_clasf',
+            options=[
+                    {'label': i, 'value': i} for i in category_unique
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
+subcat_clasf = dbc.FormGroup(
+    children=[
+        html.P('SubCategoria'),
+        dcc.Dropdown(id='dropdown_subcategory_clasf',
+            options=[
+                    {'label': i, 'value': i} for i in subcategory_unique
+            ],
+            value=[],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
+calendar_clasf = dbc.FormGroup(
+    children=[
+        html.P('Calendar'),
+        dcc.DatePickerRange(
+            id='calendar_clasf',
+            with_portal=True,
+            first_day_of_week=1,
+            reopen_calendar_on_clear=True,
+            clearable=True,
+            min_date_allowed=dt(dateMin.year, dateMin.month, dateMin.day),
+            max_date_allowed=dt(2022, 12, 31),
+            initial_visible_month=dt(dateMin.year, dateMin.month, dateMin.day),
+            start_date=dt(2019, 1, 1),
+            end_date=dt(dateMax.year, dateMax.month, dateMax.day),
+            display_format='DD, MMM YY',
+            month_format='MMMM, YYYY',
+        ),
+        html.Br()
+    ]
+)
+
 demand_controls = html.Div(
     [
         html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
         html.Hr(),
-        category,
-        subcat,
-        calendar,
+        category_clasf,
+        subcat_clasf,
+        calendar_clasf,
         html.Hr()
     ],
     id="demand_controls"
@@ -167,8 +251,8 @@ demand_controls = html.Div(
 predict_controls = html.Div([
     html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
     html.Hr(),
-    category,
-    subcat,
+    category_pred,
+    subcat_pred,
     ref,
     html.Hr()
 ])
