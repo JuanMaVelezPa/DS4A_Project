@@ -227,7 +227,7 @@ def update_on_refs(ref, categoria, subcategoria):
     )
     fig.update_layout(
         width = 600,
-        height = 500,
+        height = 450,
         font_size = 10,
         margin=dict(t=25, l=10, r=10, b=10, pad=0),
         paper_bgcolor = '#c8c8c8',
