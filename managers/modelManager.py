@@ -59,7 +59,7 @@ class ModelManager(metaclass=SingletonMeta):
             print('Datos guardados')
 
         else:
-            print('cargando datos')
+            print('Cargando datos')
             with open('assets/model/model_data.txt', 'r') as file:
                 saved_data = json.loads(file.read())
                 file.close()
@@ -73,9 +73,6 @@ class ModelManager(metaclass=SingletonMeta):
             self.model = joblib.load('assets/model/model.pkl')
             print('Todo Cargó')
 
-
-
-
     def __select_data(self,data_id):
         if(data_id == 1):
             self.data = DataManager().sales_ref_month_sin_ventas_mayores()
@@ -87,6 +84,7 @@ class ModelManager(metaclass=SingletonMeta):
             self.data = DataManager().all_incorporated()
         elif(data_id == 5):
             self.data = DataManager().all_incorporated_lag() #ONLY FOR USE IN SPLIT MODE 2 and 3
+    
     def __split_data(self,mode_id):
         if mode_id==1:
             self.scaler = MinMaxScaler()
