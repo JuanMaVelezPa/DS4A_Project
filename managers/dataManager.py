@@ -289,8 +289,8 @@ class DataManager(metaclass=SingletonMeta):
         data = self.sales_ref_month_sin_ventas_mayores()
         data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
 
-        df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES','TIENDA'],values='CANTIDAD',aggfunc='sum').reset_index()
-        df = pd.melt(df,id_vars='REF')
+        df = data.pivot_table(index=['REF','TIENDA'],columns=['DATE','ANIO','MES'],values='CANTIDAD',aggfunc='sum').reset_index()
+        df = pd.melt(df,id_vars=['REF','TIENDA'])
 
         df = df.sort_values(['REF','DATE'])
         df = df.rename(columns={'value':'CANTIDAD'})
@@ -310,8 +310,8 @@ class DataManager(metaclass=SingletonMeta):
             data = self.sales_ref_month_sin_ventas_mayores()
             data['DATE'] = data['ANIO'].astype(str) + '-' + data['MES'].astype(str).str.zfill(2)
 
-            df = data.pivot_table(index='REF',columns=['DATE','ANIO','MES','TIENDA'],values='CANTIDAD',aggfunc='sum').reset_index()
-            df = pd.melt(df,id_vars='REF')
+            df = data.pivot_table(index=['REF','TIENDA'],columns=['DATE','ANIO','MES'],values='CANTIDAD',aggfunc='sum').reset_index()
+            df = pd.melt(df,id_vars=['REF','TIENDA'])
 
             df = df.sort_values(['REF','DATE'])
             df = df.rename(columns={'value':'CANTIDAD'})
@@ -348,12 +348,14 @@ class DataManager(metaclass=SingletonMeta):
                     df_lag['CANTIDAD_{}'.format(i+1)]=df_lag.groupby(['REF','TIENDA'])[['CANTIDAD']].shift(i+1)
                 return df_lag
             self.all_incorporated_lag_df=df_lag_generator(12).dropna().reset_index(drop=True)
+            for i in range(1,12):
+                self.all_incorporated_lag_df['Diff_{}'.format(i)]=(self.all_incorporated_lag_df['CANTIDAD_{}'.format(i)]-self.all_incorporated_lag_df['CANTIDAD_{}'.format(1+i)])
         return self.all_incorporated_lag_df
 
     
     def data_forecasting_2021(self):
         ##sacar productos descontinuados
-        aux=self.all_incorporated().query('VIGENCIA != "DESCONTINUADO"')
+        aux=self.all_incorporated()#.query('VIGENCIA != "DESCONTINUADO"')
         aux=aux.groupby(['REF','TIENDA']).agg({'PRECIO':'mean','DESCUENTO(%)':'mean','AREA':'first',
                                                     'ALTO':'first','PUESTOS':'first', 'COLOR_POS':'first', 
                                                     'SUBCATEGORIA_POS':'first','MATERIAL_POS':'first','ACABADO':'first',
@@ -371,5 +373,6 @@ class DataManager(metaclass=SingletonMeta):
         final_df_future['ANIO']=2021
         final_df_future['DATE'] = final_df_future['ANIO'].astype(str) + '-' +final_df_future['MES'].astype(str).str.zfill(2)
         return final_df_future.sort_values(['ANIO','MES']).reset_index(drop=True)
+    
     
     

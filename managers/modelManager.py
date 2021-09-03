@@ -3,10 +3,10 @@ import pandas as pd
 
 from sklearn import linear_model
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler,OneHotEncoder 
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
 import statsmodels.api as sm
 
 from managers.dataManager import *
@@ -85,7 +85,7 @@ class ModelManager(metaclass=SingletonMeta):
         elif(data_id == 4):
             self.data = DataManager().all_incorporated()
         elif(data_id == 5):
-            self.data = DataManager().all_incorporated_lag() #ONLY FOR USE IN SPLIT MODE 2
+            self.data = DataManager().all_incorporated_lag() #ONLY FOR USE IN SPLIT MODE 2 and 3
 
     def __split_data(self,mode_id):
         if mode_id==1:
@@ -129,8 +129,11 @@ class ModelManager(metaclass=SingletonMeta):
             self.x_test = self.x[self.index:self.max_index+1]
             self.y_test = y[self.index:]
             self.x_future=self.x[self.max_index+1:]
-        
-        if mode_id==2:
+
+
+
+        ## Now these splits are developed for the data with laggy variables
+        if mode_id==2: #for lagy CANTIDAD
             scaler = MinMaxScaler()
             
             num_var=['AREA','ALTO','DESCUENTO(%)','PRECIO']
@@ -160,18 +163,51 @@ class ModelManager(metaclass=SingletonMeta):
             self.x_test = self.x[self.index:]
             self.y_test = y[self.index:]
 
-            print(self.x_train.shape)
-            print(self.y_train.shape)
-            print(self.x_test.shape)
-            print(self.y_test.shape)
+        if mode_id==3: #for laggy DIFF
             
+            scaler = MinMaxScaler()
+            num_var=['AREA','ALTO','DESCUENTO(%)','PRECIO']
+            for i in range(1,12):
+                num_var.append('DIFF_{}'.format(i))
+            num_var.append('CANTIDAD')
+            x_num=self.data[num_var[:-1]].astype('float')
+            x_num_norm = scaler.fit_transform(x_num)
+
+            cat_var=[ 'MES','TIENDA', 'PUESTOS', 'COLOR_POS', 'SUBCATEGORIA_POS', 'F_COVID' ,
+                    'MATERIAL_POS','ACABADO','CATEGORIA','ORIGEN'
+                    #quitamos anio, vigencia y estilo-validado errro casi no cambia
+                ]
+            x_cat=self.data[cat_var].astype('category')
+            dummies = OneHotEncoder()
+            dummies.fit(x_cat)
+            x_cat_dummies=dummies.transform(x_cat)
+
+            self.x = np.append(x_num_norm,x_cat_dummies,axis=1)
+            y = self.data['CANTIDAD']
+            #Train till
+            self.index = self.data[(self.data.ANIO==2021)].index[0]
+            self.date_index=self.data[(self.data.ANIO==2021)]['DATE'].values[0]
+            self.date_before=self.data.iloc[index-1]['DATE']
+            self.date_after=self.data.iloc[index+1]['DATE']
+
+            self.x_train = self.x[:self.index]
+            self.y_train = y[:self.index]
+            self.x_test = self.x[self.index:]
+            self.y_test = y[self.index:]
+                            
     def __train_model(self,model_id):
         if(model_id == 1):
-            self.model = GradientBoostingRegressor(**{'learning_rate': 0.01, 'max_depth': 6, 'n_estimators': 200})
+            self.model = GradientBoostingRegressor(**{'learning_rate': 0.01, 'max_depth': 6, 'n_estimators': 200}) #best option but requires time to optimize...
             self.model.fit(self.x_train,self.y_train)
         elif(model_id == 2):
-            self.model = sm.OLS(self.y_train, sm.add_constant(self.x_train,has_constant='add'))
+            self.model = sm.OLS(self.y_train, sm.add_constant(self.x_train,has_constant='add'))# exploits in test_ needs L1 or L2 reg
             self.model=self.model.fit()
+        elif(model_id==3):
+            self.model=GridSearchCV(Lasso(), param_grid={'alpha': np.logspace(-3, 3, 10)},scoring='neg_mean_squared_error') #is better for small datasets: use if split is set to 2 or 3
+            self.model.fit(self.x_train,self.y_train)
+        elif(model_id==4):
+            self.model=GridSearchCV(Ridge(), param_grid={'alpha': np.logspace(-3, 3, 10)},scoring='neg_mean_squared_error')# is better for larger data sets: use in split 1
+            self.model.fit(self.x_train,self.y_train)
     
     def __predict_data(self,predict_id):
         if(predict_id==1):
