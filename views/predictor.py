@@ -244,7 +244,7 @@ def update_on_refs(ref, categoria, subcategoria):
     table_predictor = table_predictor.groupby(['REF','DATE','CATEGORIA','SUBCATEGORIA_POS','COLOR_POS','MATERIAL_POS','ACABADO','ORIGEN','AREA','ALTO','PUESTOS']).sum().reset_index()
     table_predictor['PREDICTED_ROUND'] = table_predictor['PREDICTED'].round()
     table_predictor = table_predictor[['REF','DATE','PREDICTED','PREDICTED_ROUND','CATEGORIA','SUBCATEGORIA_POS','COLOR_POS','MATERIAL_POS','ACABADO','ORIGEN','AREA','ALTO','PUESTOS']].sort_values(by=['DATE','PREDICTED_ROUND'], ascending=[True,False])
-        
+    print(table_predictor['CATEGORIA'].unique())
     exportTable = dash_table.DataTable(
         id = 'prediction-table',
         data = table_predictor.to_dict('records'),
@@ -288,8 +288,17 @@ def toggle_modal(n1, n2, is_open):
 
 ## FileDownload_Predictor
 @app.callback(Output("download_predictor", "data"),
-            [Input("download_predictor", "n_clicks")],
+            Input("download_predictor", "n_clicks"),
             prevent_initial_call=True,)
 
 def generate_csv(n_nlicks):
-    return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="pronostico.csv")
+    df = DataManager().all_incorporated_lag()
+    column_predicted = ModelManager().get_data()[1]
+    max_index_known = df.tail(1).index[0]
+    data_future = DataManager().data_forecasting_2021_lag()
+    data_future['CANTIDAD'] = np.nan
+    df=pd.concat([df,data_future],axis=0)
+    df['PREDICTED'] = column_predicted
+    df_future = df[max_index_known+1:]
+
+    return dcc.send_data_frame(df_future.to_csv, filename="pronostico.csv")
