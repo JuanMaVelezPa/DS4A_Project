@@ -135,8 +135,7 @@ def update_historic_sales_money_graph(data, start_date, end_date):
         labels = {'TOTAL':'Total ($)','MES':'Mes','ANIO':'',1:"Ene",2:"Feb",3:"Mar",4:"Abr",5:"May",6:"Jun",7:"Jul",8:"Ago",9:"Sep",10:"Oct",11:"Nov",12:"Dic"},
         height = 250,
         width = 500,
-        color_discrete_sequence=px.colors.qualitative.Vivid,
-        markers=True
+        color_discrete_sequence=px.colors.qualitative.Vivid
     )
     fig.update_layout(
         font_size = 10,
