@@ -132,7 +132,7 @@ class DataManager(metaclass=SingletonMeta):
 
     def __df_mat_mod(self,df,ref_materials):
         df['MATERIAL_POS'] = df['MATERIAL']
-        df['MATERIAL_POS'] = df.apply(lambda x: x['MATERIAL'] if x['MATERIAL'] in ref_materials.index else "otros",axis=1)
+        df['MATERIAL_POS'] = df.apply(lambda x: x['MATERIAL'] if x['MATERIAL'] in ref_materials.index else "OTROS",axis=1)
         return df
 
     def __init__(self):

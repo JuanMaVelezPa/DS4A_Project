@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from dataManager import *
-
 from sklearn import linear_model
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import MinMaxScaler, StandardScaler,OneHotEncoder 
@@ -11,13 +9,12 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 import statsmodels.api as sm
 
+from managers.dataManager import *
 
 import joblib
 import glob
 import json
-
 import time
-
 
 class ModelManager(metaclass=SingletonMeta):
     def __init__(self):

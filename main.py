@@ -8,14 +8,14 @@ from dash.dependencies import Input, Output, State
 
 from mainDash import *
 
-from layout.menus import top_menu, sidebar_menu
-from layout.controls import *
+from views.layout.menus import top_menu, sidebar_menu
+from views.layout.controls import *
 
 from views.indicators import *
 from views.features import *
 from views.demand import *
 
-from dataManager import *
+from managers.dataManager import *
 
 
 ## ---------------------------------------------------------------------- ##
