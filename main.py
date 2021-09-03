@@ -13,7 +13,8 @@ from views.layout.controls import *
 
 from views.indicators import *
 from views.features import *
-from views.demand import *
+from views.clasificator import *
+from views.predictor import *
 
 from managers.dataManager import *
 
@@ -54,9 +55,9 @@ def render_page_content(pathname):
     elif pathname == '/indicadores/caracteristicas':
         return features_controls, features
     elif pathname == '/demanda' or pathname == '/demanda/clasificador':
-        return demand_controls, demand_container
+        return demand_controls, classificator
     elif pathname == '/demanda/prediccion':
-        return predict_controls, demand_container
+        return predict_controls, predictor
     else:
         return [], dbc.Jumbotron(
         [
