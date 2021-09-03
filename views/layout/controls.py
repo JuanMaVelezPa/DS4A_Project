@@ -10,10 +10,16 @@ df = DataManager().sales_prod
 category_unique = df['CATEGORIA'].unique()
 subcategory_unique = df['SUBCATEGORIA_POS'].unique()
 tienda_unique = df['TIENDA'].unique()
-ref_unique = df['REF'].unique()
+ref_unique = df[['REF','DESCRIPCION']].copy()
+ref_unique.drop_duplicates(inplace=True)
+ref_unique['NAME'] = ref_unique.DESCRIPCION + '  (' + ref_unique.REF + ')'
 
 dateMin = DataManager().sales_prod["FECHA"].min()
 dateMax = DataManager().sales_prod["FECHA"].max()
+
+# ---------------------------------------------------------------------- #
+# ----------------------------- INDICATORS ----------------------------- #
+# ---------------------------------------------------------------------- #
 
 store = dbc.FormGroup(
     children=[
@@ -60,51 +66,6 @@ subcat = dbc.FormGroup(
     ]
 )
 
-category_pred = dbc.FormGroup(
-    children=[
-        html.P('Categoria'),
-        dcc.Dropdown(id='dropdown_category_pred',
-            options=[
-                    {'label': i, 'value': i} for i in category_unique
-            ],
-            value = [],
-            placeholder='Please select...',
-            multi=True,
-        ),
-        html.Br()
-    ]
-)
-
-subcat_pred = dbc.FormGroup(
-    children=[
-        html.P('SubCategoria'),
-        dcc.Dropdown(id='dropdown_subcategory_pred',
-            options=[
-                    {'label': i, 'value': i} for i in subcategory_unique
-            ],
-            value=[],
-            placeholder='Please select...',
-            multi=True,
-        ),
-        html.Br()
-    ]
-)
-
-ref = dbc.FormGroup(
-    children=[
-        html.P('Referencia'),
-        dcc.Dropdown(id='dropdown_ref',
-            options=[
-                    {'label': i, 'value': i} for i in ref_unique
-            ],
-            value=[],
-            placeholder='Please select...',
-            multi=True,
-        ),
-        html.Br()
-    ]
-)
-
 calendar = dbc.FormGroup(
     children=[
         html.P('Calendar'),
@@ -138,6 +99,10 @@ indicators_controls = html.Div(
     ],
     id="indicators_controls"
 )
+
+# ---------------------------------------------------------------------- #
+# ------------------------------ FEATURES ------------------------------ #
+# ---------------------------------------------------------------------- #
 
 features_controls = html.Div(
     [
@@ -185,6 +150,7 @@ features_controls = html.Div(
 # ---------------------------------------------------------------------- #
 # ---------------------------- CLASIFICATOR ---------------------------- #
 # ---------------------------------------------------------------------- #
+
 category_clasf = dbc.FormGroup(
     children=[
         html.P('Categoria'),
@@ -248,13 +214,62 @@ demand_controls = html.Div(
     id="demand_controls"
 )
 
+# ---------------------------------------------------------------------- #
+# ----------------------------- PREDICTOR ------------------------------ #
+# ---------------------------------------------------------------------- #
+
+category_pred = dbc.FormGroup(
+    children=[
+        html.P('Categoria'),
+        dcc.Dropdown(id='dropdown_category_pred',
+            options=[
+                    {'label': i, 'value': i} for i in category_unique
+            ],
+            value = [],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
+subcat_pred = dbc.FormGroup(
+    children=[
+        html.P('SubCategoria'),
+        dcc.Dropdown(id='dropdown_subcategory_pred',
+            options=[
+                    {'label': i, 'value': i} for i in subcategory_unique
+            ],
+            value=[],
+            placeholder='Please select...',
+            multi=True,
+        ),
+        html.Br()
+    ]
+)
+
+ref_pred = dbc.FormGroup(
+    children=[
+        html.P('Referencia'),
+        dcc.Dropdown(
+            id = 'dropdown_ref',
+            options = [
+                {'label': i, 'value': j} for i,j in zip(ref_unique.NAME, ref_unique.REF)
+            ],
+            value = [],
+            placeholder = 'Please select...',
+            multi = True,
+            optionHeight = 55,
+        ),
+        html.Br()
+    ]
+)
+
 predict_controls = html.Div([
     html.P('Por favor seleccionar los filtros para visualizar en las graficas'),
     html.Hr(),
     category_pred,
     subcat_pred,
-    ref,
+    ref_pred,
     html.Hr()
 ])
-
-inventory_controls = []

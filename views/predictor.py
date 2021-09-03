@@ -16,18 +16,16 @@ from managers.dataManager import DataManager
 import dash_table
 
 predictor = [
-    dbc.Col([
-        dbc.Row([
-                html.H3("Prediccion de Demanda", className='title'),
-            ],
-            className = 'flexy-row'
-        ),
-        html.Hr(),
-
-        dbc.Row([
-            dbc.Col(dcc.Graph(id='graph_prediction', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
-        ]),
-    ]),
+        dbc.Col([
+            html.H3("Prediccion de Demanda"),
+            dbc.Row([
+                    dbc.Col(dcc.Graph(id='graph_prediction', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
+                ],
+                className = 'graph-chunk'
+            ),
+        ],
+        className = 'predictor-content content-data'
+    ),
 ]
 
 ## Callback used to graph demand prediction accuracy graph
@@ -50,24 +48,20 @@ def graph_model(categoria,subcategoria,ref):
     data_future=DataManager().data_forecasting_2021_lag()
     data_future['CANTIDAD'] = np.nan
     df=pd.concat([df,data_future],axis=0)
-    a = 'Pronostico General'
     df['PREDICTED'] = column_predicted
     res_train = df[:index]
     res_test = df[index:max_index_known+1]
     #res_future=df[max_index_known+1:]
 
     if (len(categoria)>0):
-        a = 'Pronostico por Categoria'
         df = df.query('CATEGORIA == @categoria')
         #res_train = res_train.query('CATEGORIA == @categoria')
         #res_test = res_test.query('CATEGORIA == @categoria')
     if  (len(subcategoria)>0):
-        a = 'Pronostico por Subcategoria'
         df = df.query('SUBCATEGORIA_POS== @subcategoria')
         #res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
         #res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
     if (len(ref)>0):
-        a = 'Pronostico por Referencia'
         df = df.query('REF == @ref')
         #res_train = res_train.query('REF == @ref')
         #res_test = res_test.query('REF == @ref')
@@ -75,47 +69,71 @@ def graph_model(categoria,subcategoria,ref):
     df = df.groupby(['DATE']).sum().reset_index()
     
     fig = go.Figure()
+    
     fig.add_scatter(x=df['DATE'], y=df['PREDICTED'], mode='lines+markers', name='Valores predichos')
     fig.add_scatter(x=df['DATE'], y=df['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    
     fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="green", y0=0, y1=1.25)
-    fig.add_annotation(x='-'.join([date_after,'5']), y=1.18, yref="paper",
-                text="Test",
-                font=dict(family="Courier New, monospace",size=16,color="black"),
-                showarrow=True,
-                arrowhead=1,
-                ax=35,
-                ay=0,
-                xanchor="center",
-                yanchor="middle",)
-    fig.add_annotation(x='-'.join([date_before,'25']), y=1.18, yref="paper",
-                text="Train",
-                font=dict(family="Courier New, monospace",size=16,color="black"),
-                showarrow=True,
-                arrowhead=1,
-                ax=-40,
-                ay=0,
-                xanchor="center",
-                yanchor="middle",)
-
-    fig.add_annotation(x='-'.join([date_after,'31']), y=1.15, yref="paper",
-                text="RMSE:<br>{:.2f}".format(mse(res_test.PREDICTED,res_test.CANTIDAD,squared=False)),
-                font=dict(family="Courier New, monospace",size=16,color="black"),
-                showarrow=False,
-                ax=35,
-                ay=0,
-                )
-    fig.add_annotation(x='-'.join([date_before,'1']), y=1.15, yref="paper",
-                text="RMSE:<br>{:.2f}".format(mse(res_train.PREDICTED,res_train.CANTIDAD,squared=False)),
-                font=dict(family="Courier New, monospace",size=16,color="black"),
-                showarrow=False,
-                arrowhead=1,
-                ax=-40,
-                ay=0,
-                xanchor="center",)
+    
+    fig.add_annotation(
+        x='-'.join([date_after,'10']), 
+        y=1, 
+        yref="paper",
+        text="Test",
+        font=dict(family="Courier New, monospace",size=16,color="black"),
+        showarrow=True,
+        arrowhead=1,
+        ax=35,
+        ay=0,
+        xanchor="center",
+        yanchor="middle"
+    )
+    fig.add_annotation(
+        x='-'.join([date_before,'25']), 
+        y=1, 
+        yref="paper",
+        text="Train",
+        font=dict(family="Courier New, monospace",size=16,color="black"),
+        showarrow=True,
+        arrowhead=1,
+        ax=-40,
+        ay=0,
+        xanchor="center",
+        yanchor="middle"
+    )
+    fig.add_annotation(
+        x='-'.join([date_after,'31']), 
+        y=0.99, 
+        yref="paper",
+        text="RMSE:<br>{:.2f}".format(mse(res_test.PREDICTED,res_test.CANTIDAD,squared=False)),
+        font=dict(family="Courier New, monospace",size=16,color="black"),
+        showarrow=False,
+        ax=35,
+        ay=0,
+    )
+    fig.add_annotation(
+        x='-'.join([date_before,'1']), 
+        y=0.99, 
+        yref="paper",
+        text="RMSE:<br>{:.2f}".format(mse(res_train.PREDICTED,res_train.CANTIDAD,squared=False)),
+        font=dict(family="Courier New, monospace",size=16,color="black"),
+        showarrow=False,
+        arrowhead=1,
+        ax=-40,
+        ay=0,
+        xanchor="center"
+    )
     fig.update_layout(
-        title = a,
+        width = 900,
+        height = 400,
+        font_size = 10,
+        margin=dict(t=25, l=10, r=10, b=10, pad=0),
+        paper_bgcolor = '#c8c8c8',
+
         yaxis_title = "Número de ventas",
-        font=dict(family="Courier New, monospace",size=18,color="RebeccaPurple")
-        )
+    )
+
+    fig.update_layout(
+    )
 
     return fig
