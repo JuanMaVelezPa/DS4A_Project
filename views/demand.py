@@ -134,7 +134,26 @@ demand_predictor = [
         html.Hr(),
 
         dbc.Row([
-            dbc.Col(dcc.Graph(id='graph_prediction', figure={}),xs=12,sm=12,md=12,lg=12,xl=12)
+            dbc.Col(dcc.Graph(id='graph_prediction', figure={}),xs=12,sm=12,md=12,lg=12,xl=12),
+        ]),
+        dbc.Row([
+            dbc.Col(html.Hr()),
+        ]),
+        dbc.Row([
+            html.H5('Pronostico:'),
+        ]),
+        dbc.Row([
+            html.Br(),
+        ]),
+        dbc.Row([
+            dbc.Button("Descargar csv",id="download_predictor",outline=True, color="dark",n_clicks=0,),
+            dcc.Download(id='download_predictor')
+        ]),
+        dbc.Row([
+            html.Br(),
+        ]),
+        dbc.Row([
+            dbc.Col(html.Div(id='datatable2'),xs=12,sm=12,md=12,lg=12,xl=12)
         ]),
     ]),
 ]
@@ -316,17 +335,19 @@ def open_toast(n):
         return True
     return False
     
-## FileDownload
+## FileDownload_Discontinued
 @app.callback(Output("download", "data"),
             [Input("download_discontinued", "n_clicks")],
             prevent_initial_call=True,)
 
 def generate_csv(n_nlicks):
-    return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="discontinued.csv")
+    return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="descontinuados.csv")
+
 
 ## Callback used to graph demand prediction accuracy graph
 @app.callback(
     Output('graph_prediction', 'figure'),
+    Output('datatable2', 'children'),
     [Input('dropdown_category', 'value'),
      Input('dropdown_subcategory', 'value'),
      Input('dropdown_ref', 'value'),],
@@ -348,30 +369,49 @@ def graph_model(categoria,subcategoria,ref):
     df['PREDICTED'] = column_predicted
     res_train = df[:index]
     res_test = df[index:max_index_known+1]
-    #res_future=df[max_index_known+1:]
+
+    df1 = df[:max_index_known+1]
+    df2 = df[max_index_known+1:]
+    df2['PREDICTED'] = df2['PREDICTED'].round()
+    table_predictor = df2.copy()
 
     if (len(categoria)>0):
         a = 'Pronostico por Categoria'
-        df = df.query('CATEGORIA == @categoria')
-        #res_train = res_train.query('CATEGORIA == @categoria')
-        #res_test = res_test.query('CATEGORIA == @categoria')
+        df1 = df1.query('CATEGORIA == @categoria')
+        df2 = df2.query('CATEGORIA == @categoria')
+        res_train = res_train.query('CATEGORIA == @categoria')
+        res_test = res_test.query('CATEGORIA == @categoria')
     if  (len(subcategoria)>0):
         a = 'Pronostico por Subcategoria'
-        df = df.query('SUBCATEGORIA_POS== @subcategoria')
-        #res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
-        #res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
+        df1 = df1.query('SUBCATEGORIA_POS== @subcategoria')
+        df2 = df2.query('SUBCATEGORIA_POS== @subcategoria')
+        res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
+        res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
     if (len(ref)>0):
         a = 'Pronostico por Referencia'
-        df = df.query('REF == @ref')
-        #res_train = res_train.query('REF == @ref')
-        #res_test = res_test.query('REF == @ref')
+        df1 = df1.query('REF == @ref')
+        df2 = df2.query('REF == @ref')
+        res_train = res_train.query('REF == @ref')
+        res_test = res_test.query('REF == @ref')
+   
+    df1 = df1.groupby(['DATE']).sum().reset_index()
+    df2 = df2.groupby(['DATE']).sum().reset_index()
 
-    df = df.groupby(['DATE']).sum().reset_index()
-    
     fig = go.Figure()
-    fig.add_scatter(x=df['DATE'], y=df['PREDICTED'], mode='lines+markers', name='Valores predichos')
-    fig.add_scatter(x=df['DATE'], y=df['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    fig.add_scatter(x=df1['DATE'], y=df1['PREDICTED'], mode='lines+markers', name='Valores predichos')
+    fig.add_scatter(x=df1['DATE'], y=df1['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    fig.add_scatter(x=df2['DATE'], y=df2['PREDICTED'], mode='lines+markers', name='Valores futuros', 
+                    line_width=2, line_dash="dash", line_color="green")
+
     fig.add_vline(x=date_index, line_width=3, line_dash="dot", line_color="green", y0=0, y1=1.25)
+
+    # Add shape regions
+    fig.add_vrect(
+        x0=date_index, x1=df1['DATE'].sort_values(ascending=False).unique()[0],
+        fillcolor='rgb(184, 247, 212)', opacity=0.5, layer="below", line_width=0,
+    ),
+
+
     fig.add_annotation(x='-'.join([date_after,'5']), y=1.18, yref="paper",
                 text="Test",
                 font=dict(family="Courier New, monospace",size=16,color="black"),
@@ -392,14 +432,14 @@ def graph_model(categoria,subcategoria,ref):
                 yanchor="middle",)
 
     fig.add_annotation(x='-'.join([date_after,'31']), y=1.15, yref="paper",
-                text="RMSE:<br>{:.2f}".format(mse(res_test.PREDICTED,res_test.CANTIDAD,squared=False)),
+                text="RMSE:<br>{:.2f}".format(mse(res_test.CANTIDAD,res_test.PREDICTED,squared=False)),
                 font=dict(family="Courier New, monospace",size=16,color="black"),
                 showarrow=False,
                 ax=35,
                 ay=0,
                 )
     fig.add_annotation(x='-'.join([date_before,'1']), y=1.15, yref="paper",
-                text="RMSE:<br>{:.2f}".format(mse(res_train.PREDICTED,res_train.CANTIDAD,squared=False)),
+                text="RMSE:<br>{:.2f}".format(mse(res_train.CANTIDAD,res_train.PREDICTED,squared=False)),
                 font=dict(family="Courier New, monospace",size=16,color="black"),
                 showarrow=False,
                 arrowhead=1,
@@ -410,6 +450,41 @@ def graph_model(categoria,subcategoria,ref):
         title = a,
         yaxis_title = "Número de ventas",
         font=dict(family="Courier New, monospace",size=18,color="RebeccaPurple")
-        )
+        )         
 
-    return fig
+    table_predictor = table_predictor.groupby(['REF','DATE','CATEGORIA','SUBCATEGORIA_POS',
+                        'COLOR_POS','MATERIAL_POS','ACABADO','ORIGEN','AREA','ALTO','PUESTOS']).sum().reset_index()
+    table_predictor['PREDICTED_ROUND'] = table_predictor['PREDICTED'].round()
+    table_predictor =table_predictor[['REF','DATE','PREDICTED','PREDICTED_ROUND',
+                        'CATEGORIA','SUBCATEGORIA_POS','COLOR_POS','MATERIAL_POS',
+                        'ACABADO','ORIGEN','AREA','ALTO','PUESTOS']].sort_values(by=['DATE','PREDICTED_ROUND'], ascending=[True,False])
+        
+    exportTable = dash_table.DataTable(id='datatable2',data=table_predictor.to_dict('records'),
+                                    columns=[{'id': x, 'name': x} for x in table_predictor.columns],
+                                    sort_action='native',
+                                    page_size=20,
+                                    style_table={'height': '300px', 'overflowY': 'auto'},
+                                    style_as_list_view=True,
+                                    style_header={'backgroundColor': 'rgb(30, 30, 30)',
+                                                'color':'white',
+                                                'fontWeight': 'bold',
+                                                'font_size':13,
+                                                'textAlign': 'center'},
+                                    style_cell={
+                                        'backgroundColor': 'white',
+                                        'color': 'black',
+                                        'border': '1px solid grey',
+                                        'font_size':11},
+                                    style_cell_conditional=[{'textAlign': 'left'}],
+                                    style_data={ 'border': '1px solid grey', },
+                                    )               
+
+    return fig, exportTable
+
+## FileDownload_Predictor
+@app.callback(Output("download_predictor", "data"),
+            [Input("download_predictor", "n_clicks")],
+            prevent_initial_call=True,)
+
+def generate_csv(n_nlicks):
+    return dcc.send_data_frame(DataManager().discontinued.to_csv, filename="pronostico.csv")
