@@ -135,10 +135,14 @@ class DataManager(metaclass=SingletonMeta):
         df['MATERIAL_POS'] = df.apply(lambda x: x['MATERIAL'] if x['MATERIAL'] in ref_materials.index else "OTROS",axis=1)
         return df
 
-    def __init__(self):
-        stock = pd.read_csv('Data/ExistenciasNew.csv')
-        sales = pd.read_csv('Data/FacturacionCorregida.csv',parse_dates=['Fecha'],dayfirst=True ,sep=';')
-        products = pd.read_csv('Data/MaestroCorregido.csv', sep=';')
+    def __init__(self, isExternal=False):
+        if(isExternal == True):
+            path = '../'
+        else:
+            path = ''
+        stock = pd.read_csv(path+'Data/ExistenciasNew.csv')
+        sales = pd.read_csv(path+'Data/FacturacionCorregida.csv',parse_dates=['Fecha'],dayfirst=True ,sep=';')
+        products = pd.read_csv(path+'Data/MaestroCorregido.csv', sep=';')
 
         products = self.__clean_products(products)
         sales = self.__clean_sales(sales)
