@@ -20,16 +20,20 @@ from datetime import date as dt
 features = [
     dbc.Col([
             html.P('Mapas de calor de la relación existente entre la categorias o subcategorias y las diferentes características de los muebles'),
+            html.Hr(),
             dbc.Row([
-                    dbc.Col([
+                dbc.Col([
+                        html.H6('Unidades vendidas'),
                         dcc.Graph(id='heatmap_amount', figure={})
-                    ]),
-                    dbc.Col([
+                    ],className='graph-chunk'
+                ),
+                dbc.Col([
+                        html.H6('Ventas ($)'),
                         dcc.Graph(id='heatmap_money', figure={})
-                    ])
-                ],
-                className='graph-chunk'
-            )
+                    ],
+                    className='graph-chunk'
+                )
+            ])
         ],
         className = 'features-content content-data'
     ),
@@ -68,8 +72,8 @@ def update(filter, feature, start_date, end_date):
     x_names = x_values.unique()
     y_names = y_values.unique()
     
-    cross_tab = pd.crosstab(x_values, y_values).values.tolist()
-    group_by = data.groupby([x, y]).TOTAL.sum().unstack(fill_value=0).values.tolist()
+    cross_tab = pd.crosstab(y_values, x_values).values.tolist()
+    group_by = data.groupby([y,x]).TOTAL.sum().unstack(fill_value=0).values.tolist()
 
     map_amount = update_map_amount(x_names, y_names, cross_tab)
     map_money = update_map_money(x_names, y_names, group_by)
@@ -81,10 +85,15 @@ def update_map_amount(x_values, y_values, z_values):
             z = z_values,
             x = x_values,
             y = y_values,
-            hoverongaps = False
+            hoverongaps = False,
         ),
     )
+    fig.update_xaxes(
+        tickangle = 270,
+    )
     fig.update_layout(
+        width = 450,
+        height = 270,
         font_size = 10,
         margin=dict(t=20, l=10, r=10, b=10, pad=0),
         paper_bgcolor = '#c8c8c8'
@@ -97,8 +106,18 @@ def update_map_money(x_values, y_values, z):
             z = z,
             x = x_values,
             y = y_values,
-            hoverongaps = False
+            hoverongaps = False,
         ),
+    )
+    fig.update_xaxes(
+        tickangle = 270,
+    )
+    fig.update_layout(
+        width = 450,
+        height = 270,
+        font_size = 10,
+        margin=dict(t=20, l=10, r=10, b=10, pad=0),
+        paper_bgcolor = '#c8c8c8'
     )
 
     return fig
