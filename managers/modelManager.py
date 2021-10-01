@@ -25,17 +25,17 @@ class ModelManager(metaclass=SingletonMeta):
         
         if(len(loaded_model_file) == 0):
             print('Inició')
-            self.__select_data(5) #5 only for 2 and 3 split data and predict 3 always.
-            self.__split_data(3)
+            self.__select_data(6) #5 only for 2 and 3 split data and predict 3 always.
+            self.__split_data(4)
             
             print('Entrenando modelo')
             start = time.process_time()
-            self.__train_model(3)
+            self.__train_model(1)
             #choose 1 for GB, 2 for statsmodel LR, 3 for Lasso Model, 4 for Ridge Model
             print('Se demora entrenando; ' + str((time.process_time() - start)/60))
             print('Modelo entrenado')
             
-            self.__predict_data(3)
+            self.__predict_data(1)
             print('Datos predecidos')
 
             print('Guardando datos')
@@ -76,7 +76,7 @@ class ModelManager(metaclass=SingletonMeta):
 
     def __select_data(self,data_id):
         if(data_id == 1):
-            self.data = DataManager().sales_ref_month_sin_ventas_mayores()
+            self.data = DataManager().groupby_sales_no_outliers()
         elif(data_id == 2):
             self.data = DataManager().sales_accounting_zeroes()
         elif(data_id == 3):
@@ -85,6 +85,8 @@ class ModelManager(metaclass=SingletonMeta):
             self.data = DataManager().all_incorporated()
         elif(data_id == 5):
             self.data = DataManager().all_incorporated_lag() #ONLY FOR USE IN SPLIT MODE 2 and 3
+        elif(data_id == 6):
+            self.data, self.index = DataManager().all_auto_future()
     
     def __split_data(self,mode_id):
         if mode_id==1:
@@ -107,9 +109,8 @@ class ModelManager(metaclass=SingletonMeta):
             self.dummies.fit(x_cat)
             x_cat_dummies=self.dummies.transform(x_cat).toarray()
 
-            self.y = self.data['CANTIDAD']
-
             self.x = np.append(x_num_norm,x_cat_dummies,axis=1)
+            self.y = self.data['CANTIDAD']
             
             #split data till januar 2021 and future
             self.index = self.data[(self.data.ANIO==2021)].index[0]
@@ -196,12 +197,12 @@ class ModelManager(metaclass=SingletonMeta):
             self.y_train = self.y[:self.index]
             self.x_test = self.x[self.index:]
             self.y_test = self.y[self.index:]
-
-            
         
+        # Automatic future months data
+        if(mode_id == 4):
+            a = 0
 
 
-                            
     def __train_model(self,model_id):
         if(model_id == 1):
             self.model = GradientBoostingRegressor(**{'learning_rate': 0.01, 'max_depth': 6, 'n_estimators': 200}) #best option but requires time to optimize...
