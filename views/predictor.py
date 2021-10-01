@@ -233,7 +233,7 @@ def update_on_refs(ref, categoria, subcategoria):
         legend = dict(
             orientation="h",
             yanchor="bottom",
-            y=1.02,
+            y=1.04,
             xanchor="right",
             x=1,
         ),
