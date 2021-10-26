@@ -114,51 +114,59 @@ def update_on_subcat(subcat, cat):
     State('dropdown_subcategory_pred', 'value'),
 )
 def update_on_refs(ref, categoria, subcategoria):
-    df = DataManager().all_incorporated_lag()
-    indexes, column_predicted = ModelManager().get_data()
-    index, date_index, date_before, date_after = indexes
-    ##recuperar datos
-    max_index_known=df.tail(1).index[0]
-    max_date_known=df.tail(1)['DATE']
-    ##futuro
-    data_future=DataManager().data_forecasting_2021_lag()
-    data_future['CANTIDAD'] = np.nan
-    df=pd.concat([df,data_future],axis=0)
-    df['PREDICTED'] = column_predicted
-    res_train = df[:index]
-    res_test = df[index:max_index_known+1]
+    data_type = 3
+    if(data_type == 1):
+        data = DataManager().all_data()
+        data_fut = DataManager().data_forecasting_2021()
+        data = np.concat(data,data_fut,index=0)
+    elif(data_type == 2):
+        data = DataManager().all_data_lag()
+        data_fut = DataManager().data_forecasting_2021_lag()
+        np.concat(data,data_fut,index=0)
+    elif(data_type == 3):
+        data, index = DataManager().all_data_future_lag()
+        data_fut = data[-index:]
 
-    df_past = df[:max_index_known+1]
-    df_future = df[max_index_known+1:]
-    table_predictor = df_future.copy()
+    indexes, predicted = ModelManager(data_type,2,True,12,3,2).get_data()
+    index, date_index, date_before, date_after = indexes
+
+    ##futuro
+    data['PREDICTED'] = predicted
+    
+    past = data[:-index]
+    train = past[:int(len(past)*0.75)]
+    test = past[int(len(past)*0.75):]
+    fut = data[-index:]
+
+    table_predictor = fut.copy()
 
     if (len(categoria)>0):
-        df_past = df_past.query('CATEGORIA == @categoria')
-        df_future = df_future.query('CATEGORIA == @categoria')
-        res_train = res_train.query('CATEGORIA == @categoria')
-        res_test = res_test.query('CATEGORIA == @categoria')
+        past = past.query('CATEGORIA == @categoria')
+        fut = fut.query('CATEGORIA == @categoria')
+        train = train.query('CATEGORIA == @categoria')
+        test = test.query('CATEGORIA == @categoria')
     if  (len(subcategoria)>0):
-        df_past = df_past.query('SUBCATEGORIA_POS== @subcategoria')
-        df_future = df_future.query('SUBCATEGORIA_POS== @subcategoria')
-        res_train = res_train.query('SUBCATEGORIA_POS == @subcategoria')
-        res_test = res_test.query('SUBCATEGORIA_POS == @subcategoria')
+        past = past.query('SUBCATEGORIA_POS== @subcategoria')
+        fut = fut.query('SUBCATEGORIA_POS== @subcategoria')
+        train = train.query('SUBCATEGORIA_POS == @subcategoria')
+        test = test.query('SUBCATEGORIA_POS == @subcategoria')
     if (len(ref)>0):
-        df_past = df_past.query('REF == @ref')
-        df_future = df_future.query('REF == @ref')
-        res_train = res_train.query('REF == @ref')
-        res_test = res_test.query('REF == @ref')
+        past = past.query('REF == @ref')
+        fut = fut.query('REF == @ref')
+        train = train.query('REF == @ref')
+        test = test.query('REF == @ref')
 
-    df_past = df_past.groupby(['DATE']).sum().reset_index()
-    df_future = df_future.groupby(['DATE']).sum().reset_index()
-    df_past['PREDICTED'] = df_past['PREDICTED'].round()
-    df_future['PREDICTED'] = df_future['PREDICTED'].round()
-    res_train = res_train.groupby(['REF','DATE']).sum().reset_index()
-    res_test = res_test.groupby(['REF','DATE']).sum().reset_index()
+    past = past.groupby(['DATE']).sum().reset_index()
+    fut = fut.groupby(['DATE']).sum().reset_index()
+    past['PREDICTED'] = past['PREDICTED']#.round()
+    fut['PREDICTED'] = fut['PREDICTED']#.round()
+    res_train = train.groupby(['REF','DATE']).sum().reset_index()
+    res_test = test.groupby(['REF','DATE']).sum().reset_index()
     
     fig = go.Figure()
-    fig.add_scatter(x=df_past['DATE'], y=df_past['PREDICTED'], mode='lines+markers', name='Valores predichos', line_width=2, line_dash="dot")
-    fig.add_scatter(x=df_past['DATE'], y=df_past['CANTIDAD'], mode='lines+markers', name='Valores reales')
-    fig.add_scatter(x=df_future['DATE'], y=df_future['PREDICTED'], mode='lines+markers', name='Valores futuros', line_width=2, line_dash="dash", line_color="green")
+    fig.add_scatter(x=past['DATE'], y=past['PREDICTED'], mode='lines+markers', name='Valores predichos', line_width=2, line_dash="dot")
+    fig.add_scatter(x=past['DATE'], y=past['CANTIDAD'], mode='lines+markers', name='Valores reales')
+    fig.add_scatter(x=fut['DATE'], y=fut['PREDICTED'], mode='lines+markers', name='Valores futuros', line_width=2, line_dash="dash", line_color="green")
     
     fig.add_vline(
         x = date_index, 
@@ -170,7 +178,7 @@ def update_on_refs(ref, categoria, subcategoria):
     )
     fig.add_vrect( 
         x0 = date_index, 
-        x1 = df_past['DATE'].sort_values(ascending=False).unique()[0],
+        x1 = past['DATE'].sort_values(ascending=False).unique()[0],
         fillcolor = 'orange', 
         opacity = 0.1, 
         layer = "below", 
@@ -233,7 +241,7 @@ def update_on_refs(ref, categoria, subcategoria):
         legend = dict(
             orientation="h",
             yanchor="bottom",
-            y=1.02,
+            y=1.04,
             xanchor="right",
             x=1,
         ),
