@@ -20,11 +20,11 @@ To provide a consistent solution, we consider important to gather information th
 ```
 
 ## Installation 🔧
-###_Step 1_
+### _Step 1_
 
 Clone the project
 
-###_Step 2_
+### _Step 2_
 Open a console and run
 ```
 pip install -r requirements.txt
@@ -32,15 +32,15 @@ pip install -r requirements.txt
 
 ## Deployment 📦
 
-###_Step 1_
+### _Step 1_
 Open a console on the project's root folder
 
-###_Step 2_
+### _Step 2_
 On the console run
 ```
 python main.py
 ```
-###_Step 3_
+### _Step 3_
 Open your browser on http://localhost:8050/
 
 ## Built with 🛠️
